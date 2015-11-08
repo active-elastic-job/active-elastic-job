@@ -19,5 +19,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec'
   spec.add_development_dependency 'pry-byebug'
 
-  spec.add_dependency 'aws-sdk-core'
+  spec.add_dependency 'aws-sdk-core', '~> 2'
 end

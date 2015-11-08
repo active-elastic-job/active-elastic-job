@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     tbd (0.1.0)
-      aws-sdk-core
+      aws-sdk-core (~> 2)
 
 GEM
   remote: https://rubygems.org/
