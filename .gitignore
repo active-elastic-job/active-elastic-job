@@ -1,0 +1,13 @@
+*.gem
+*.rbc
+.bundle
+.config
+.yardoc
+*.bundle
+*.so
+*.swp
+*.swo
+*.o
+*.a
+.env
+.vagrant
