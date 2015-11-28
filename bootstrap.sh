@@ -1,6 +1,6 @@
 # The boostrap script is partly taken from the rails-dev-box project.
 # The original source file can be found here
-# https://github.com/rails/rails-dev-box/blob/2fcf12eee6ce2469d9988694dcaf07ab5c2c3524/bootstrap.sh 
+# https://github.com/rails/rails-dev-box/blob/2fcf12eee6ce2469d9988694dcaf07ab5c2c3524/bootstrap.sh
 #
 # As expressed by the copyright holder, the following copyright notice is
 # included.
@@ -50,5 +50,6 @@ echo installing Bundler
 gem install bundler -N >/dev/null 2>&1
 
 install Git git
+install zlib1g-dev zlib1g-dev
 
 update-locale LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8 LC_ALL=en_US.UTF-8
