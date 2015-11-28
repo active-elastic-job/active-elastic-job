@@ -1,15 +1,27 @@
 require 'spec_helper'
+require 'active_job'
+
+class TestJob < ActiveJob::Base
+  def perform(test_arg)
+    test_arg
+  end
+end
 
 describe ActiveJob::QueueAdapters::RailsEbJobAdapter do
+  subject(:adapter) { ActiveJob::QueueAdapters::RailsEbJobAdapter }
+
   let(:aws_client)  {
-    Aws::SQS::Client.new(stub_responses: true, credentials: credentials)
+    Aws::SQS::Client.new(stub_responses: true)
   }
+  let(:job) { TestJob.new }
 
   before do
-    aws_client.stub_responses(:get_queue_url, { queue_url: queue_url })
+    adapter.aws_client = aws_client
   end
 
-  it "enqueues jobs to Amazon Simple Queue Service queues" do
-    described_class.enqueue
+  describe ".enqueue" do
+    it "sends the serialized job as a message to an AWS SQS queue" do
+
+    end
   end
 end
