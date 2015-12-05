@@ -54,4 +54,10 @@ install zlib1g-dev zlib1g-dev
 install libsqlite3-dev libsqlite3-dev
 install nodejs nodejs
 
+# install Amazon EB CLI
+install python-dev python-dev
+curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
+python get-pip.py
+pip install awsebcli
+
 update-locale LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8 LC_ALL=en_US.UTF-8
