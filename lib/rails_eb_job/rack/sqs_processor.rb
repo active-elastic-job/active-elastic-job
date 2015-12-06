@@ -1,3 +1,5 @@
+require "action_dispatch"
+
 module RailsEbJob
   module Rack
     class SqsProcessor
@@ -6,6 +8,7 @@ module RailsEbJob
       end
 
       def call(env)
+        request = ActionDispatch::Request.new env
         @app.call(env)
       end
     end

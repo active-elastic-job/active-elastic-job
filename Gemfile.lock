@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    tbd (0.1.0)
+    rails_eb_job (0.1.0)
       aws-sdk-core (~> 2)
 
 GEM
@@ -141,8 +141,8 @@ DEPENDENCIES
   fuubar
   pry-byebug
   rails (~> 4.2)
+  rails_eb_job!
   rspec
-  tbd!
 
 BUNDLED WITH
    1.10.6
