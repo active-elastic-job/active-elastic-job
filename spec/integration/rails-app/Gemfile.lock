@@ -1,8 +1,8 @@
 PATH
-  remote: ../../../
+  remote: vendor/gems/rails_eb_job-current
   specs:
     rails_eb_job (0.1.0)
-      aws-sdk-core (~> 2)
+      aws-sdk (~> 2)
 
 GEM
   remote: https://rubygems.org/
@@ -43,8 +43,12 @@ GEM
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
     arel (6.0.3)
-    aws-sdk-core (2.1.30)
+    aws-sdk (2.2.4)
+      aws-sdk-resources (= 2.2.4)
+    aws-sdk-core (2.2.4)
       jmespath (~> 1.0)
+    aws-sdk-resources (2.2.4)
+      aws-sdk-core (= 2.2.4)
     binding_of_caller (0.7.2)
       debug_inspector (>= 0.0.1)
     builder (3.2.2)
