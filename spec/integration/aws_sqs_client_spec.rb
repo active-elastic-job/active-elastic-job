@@ -1,14 +1,16 @@
 require 'spec_helper'
 require 'digest'
 
+class TestJob < ActiveJob::Base
+  queue_as :high_priority
+
+  def perform(test_arg)
+    test_arg
+  end
+end
+
 describe Aws::SQS::Client do
-  subject(:aws_client)  {
-    Aws::SQS::Client.new(
-      access_key_id: ENV['AWS_ACCESS_KEY_ID'],
-      secret_access_key: ENV['AWS_SECRET_ACCESS_KEY'],
-      region: ENV['AWS_REGION']
-    )
-  }
+  subject(:aws_client)  { aws_sqs_client}
 
   it "is configured with valid credentials and region" do
     expect { aws_client.list_queues }.to_not raise_error
@@ -20,9 +22,9 @@ describe Aws::SQS::Client do
       response = aws_client.create_queue(queue_name: queue_name)
       response.queue_url
     end
-    let(:message_content) { "this is the content of the message" }
+    let(:message_content) { JSON.dump(TestJob.new.serialize) }
     let(:md5_digest) { Digest::MD5.hexdigest(message_content) }
-    
+
     describe "#send_message" do
       it "is successful" do
         response = aws_client.send_message(

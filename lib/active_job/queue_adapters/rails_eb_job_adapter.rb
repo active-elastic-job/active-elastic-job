@@ -8,7 +8,7 @@ module ActiveJob
           queue_url = aws_sqs_client.get_queue_url(queue_name: job.queue_name.to_s).queue_url
           aws_sqs_client.send_message(
             queue_url: queue_url,
-            message_body: job.serialize
+            message_body: JSON.dump(job.serialize)
           )
         end
 

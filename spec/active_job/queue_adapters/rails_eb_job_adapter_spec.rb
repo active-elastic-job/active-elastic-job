@@ -39,7 +39,7 @@ describe ActiveJob::QueueAdapters::RailsEbJobAdapter do
       allow(queue_url_resp).to receive(:queue_url) { queue_url }
       expected_args = {
         queue_url: queue_url,
-        message_body: job.serialize
+        message_body: JSON.dump(job.serialize)
       }
       expect(aws_sqs_client).to receive(:send_message).with(expected_args)
 
