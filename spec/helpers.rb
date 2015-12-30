@@ -1,7 +1,17 @@
 require 'fileutils'
 require 'aws-sdk'
+require 'open-uri'
+require 'active_job'
 
 module Helpers
+  class TestJob < ActiveJob::Base
+    queue_as :high_priority
+
+    def perform(test_arg)
+      test_arg
+    end
+  end
+
   def deploy
     Dir.chdir(root_dir) do
       build_gem do

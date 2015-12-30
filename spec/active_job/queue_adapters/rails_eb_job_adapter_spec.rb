@@ -1,13 +1,4 @@
 require 'spec_helper'
-require 'active_job'
-
-class TestJob < ActiveJob::Base
-  queue_as :high_priority
-
-  def perform(test_arg)
-    test_arg
-  end
-end
 
 describe ActiveJob::QueueAdapters::RailsEbJobAdapter do
   subject(:adapter) { ActiveJob::QueueAdapters::RailsEbJobAdapter }
@@ -15,7 +6,7 @@ describe ActiveJob::QueueAdapters::RailsEbJobAdapter do
   let(:aws_sqs_client)  {
     double("aws_sqs_client")
   }
-  let(:job) { TestJob.new }
+  let(:job) { Helpers::TestJob.new }
   let(:queue_url) { "http://some_url" }
   let(:queue_url_resp) { double("queue_url_resp") }
 
