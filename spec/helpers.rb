@@ -7,8 +7,10 @@ module Helpers
       build_gem do
         unpack_gem_into_vendor_dir
         Dir.chdir("spec/integration/rails-app") do
-          unless system("eb deploy")
-            raise "Could not deploy application"
+          [ 'web-env', 'worker-env' ].each do |env|
+            unless system("eb deploy #{env}")
+              raise "Could not deploy application to environment #{env}"
+            end
           end
         end
       end
