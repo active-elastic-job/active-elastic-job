@@ -4,6 +4,9 @@ require 'open-uri'
 require 'active_job'
 
 module Helpers
+  WEB_ENV_HOST = ENV['WEB_ENV_HOST']
+  WEB_ENV_PORT = ENV['WEB_ENV_PORT']
+
   class TestJob < ActiveJob::Base
     queue_as :high_priority
 
@@ -35,6 +38,31 @@ module Helpers
     )
   end
 
+  def create_job(random_string)
+    resp = Net::HTTP.post_form URI("http://#{WEB_ENV_HOST}:#{WEB_ENV_PORT}/jobs"),
+    { "random_string" => random_string }
+    resp.value
+    resp
+  end
+
+  def fetch_random_strings
+    resp = JSON.load(open("http://#{WEB_ENV_HOST}:#{WEB_ENV_PORT}/random_strings.json"))
+    resp.collect { |a| a["random_string"] }
+  end
+
+  def delete_random_string(random_string)
+    Net::HTTP.start(WEB_ENV_HOST, WEB_ENV_PORT) do |http|
+      http.delete("/random_strings/#{random_string}")
+    end
+  end
+
+  def create_random_string(random_string)
+    resp = Net::HTTP.post_form URI("http://#{WEB_ENV_HOST}:#{WEB_ENV_PORT}/random_strings"),
+    { "random_string" => random_string }
+    resp.value
+    resp
+  end
+
   private
 
   def build_gem
@@ -57,7 +85,9 @@ module Helpers
       raise "Could not unpack gem"
     end
     Dir.chdir(target_dir) do
-      system("mv rails_eb_job-#{gem_package_name} rails_eb_job-current")
+      unless system("rm -rf rails_eb_job-current") && system("mv #{gem_package_name} rails_eb_job-current")
+        raise "Could not move gem"
+      end
     end
   end
 
