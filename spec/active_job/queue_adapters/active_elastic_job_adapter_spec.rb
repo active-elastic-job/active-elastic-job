@@ -9,9 +9,11 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
   let(:job) { Helpers::TestJob.new }
   let(:queue_url) { "http://some_url" }
   let(:queue_url_resp) { double("queue_url_resp") }
+  let(:secret_key_base) { 's3krit' }
 
   before do
     adapter.aws_sqs_client= aws_sqs_client
+    allow(Rails.application).to receive(:secrets) { { secret_key_base: secret_key_base } }
   end
 
   describe ".enqueue" do
@@ -28,11 +30,7 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
     it "sends the serialized job as a message to an AWS SQS queue" do
       allow(aws_sqs_client).to receive(:create_queue) { queue_url_resp }
       allow(queue_url_resp).to receive(:queue_url) { queue_url }
-      expected_args = {
-        queue_url: queue_url,
-        message_body: JSON.dump(job.serialize)
-      }
-      expect(aws_sqs_client).to receive(:send_message).with(expected_args)
+      expect(aws_sqs_client).to receive(:send_message)
 
       adapter.enqueue job
     end

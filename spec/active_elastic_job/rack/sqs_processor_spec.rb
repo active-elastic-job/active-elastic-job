@@ -1,10 +1,16 @@
 require 'spec_helper'
 require 'rack/mock'
+require 'rails'
 
 describe ActiveElasticJob::Rack::SqsProcessor do
   let(:env) { Rack::MockRequest.env_for("http://example.com:8080/") }
   let(:app) { double("app") }
   let(:original_response) { double("original_response") }
+  let(:secret_key_base) { 's3krit' }
+
+  before do
+    allow(Rails.application).to receive(:secrets) { { secret_key_base: secret_key_base } }
+  end
 
   subject(:sqs_processor) { ActiveElasticJob::Rack::SqsProcessor.new(app) }
 
@@ -17,8 +23,11 @@ describe ActiveElasticJob::Rack::SqsProcessor do
     let(:job) { Helpers::TestJob.new('test') }
 
     before do
+      verifier = ActiveElasticJob::MessageVerifier.new(secret_key_base)
+      message_body = JSON.dump(job.serialize)
+      env['HTTP_X_AWS_SQSD_ATTR_MESSAGE_DIGEST'] = verifier.generate_digest(message_body)
       env['HTTP_USER_AGENT'] = 'aws-sqsd/1.1'
-      env['rack.input'] = StringIO.new(JSON.dump(job.serialize))
+      env['rack.input'] = StringIO.new(message_body)
     end
 
     it "intercepts request" do
@@ -28,6 +37,28 @@ describe ActiveElasticJob::Rack::SqsProcessor do
 
     it "performs the job" do
       expect(sqs_processor.call(env)[0]).to eq('200')
+    end
+
+    context "when digest is ommited" do
+      before do
+        env['HTTP_X_AWS_SQSD_ATTR_MESSAGE_DIGEST'] = nil
+      end
+
+      it "responds with a 403 status code" do
+        response = sqs_processor.call(env)
+        expect(response[0]).to eq('403')
+      end
+    end
+
+    context "when digest is forged" do
+      before do
+        env['HTTP_X_AWS_SQSD_ATTR_MESSAGE_DIGEST'] = 'forged'
+      end
+
+      it "responds with a 403 status code" do
+        response = sqs_processor.call(env)
+        expect(response[0]).to eq('403')
+      end
     end
 
     context "when job execution fails" do
