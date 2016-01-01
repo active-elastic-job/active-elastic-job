@@ -1,12 +1,12 @@
 require 'spec_helper'
 require 'rack/mock'
 
-describe RailsEbJob::Rack::SqsProcessor do
+describe ActiveElasticJob::Rack::SqsProcessor do
   let(:env) { Rack::MockRequest.env_for("http://example.com:8080/") }
   let(:app) { double("app") }
   let(:original_response) { double("original_response") }
 
-  subject(:sqs_processor) { RailsEbJob::Rack::SqsProcessor.new(app) }
+  subject(:sqs_processor) { ActiveElasticJob::Rack::SqsProcessor.new(app) }
 
   it "passes an ordinary request through" do
     expect(app).to receive(:call).with(env).and_return(original_response)

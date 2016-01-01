@@ -1,5 +1,5 @@
 class TestJob < ActiveJob::Base
-  queue_as :rails_eb_job_integration_testing
+  queue_as :active_elastic_job_integration_testing
 
   WEB_ENV_HOST = ENV['WEB_ENV_HOST']
   WEB_ENV_PORT = ENV['WEB_ENV_PORT']

@@ -1,1 +1,1 @@
-# rails-eb-job
+# active-elastic-job

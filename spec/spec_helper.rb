@@ -2,7 +2,7 @@ require 'bundler/setup'
 Bundler.setup
 
 require 'pry-byebug'
-require 'rails_eb_job'
+require 'active_elastic_job'
 
 require 'dotenv'
 Dotenv.load

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe ActiveJob::QueueAdapters::RailsEbJobAdapter do
-  subject(:adapter) { ActiveJob::QueueAdapters::RailsEbJobAdapter }
+describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
+  subject(:adapter) { ActiveJob::QueueAdapters::ActiveElasticJobAdapter }
 
   let(:aws_sqs_client)  {
     double("aws_sqs_client")
@@ -17,16 +17,16 @@ describe ActiveJob::QueueAdapters::RailsEbJobAdapter do
   describe ".enqueue" do
     it "selects the correct queue" do
       expected_args = { queue_name: job.queue_name.to_s }
-      expect(aws_sqs_client).to receive(:get_queue_url).with(expected_args)
+      expect(aws_sqs_client).to receive(:create_queue).with(expected_args)
 
-      allow(aws_sqs_client).to receive(:get_queue_url) { queue_url_resp }
+      allow(aws_sqs_client).to receive(:create_queue) { queue_url_resp }
       allow(queue_url_resp).to receive(:queue_url) { queue_url }
       allow(aws_sqs_client).to receive(:send_message) { }
       adapter.enqueue job
     end
 
     it "sends the serialized job as a message to an AWS SQS queue" do
-      allow(aws_sqs_client).to receive(:get_queue_url) { queue_url_resp }
+      allow(aws_sqs_client).to receive(:create_queue) { queue_url_resp }
       allow(queue_url_resp).to receive(:queue_url) { queue_url }
       expected_args = {
         queue_url: queue_url,

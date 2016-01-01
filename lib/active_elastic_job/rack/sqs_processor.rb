@@ -1,6 +1,6 @@
 require "action_dispatch"
 
-module RailsEbJob
+module ActiveElasticJob
   module Rack
     class SqsProcessor
       def initialize(app)

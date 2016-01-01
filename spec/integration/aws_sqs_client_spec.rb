@@ -17,7 +17,7 @@ describe Aws::SQS::Client do
   end
 
   describe "message dispatching" do
-    let(:queue_name) { "RailsEbJob-integration-testing" }
+    let(:queue_name) { "ActiveElasticJob-integration-testing" }
     let(:queue_url) do
       response = aws_client.create_queue(queue_name: queue_name)
       response.queue_url

@@ -66,7 +66,7 @@ module Helpers
   private
 
   def build_gem
-    unless system("gem build rails-eb-job.gemspec")
+    unless system("gem build active-elastic-job.gemspec")
       raise "Could not build gem package!"
     end
     begin
@@ -85,14 +85,14 @@ module Helpers
       raise "Could not unpack gem"
     end
     Dir.chdir(target_dir) do
-      unless system("rm -rf rails_eb_job-current") && system("mv #{gem_package_name} rails_eb_job-current")
+      unless system("rm -rf active_elastic_job-current") && system("mv #{gem_package_name} active_elastic_job-current")
         raise "Could not move gem"
       end
     end
   end
 
   def gem_package_name
-    "rails_eb_job-#{RailsEbJob::VERSION}"
+    "active_elastic_job-#{ActiveElasticJob::VERSION}"
   end
 
   def root_dir

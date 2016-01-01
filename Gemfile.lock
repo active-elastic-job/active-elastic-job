@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rails_eb_job (0.1.0)
+    active_elastic_job (0.1.0)
       aws-sdk (~> 2)
 
 GEM
@@ -140,12 +140,12 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  active_elastic_job!
   bundler
   dotenv
   fuubar
   pry-byebug
   rails (~> 4.2)
-  rails_eb_job!
   rspec (~> 3.4)
 
 BUNDLED WITH
