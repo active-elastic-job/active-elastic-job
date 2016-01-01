@@ -58,8 +58,5 @@ install nodejs nodejs
 install python-dev python-dev
 curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
 python get-pip.py
-pip install awsebcli
-
-install zip zip
-
-update-locale LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8 LC_ALL=en_US.UTF-8
+#pip install --upgrade pip
+sudo pip install awsebcli

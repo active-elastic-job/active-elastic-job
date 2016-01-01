@@ -1,0 +1,10 @@
+before_install:
+  - ./bootstrap.sh
+sudo: required
+language: ruby
+rvm:
+ - "2.0"
+ - "2.1"
+ - "2.2"
+
+script: SPEC_ALL=true bundle exec rspec spec
