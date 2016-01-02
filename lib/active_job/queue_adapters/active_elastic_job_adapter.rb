@@ -1,12 +1,25 @@
 module ActiveJob
   module QueueAdapters
+    # == Active Elastic Job adapter for Active Job
+    #
+    # Active Elastic Job provides (1) an adapter (this class) for Rails'
+    # Active Job framework and (2) a Rack middleware to process job requests,
+    # which are sent by the SQS daemon running in {Amazon Elastic Beanstalk worker
+    # environments}[http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html].
+    #
+    # This adapter serializes job objects and sends them as a message to an
+    # Amazon SQS queue specified by the job's queue name, see <tt>ActiveJob::Base.queue_as</tt>
+    #
+    # To use Active Elastic Job, set the queue_adapter config to +:active_elastic_job+.
+    #
+    #   Rails.application.config.active_job.queue_adapter = :active_elastic_job
     class ActiveElasticJobAdapter
       class << self
-        def enqueue(job)
+        def enqueue(job) #:nodoc:
           enqueue_at(job, Time.now)
         end
 
-        def enqueue_at(job, timestamp)
+        def enqueue_at(job, timestamp) #:nodoc:
           queue_url = aws_sqs_client.create_queue(queue_name: job.queue_name.to_s).queue_url
           message_body = JSON.dump(job.serialize)
           delay = (timestamp - Time.current.to_f).to_i + 1
