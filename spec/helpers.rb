@@ -38,9 +38,9 @@ module Helpers
     )
   end
 
-  def create_job(random_string)
+  def create_job(random_string, delay = 0)
     resp = Net::HTTP.post_form URI("http://#{WEB_ENV_HOST}:#{WEB_ENV_PORT}/jobs"),
-    { "random_string" => random_string }
+    { "random_string" => random_string, "delay" => delay }
     resp.value
     resp
   end

@@ -33,4 +33,24 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
       adapter.enqueue job
     end
   end
+
+  describe ".enqueue_at" do
+    let(:delay) { 2.minutes }
+    let(:timestamp) { Time.now + delay }
+
+    it "sends the seralized job as a message with a delay to match given timestamp" do
+      expect(aws_sqs_client).to receive(:send_message).with(hash_including(
+        delay_seconds: delay
+      ))
+      adapter.enqueue_at(job, timestamp)
+    end
+
+    context "when scheduled timestamp exceeds 15 minutes" do
+      let(:delay) { 16.minutes }
+
+      it "raises a RangeError" do
+        expect { adapter.enqueue_at(job, timestamp) }.to raise_error(RangeError)
+      end
+    end
+  end
 end
