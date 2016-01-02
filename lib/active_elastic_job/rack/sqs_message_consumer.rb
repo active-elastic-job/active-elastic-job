@@ -2,7 +2,7 @@ require "action_dispatch"
 
 module ActiveElasticJob
   module Rack
-    class SqsProcessor
+    class SqsMessageConsumer
       def initialize(app)
         @app = app
       end

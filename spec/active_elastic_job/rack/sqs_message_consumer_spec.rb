@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'rack/mock'
 require 'rails'
 
-describe ActiveElasticJob::Rack::SqsProcessor do
+describe ActiveElasticJob::Rack::SqsMessageConsumer do
   let(:env) { Rack::MockRequest.env_for("http://example.com:8080/") }
   let(:app) { double("app") }
   let(:original_response) { double("original_response") }
@@ -12,11 +12,11 @@ describe ActiveElasticJob::Rack::SqsProcessor do
     allow(Rails.application).to receive(:secrets) { { secret_key_base: secret_key_base } }
   end
 
-  subject(:sqs_processor) { ActiveElasticJob::Rack::SqsProcessor.new(app) }
+  subject(:sqs_message_consumer) { ActiveElasticJob::Rack::SqsMessageConsumer.new(app) }
 
   it "passes an ordinary request through" do
     expect(app).to receive(:call).with(env).and_return(original_response)
-    expect(sqs_processor.call(env)).to eq(original_response)
+    expect(sqs_message_consumer.call(env)).to eq(original_response)
   end
 
   context "when request produced by EB SQS daemon" do
@@ -32,11 +32,11 @@ describe ActiveElasticJob::Rack::SqsProcessor do
 
     it "intercepts request" do
       expect(app).not_to receive(:call).with(env)
-      sqs_processor.call(env)
+      sqs_message_consumer.call(env)
     end
 
     it "performs the job" do
-      expect(sqs_processor.call(env)[0]).to eq('200')
+      expect(sqs_message_consumer.call(env)[0]).to eq('200')
     end
 
     context "when digest is ommited" do
@@ -45,7 +45,7 @@ describe ActiveElasticJob::Rack::SqsProcessor do
       end
 
       it "responds with a 403 status code" do
-        response = sqs_processor.call(env)
+        response = sqs_message_consumer.call(env)
         expect(response[0]).to eq('403')
       end
     end
@@ -56,7 +56,7 @@ describe ActiveElasticJob::Rack::SqsProcessor do
       end
 
       it "responds with a 403 status code" do
-        response = sqs_processor.call(env)
+        response = sqs_message_consumer.call(env)
         expect(response[0]).to eq('403')
       end
     end
@@ -69,7 +69,7 @@ describe ActiveElasticJob::Rack::SqsProcessor do
       end
 
       it "responds with a 500 error code" do
-        response = sqs_processor.call(env)
+        response = sqs_message_consumer.call(env)
         expect(response[0]).to eq('500')
         expect(response[2][0]).to eq(error_message)
       end
