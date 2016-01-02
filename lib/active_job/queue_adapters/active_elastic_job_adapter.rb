@@ -2,8 +2,6 @@ module ActiveJob
   module QueueAdapters
     class ActiveElasticJobAdapter
       class << self
-        attr_writer :aws_sqs_client
-
         def enqueue(job)
           enqueue_at(job, Time.now)
         end
@@ -37,7 +35,7 @@ module ActiveJob
         private
 
         def aws_sqs_client
-          @aws_sqs_client ||= Aws::SQS::Client.new(
+          Aws::SQS::Client.new(
             access_key_id: ENV['AWS_ACCESS_KEY_ID'],
             secret_access_key: ENV['AWS_SECRET_ACCESS_KEY'],
             region: ENV['AWS_REGION']

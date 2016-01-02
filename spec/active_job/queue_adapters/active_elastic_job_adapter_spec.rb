@@ -12,7 +12,7 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
   let(:secret_key_base) { 's3krit' }
 
   before do
-    adapter.aws_sqs_client= aws_sqs_client
+    allow(Aws::SQS::Client).to receive(:new) { aws_sqs_client }
     allow(Rails.application).to receive(:secrets) { { secret_key_base: secret_key_base } }
     allow(aws_sqs_client).to receive(:create_queue) { queue_url_resp }
     allow(queue_url_resp).to receive(:queue_url) { queue_url }
