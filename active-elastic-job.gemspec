@@ -10,13 +10,16 @@ Gem::Specification.new do |spec|
   spec.version       = ActiveElasticJob::VERSION
   spec.authors       = ['Tawan Sierek']
   spec.email         = ['tawan@sierek.com']
-  spec.description = spec.summary = %q()
+  spec.description   = 'Active Elastic Job is a simple to use Active Job backend for Rails applications deployed on the Amazon Elastic Beanstalk platform.'
+  spec.summary       = spec.description
   spec.license       = 'MIT'
 
   spec.files         = Dir.glob('lib/**/*') + [ 'active-elastic-job.gemspec' ]
   spec.executables   = []
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ['lib']
+
+  spec.required_ruby_version = '>= 2.0'
 
   spec.add_development_dependency 'bundler'
   spec.add_development_dependency 'rspec', '~> 3.4'
