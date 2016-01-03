@@ -13,6 +13,7 @@ Gem::Specification.new do |spec|
   spec.description   = 'Active Elastic Job is a simple to use Active Job backend for Rails applications deployed on the Amazon Elastic Beanstalk platform.'
   spec.summary       = spec.description
   spec.license       = 'MIT'
+  spec.homepage      = 'https://github.com/tawan/active-elastic-job'
 
   spec.files         = Dir.glob('lib/**/*') + [ 'active-elastic-job.gemspec' ]
   spec.executables   = []
