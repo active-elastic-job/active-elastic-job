@@ -1,7 +1,6 @@
 require 'bundler/setup'
 Bundler.setup
 
-require 'pry-byebug'
 require 'active_elastic_job'
 
 require 'dotenv'
