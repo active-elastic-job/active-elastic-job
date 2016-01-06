@@ -29,7 +29,7 @@ module ActiveJob
              See http://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_SendMessage.html
              for further details!
             MSG
-            raise RangeError, 'The maximum allowed delay is 15 minutes' if delay > 15.minutes
+            raise RangeError, msg if delay > 15.minutes
           end
 
           aws_sqs_client.send_message(
