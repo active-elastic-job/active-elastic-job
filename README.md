@@ -31,10 +31,6 @@ This gem allows Rails applications which run in Elastic Beanstalk environments t
   * Stay logged in and select the _Elastic Beanstalk_ option from the services menu.
   * Select your application, click the _Actions_ button and select **Launch New Environment**.
   * Click the **create worker** button, select the identical platform that you had chosen for your web environment.
-  * Fill out the following forms and make sure to add three environment tags once you reached the **Environment Tags** form:
-    * add **AWS_ACCESS_KEY_ID** and set it to _access key id_ of the newly created user (step 3),
-    * add **AWS_SECRET_ACCESS_KEY** and set it to the _secret access key_ of the newly created user (step 3),
-    * add **AWS_REGION** and set it to the _region_ of the SQS queue, created in step 2.
   * In the _Worker Details_ form, select the queue, that you created in step 2, as the worker queue, leave the MIME type to application/json.
 5. Configure Active Elastic Job as the queue adapter:
 
@@ -47,8 +43,10 @@ This gem allows Rails applications which run in Elastic Beanstalk environments t
   end
   ```
 6. Add three environment variables to the web environment
-  * Select the web environment that is currently hosting your application and open the _Software Configuration_ settings.
-  * Add the same three environment variables that you have added in step 4 to the worker environment.
+  * Select the web environment that is currently hosting your application and open the _Software Configuration_ settings:
+    * add **AWS_ACCESS_KEY_ID** and set it to _access key id_ of the newly created user (from step 3),
+    * add **AWS_SECRET_ACCESS_KEY** and set it to the _secret access key_ of the newly created user (step 3),
+    * add **AWS_REGION** and set it to the _region_ of the SQS queue, created in step 2.
 7. Create an Active Job class:
 
   ```Bash
