@@ -3,6 +3,7 @@ PATH
   specs:
     active_elastic_job (1.1.0)
       aws-sdk (~> 2)
+      rails (~> 4.2)
 
 GEM
   remote: https://rubygems.org/
@@ -135,7 +136,6 @@ DEPENDENCIES
   bundler
   dotenv
   fuubar
-  rails (~> 4.2)
   rdoc
   rspec (~> 3.4)
 
