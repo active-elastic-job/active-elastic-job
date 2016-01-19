@@ -14,6 +14,18 @@ module ActiveJob
     #
     #   Rails.application.config.active_job.queue_adapter = :active_elastic_job
     class ActiveElasticJobAdapter
+      MAX_MESSAGE_SIZE = (256 * 1024)
+
+      class SerializedJobTooBig < StandardError
+        def initialize(serialized_job)
+          msg = <<-MSG
+The job contains #{serialized_job.bytesize} bytes in its serialzed form,
+which exceeds the allowed maximum of #{MAX_MESSAGE_SIZE} bytes imposed by Amazon SQS.
+          MSG
+          super msg
+        end
+      end
+
       class << self
         def enqueue(job) #:nodoc:
           enqueue_at(job, Time.now)
@@ -21,14 +33,15 @@ module ActiveJob
 
         def enqueue_at(job, timestamp) #:nodoc:
           queue_url = aws_sqs_client.create_queue(queue_name: job.queue_name.to_s).queue_url
-          message_body = JSON.dump(job.serialize)
+          serialized_job = JSON.dump(job.serialize)
+          check_job_size!(serialized_job)
           aws_sqs_client.send_message(
             queue_url: queue_url,
-            message_body: message_body,
+            message_body: serialized_job,
             delay_seconds: calculate_delay(timestamp),
             message_attributes: {
               "message_digest" => {
-                string_value: message_digest(message_body),
+                string_value: message_digest(serialized_job),
                 data_type: "String"
               }
             }
@@ -48,6 +61,12 @@ for further details!
             raise RangeError, msg if delay > 15.minutes
           end
           delay
+        end
+
+        def check_job_size!(serialized_job)
+          if serialized_job.bytesize > MAX_MESSAGE_SIZE
+            raise SerializedJobTooBig, serialized_job
+          end
         end
 
         def aws_sqs_client

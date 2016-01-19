@@ -32,6 +32,25 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
 
       adapter.enqueue job
     end
+
+    context "when serialized job exeeds 256KB" do
+      let(:exceeds_max_size) { 266 * 1024 }
+      let(:arg) do
+        arg = "x"
+        exceeds_max_size.times do
+          arg << "x"
+        end
+        arg
+      end
+      let(:job) { Helpers::TestJob.new(arg) }
+
+      it "raises a SerializedJobTooBig error" do
+        exptected_error = ActiveJob::QueueAdapters::ActiveElasticJobAdapter::SerializedJobTooBig
+        expect do
+          adapter.enqueue(job)
+        end.to raise_error(exptected_error)
+      end
+    end
   end
 
   describe ".enqueue_at" do

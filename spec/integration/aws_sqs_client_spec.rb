@@ -34,6 +34,27 @@ describe Aws::SQS::Client do
 
         expect(response.md5_of_message_body).to match(md5_digest)
       end
+
+      context "when message size exeeds 256 KB" do
+        let(:exceeds_max_size) { 266 * 1024 }
+        let(:message_content) do
+          body = "x"
+          exceeds_max_size.times do
+            body << "x"
+          end
+          JSON.dump(body)
+        end
+
+        it "raises an error" do
+          expect(message_content.bytesize).to be >= exceeds_max_size
+          expect do
+            response = aws_client.send_message(
+              message_body: message_content,
+              queue_url: queue_url
+            )
+          end.to raise_error(Aws::SQS::Errors::InvalidParameterValue)
+        end
+      end
     end
   end
 end
