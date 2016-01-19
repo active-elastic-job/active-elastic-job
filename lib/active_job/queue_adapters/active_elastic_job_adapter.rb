@@ -22,20 +22,10 @@ module ActiveJob
         def enqueue_at(job, timestamp) #:nodoc:
           queue_url = aws_sqs_client.create_queue(queue_name: job.queue_name.to_s).queue_url
           message_body = JSON.dump(job.serialize)
-          delay = (timestamp - Time.current.to_f).to_i + 1
-          if delay > 15.minutes
-            msg =<<-MSG
-             Jobs cannot be scheduled more than 15 minutes into the future.
-             See http://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_SendMessage.html
-             for further details!
-            MSG
-            raise RangeError, msg if delay > 15.minutes
-          end
-
           aws_sqs_client.send_message(
             queue_url: queue_url,
             message_body: message_body,
-            delay_seconds: delay,
+            delay_seconds: calculate_delay(timestamp),
             message_attributes: {
               "message_digest" => {
                 string_value: message_digest(message_body),
@@ -46,6 +36,19 @@ module ActiveJob
         end
 
         private
+
+        def calculate_delay(timestamp)
+          delay = (timestamp - Time.current.to_f).to_i + 1
+          if delay > 15.minutes
+            msg =<<-MSG
+Jobs cannot be scheduled more than 15 minutes into the future.
+See http://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_SendMessage.html
+for further details!
+            MSG
+            raise RangeError, msg if delay > 15.minutes
+          end
+          delay
+        end
 
         def aws_sqs_client
           Aws::SQS::Client.new(
