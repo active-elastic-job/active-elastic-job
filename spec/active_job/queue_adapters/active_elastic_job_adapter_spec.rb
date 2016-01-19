@@ -1,5 +1,9 @@
 require 'spec_helper'
 
+class StubbedError < Aws::SQS::Errors::NonExistentQueue
+  def initialize; end;
+end
+
 describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
   subject(:adapter) { ActiveJob::QueueAdapters::ActiveElasticJobAdapter }
 
@@ -14,7 +18,7 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
   before do
     allow(Aws::SQS::Client).to receive(:new) { aws_sqs_client }
     allow(Rails.application).to receive(:secrets) { { secret_key_base: secret_key_base } }
-    allow(aws_sqs_client).to receive(:create_queue) { queue_url_resp }
+    allow(aws_sqs_client).to receive(:get_queue_url) { queue_url_resp }
     allow(queue_url_resp).to receive(:queue_url) { queue_url }
     allow(aws_sqs_client).to receive(:send_message) { }
   end
@@ -22,7 +26,7 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
   describe ".enqueue" do
     it "selects the correct queue" do
       expected_args = { queue_name: job.queue_name.to_s }
-      expect(aws_sqs_client).to receive(:create_queue).with(expected_args)
+      expect(aws_sqs_client).to receive(:get_queue_url).with(expected_args)
 
       adapter.enqueue job
     end
@@ -46,6 +50,19 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
 
       it "raises a SerializedJobTooBig error" do
         exptected_error = ActiveJob::QueueAdapters::ActiveElasticJobAdapter::SerializedJobTooBig
+        expect do
+          adapter.enqueue(job)
+        end.to raise_error(exptected_error)
+      end
+    end
+
+    context "when queue does not exist" do
+      before do
+        aws_sqs_client.stub(:get_queue_url) { raise StubbedError }
+      end
+
+      it "raises NonExistentQueue error" do
+        exptected_error = ActiveJob::QueueAdapters::ActiveElasticJobAdapter::NonExistentQueue
         expect do
           adapter.enqueue(job)
         end.to raise_error(exptected_error)

@@ -16,11 +16,40 @@ module ActiveJob
     class ActiveElasticJobAdapter
       MAX_MESSAGE_SIZE = (256 * 1024)
 
-      class SerializedJobTooBig < StandardError
+      class Error < StandardError; end;
+
+      class SerializedJobTooBig < Error
         def initialize(serialized_job)
           msg = <<-MSG
 The job contains #{serialized_job.bytesize} bytes in its serialzed form,
 which exceeds the allowed maximum of #{MAX_MESSAGE_SIZE} bytes imposed by Amazon SQS.
+          MSG
+          super msg
+        end
+      end
+
+      # Raised when job queue does not exist. The job queue is determined
+      # <tt>ActiveJob::Base.queue_as</tt>. You can either: (1) create a new Amazon
+      # SQS queue and attach a worker enviroment to it, or (2) select a different
+      # queue for your jobs.
+      #
+      # Example:
+      #  * Open your AWS console and create an SQS queue named +high_priority+ in
+      #    the same AWS region of your Elastic Beanstalk environments.
+      #  * Queue your jobs accordingly:
+      #
+      #  class MyJob < ActiveJob::Base
+      #    queue_as :high_priority
+      #    #..
+      #  end
+      class NonExistentQueue < Error
+        def initialize(job)
+          msg = <<-MSG
+The job is bound to queue at #{job.queue_name}. Unfortunately a queue
+with this name does not exist in this region. Either create an Amazon SQS queue
+named #{job.queue_name} - you can do this in AWS console, make sure to select
+region '#{ENV['AWS_REGION']}' - or you select another queue for
+#{job.class.name} jobs.
           MSG
           super msg
         end
@@ -32,7 +61,13 @@ which exceeds the allowed maximum of #{MAX_MESSAGE_SIZE} bytes imposed by Amazon
         end
 
         def enqueue_at(job, timestamp) #:nodoc:
-          queue_url = aws_sqs_client.create_queue(queue_name: job.queue_name.to_s).queue_url
+          queue_url = nil
+          begin
+            resp = aws_sqs_client.get_queue_url(queue_name: job.queue_name.to_s)
+            queue_url = resp.queue_url
+          rescue Aws::SQS::Errors::NonExistentQueue => e
+            raise NonExistentQueue, job
+          end
           serialized_job = JSON.dump(job.serialize)
           check_job_size!(serialized_job)
           aws_sqs_client.send_message(

@@ -56,5 +56,16 @@ describe Aws::SQS::Client do
         end
       end
     end
+
+    describe "#get_queue_url" do
+      context "when queue does not exist" do
+        let(:queue_name) { "not_existing_queue" }
+        it "raises error" do
+          expect do
+            aws_client.get_queue_url(queue_name: queue_name)
+          end.to raise_error(Aws::SQS::Errors::NonExistentQueue)
+        end
+      end
+    end
   end
 end
