@@ -18,6 +18,8 @@ module ActiveJob
 
       class Error < StandardError; end;
 
+      # Raised when job exceeds 256 KB in its serialized form. The limit is
+      # imposed by Amazon SQS.
       class SerializedJobTooBig < Error
         def initialize(serialized_job)
           msg = <<-MSG
@@ -28,15 +30,15 @@ which exceeds the allowed maximum of #{MAX_MESSAGE_SIZE} bytes imposed by Amazon
         end
       end
 
-      # Raised when job queue does not exist. The job queue is determined
+      # Raised when job queue does not exist. The job queue is determined by
       # <tt>ActiveJob::Base.queue_as</tt>. You can either: (1) create a new Amazon
-      # SQS queue and attach a worker enviroment to it, or (2) select a different
+      # SQS queue and attach a worker environment to it, or (2) select a different
       # queue for your jobs.
       #
       # Example:
-      #  * Open your AWS console and create an SQS queue named +high_priority+ in
-      #    the same AWS region of your Elastic Beanstalk environments.
-      #  * Queue your jobs accordingly:
+      # * Open your AWS console and create an SQS queue named +high_priority+ in
+      #   the same AWS region of your Elastic Beanstalk environments.
+      # * Queue your jobs accordingly:
       #
       #  class MyJob < ActiveJob::Base
       #    queue_as :high_priority
