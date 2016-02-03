@@ -13,7 +13,7 @@ module ActiveElasticJob
       @secret = secret
     end
 
-    def verify(message, digest)
+    def verify!(message, digest)
       if message.nil? || message.blank? || digest.nil? || digest.blank?
         raise InvalidDigest
       end
