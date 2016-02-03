@@ -14,10 +14,12 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
   let(:queue_url) { "http://some_url" }
   let(:queue_url_resp) { double("queue_url_resp") }
   let(:secret_key_base) { 's3krit' }
+  let(:rails_app) { double("rails_app") }
 
   before do
     allow(Aws::SQS::Client).to receive(:new) { aws_sqs_client }
-    allow(Rails.application).to receive(:secrets) { { secret_key_base: secret_key_base } }
+    allow(Rails).to receive(:application) { rails_app }
+    allow(rails_app).to receive(:secrets) { { secret_key_base: secret_key_base } }
     allow(aws_sqs_client).to receive(:get_queue_url) { queue_url_resp }
     allow(queue_url_resp).to receive(:queue_url) { queue_url }
     allow(aws_sqs_client).to receive(:send_message) { }
@@ -58,7 +60,7 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
 
     context "when queue does not exist" do
       before do
-        aws_sqs_client.stub(:get_queue_url) { raise StubbedError }
+        allow(aws_sqs_client).to receive(:get_queue_url) { raise StubbedError }
       end
 
       it "raises NonExistentQueue error" do

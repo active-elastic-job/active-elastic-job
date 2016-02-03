@@ -7,9 +7,11 @@ describe ActiveElasticJob::Rack::SqsMessageConsumer do
   let(:app) { double("app") }
   let(:original_response) { double("original_response") }
   let(:secret_key_base) { 's3krit' }
+  let(:rails_app) { double("rails_app") }
 
   before do
-    allow(Rails.application).to receive(:secrets) { { secret_key_base: secret_key_base } }
+    allow(Rails).to receive(:application) { rails_app }
+    allow(rails_app).to receive(:secrets) { { secret_key_base: secret_key_base } }
   end
 
   subject(:sqs_message_consumer) { ActiveElasticJob::Rack::SqsMessageConsumer.new(app) }
