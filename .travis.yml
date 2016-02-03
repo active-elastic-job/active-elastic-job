@@ -9,5 +9,4 @@ rvm:
  - "2.2"
 
 script:
-   - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && SPEC_ALL=true bundle exec rspec spec || true'
-   - '[ "${TRAVIS_PULL_REQUEST}" = "true" ] && SPEC_ALL=false bundle exec rspec spec || true'
+   - 'SPEC_ALL=${TRAVIS_PULL_REQUEST} bundle exec rspec spec'
