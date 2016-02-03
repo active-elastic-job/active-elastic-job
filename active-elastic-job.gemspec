@@ -10,8 +10,8 @@ Gem::Specification.new do |spec|
   spec.version       = ActiveElasticJob::VERSION
   spec.authors       = ['Tawan Sierek']
   spec.email         = ['tawan@sierek.com']
-  spec.description   = 'Active Elastic Job is a simple to use Active Job backend for Rails applications deployed on the Amazon Elastic Beanstalk platform.'
-  spec.summary       = spec.description
+  spec.summary       = 'Active Elastic Job is a simple to use Active Job backend for Rails applications deployed on the Amazon Elastic Beanstalk platform.'
+  spec.description   = 'Run background jobs / tasks of Rails applications deployed in Amazon Elastic Beanstalk environments. Active Elastic Job is an Active Job backend which is easy to setup. No need for customised container commands or other workarounds.'
   spec.license       = 'MIT'
   spec.homepage      = 'https://github.com/tawan/active-elastic-job'
 
