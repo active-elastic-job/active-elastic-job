@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'timeout'
 
-describe "standard scenarios", slow: true do
+describe "standard scenarios", slow: true, deployed: true do
   let(:random_string) { SecureRandom.hex }
 
   before(:all) do

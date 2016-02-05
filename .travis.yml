@@ -9,4 +9,4 @@ rvm:
  - "2.2"
 
 script:
-   - 'SPEC_ALL=${TRAVIS_PULL_REQUEST} bundle exec rspec spec'
+   - 'EXCEPT_DEPLOYED=$(echo $TRAVIS_PULL_REQUEST) bundle exec rspec spec'
