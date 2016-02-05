@@ -16,6 +16,8 @@ module ActiveJob
     class ActiveElasticJobAdapter
       MAX_MESSAGE_SIZE = (256 * 1024)
 
+      extend ActiveElasticJob::MD5MessageDigestCalculation
+
       class Error < StandardError; end;
 
       # Raised when job exceeds 256 KB in its serialized form. The limit is
@@ -57,6 +59,17 @@ region '#{ENV['AWS_REGION']}' - or you select another queue for
         end
       end
 
+      # Raised when calculated MD5 digest does not match the MD5 Digest
+      # of the response from Amazon SQS.
+      class MD5MismatchError < Error
+        def initialize( message_id)
+          msg = <<-MSG
+MD5 returned by Amazon SQS does not match the calculation on the original request.
+The message with Message ID #{message_id} sent to SQS might be corrupted.
+          MSG
+        end
+      end
+
       class << self
         def enqueue(job) #:nodoc:
           enqueue_at(job, Time.now)
@@ -72,7 +85,7 @@ region '#{ENV['AWS_REGION']}' - or you select another queue for
           end
           serialized_job = JSON.dump(job.serialize)
           check_job_size!(serialized_job)
-          aws_sqs_client.send_message(
+          message = {
             queue_url: queue_url,
             message_body: serialized_job,
             delay_seconds: calculate_delay(timestamp),
@@ -82,6 +95,12 @@ region '#{ENV['AWS_REGION']}' - or you select another queue for
                 data_type: "String"
               }
             }
+          }
+          resp = aws_sqs_client.send_message(message)
+          verify_md5_digests!(
+            resp,
+            message[:message_body],
+            message[:message_attributes]
           )
         end
 
@@ -118,6 +137,19 @@ for further details!
           secret_key_base = Rails.application.secrets[:secret_key_base]
           verifier = ActiveElasticJob::MessageVerifier.new(secret_key_base)
           verifier.generate_digest(messsage_body)
+        end
+
+        def verify_md5_digests!(response, messsage_body, message_attributes = nil)
+          if md5_of_message_body(messsage_body) != response.md5_of_message_body
+            raise MD5MismatchError, response.message_id
+          end
+
+          if message_attributes
+            if md5_of_message_attributes(message_attributes) !=
+              response.md5_of_message_attributes
+              raise MD5MismatchError, response.message_id
+            end
+          end
         end
       end
     end
