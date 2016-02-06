@@ -11,3 +11,4 @@
 *.a
 .env
 .vagrant
+.byebug_history
