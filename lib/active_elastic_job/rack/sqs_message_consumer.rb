@@ -21,7 +21,7 @@ module ActiveElasticJob
 
       def call(env) #:nodoc:
         request = ActionDispatch::Request.new env
-        if aws_sqsd?(request)
+        if aws_sqsd?(request) && originates_from_gem?(request)
           begin
             verify!(request)
             job = JSON.load(request.body)
@@ -55,6 +55,10 @@ module ActiveElasticJob
         return (current_user_agent.present? &&
           current_user_agent.size >= USER_AGENT_PREFIX.size &&
           current_user_agent[0..(USER_AGENT_PREFIX.size - 1)] == USER_AGENT_PREFIX)
+      end
+
+      def originates_from_gem?(request)
+        request.headers['HTTP_X_AWS_SQSD_ATTR_ORIGIN'] == 'AEJ'
       end
     end
   end

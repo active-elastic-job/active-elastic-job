@@ -85,6 +85,10 @@ The message with Message ID #{message_id} sent to SQS might be corrupted.
               "message_digest" => {
                 string_value: message_digest(serialized_job),
                 data_type: "String"
+              },
+              "origin" => {
+                string_value: "AEJ",
+                data_type: "String"
               }
             }
           }
