@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'digest'
 
 class StubbedError < Aws::SQS::Errors::NonExistentQueue
   def initialize; end;
@@ -15,6 +16,11 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
   let(:queue_url_resp) { double("queue_url_resp") }
   let(:secret_key_base) { 's3krit' }
   let(:rails_app) { double("rails_app") }
+  let(:resp) { double("resp") }
+  let(:md5_body) { "body_digest" }
+  let(:md5_attributes) { "attributes_digest" }
+  let(:calculated_md5_body) { md5_body }
+  let(:calculated_md5_attributes) { md5_attributes }
 
   before do
     allow(Aws::SQS::Client).to receive(:new) { aws_sqs_client }
@@ -22,7 +28,14 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
     allow(rails_app).to receive(:secrets) { { secret_key_base: secret_key_base } }
     allow(aws_sqs_client).to receive(:get_queue_url) { queue_url_resp }
     allow(queue_url_resp).to receive(:queue_url) { queue_url }
-    allow(aws_sqs_client).to receive(:send_message) { }
+    allow(aws_sqs_client).to receive(:send_message) { resp }
+    allow(resp).to receive(:md5_of_message_body) { md5_body }
+    allow(resp).to receive(:md5_of_message_attributes) { md5_attributes }
+    allow(resp).to receive(:message_id) { "" }
+    allow(adapter).to receive(:md5_of_message_body) { calculated_md5_body }
+    allow(adapter).to receive(:md5_of_message_attributes) {
+      calculated_md5_attributes
+    }
   end
 
   describe ".enqueue" do
@@ -39,6 +52,27 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
       adapter.enqueue job
     end
 
+    describe "md5 digest verification" do
+      let(:expected_error) {
+        ActiveJob::QueueAdapters::ActiveElasticJobAdapter::MD5MismatchError
+      }
+      context "when md5 hash of message body does not match" do
+        let(:calculated_md5_body) { "a different digest" }
+
+        it "raises MD5MismatchError " do
+          expect { adapter.enqueue(job) }.to raise_error(expected_error)
+        end
+      end
+
+      context "when md5 hash of message attributes does not match" do
+        let(:calculated_md5_attributes) { "a different digest" }
+
+        it "raises MD5MismatchError " do
+          expect { adapter.enqueue(job) }.to raise_error(expected_error)
+        end
+      end
+    end
+
     context "when serialized job exeeds 256KB" do
       let(:exceeds_max_size) { 266 * 1024 }
       let(:arg) do
@@ -51,10 +85,10 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
       let(:job) { Helpers::TestJob.new(arg) }
 
       it "raises a SerializedJobTooBig error" do
-        exptected_error = ActiveJob::QueueAdapters::ActiveElasticJobAdapter::SerializedJobTooBig
+        expected_error = ActiveJob::QueueAdapters::ActiveElasticJobAdapter::SerializedJobTooBig
         expect do
           adapter.enqueue(job)
-        end.to raise_error(exptected_error)
+        end.to raise_error(expected_error)
       end
     end
 
@@ -64,10 +98,10 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
       end
 
       it "raises NonExistentQueue error" do
-        exptected_error = ActiveJob::QueueAdapters::ActiveElasticJobAdapter::NonExistentQueue
+        expected_error = ActiveJob::QueueAdapters::ActiveElasticJobAdapter::NonExistentQueue
         expect do
           adapter.enqueue(job)
-        end.to raise_error(exptected_error)
+        end.to raise_error(expected_error)
       end
     end
   end
