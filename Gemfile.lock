@@ -50,6 +50,7 @@ GEM
       jmespath (~> 1.0)
     aws-sdk-resources (2.2.11)
       aws-sdk-core (= 2.2.11)
+    benchmark-ips (2.3.0)
     builder (3.2.2)
     byebug (8.2.2)
     concurrent-ruby (1.0.0)
@@ -134,6 +135,7 @@ PLATFORMS
 
 DEPENDENCIES
   active_elastic_job!
+  benchmark-ips
   bundler
   byebug
   dotenv

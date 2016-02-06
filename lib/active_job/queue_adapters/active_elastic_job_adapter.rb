@@ -18,7 +18,7 @@ module ActiveJob
 
       extend ActiveElasticJob::MD5MessageDigestCalculation
 
-      class Error < StandardError; end;
+      class Error < RuntimeError; end;
 
       # Raised when job exceeds 256 KB in its serialized form. The limit is
       # imposed by Amazon SQS.
