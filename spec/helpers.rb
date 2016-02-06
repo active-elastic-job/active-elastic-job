@@ -6,6 +6,8 @@ require 'active_job'
 module Helpers
   WEB_ENV_HOST = ENV['WEB_ENV_HOST']
   WEB_ENV_PORT = ENV['WEB_ENV_PORT']
+  WEB_ENV_NAME = ENV['WEB_ENV_NAME']
+  WORKER_ENV_NAME = ENV['WORKER_ENV_NAME']
 
   class TestJob < ActiveJob::Base
     queue_as :high_priority
@@ -20,7 +22,7 @@ module Helpers
       build_gem do
         unpack_gem_into_vendor_dir
         Dir.chdir("spec/integration/rails-app") do
-          [ 'web-env', 'worker-env' ].each do |env|
+          [ WEB_ENV_NAME, WORKER_ENV_NAME ].each do |env|
             unless system("eb deploy #{env}")
               raise "Could not deploy application to environment #{env}"
             end
