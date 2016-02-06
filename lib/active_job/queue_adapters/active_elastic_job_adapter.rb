@@ -100,6 +100,8 @@ The message with Message ID #{message_id} sent to SQS might be corrupted.
             retry
           end
           raise NonExistentQueue, job
+        rescue Aws::Errors::ServiceError => e
+          raise Error, "Could not enqueue job, #{e.message}"
         end
 
         private
