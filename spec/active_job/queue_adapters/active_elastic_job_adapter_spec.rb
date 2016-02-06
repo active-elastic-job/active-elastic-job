@@ -46,6 +46,11 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
       adapter.enqueue job
     end
 
+    it "caches the queue url" do
+      expect(aws_sqs_client).to receive(:get_queue_url).exactly(0).times
+      adapter.enqueue job
+    end
+
     it "sends the serialized job as a message to an AWS SQS queue" do
       expect(aws_sqs_client).to receive(:send_message)
 
@@ -94,7 +99,7 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
 
     context "when queue does not exist" do
       before do
-        allow(aws_sqs_client).to receive(:get_queue_url) { raise StubbedError }
+        allow(adapter).to receive(:queue_url) { raise StubbedError }
       end
 
       it "raises NonExistentQueue error" do

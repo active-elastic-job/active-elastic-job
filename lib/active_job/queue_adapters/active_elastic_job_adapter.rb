@@ -47,13 +47,12 @@ which exceeds the allowed maximum of #{MAX_MESSAGE_SIZE} bytes imposed by Amazon
       #    #..
       #  end
       class NonExistentQueue < Error
-        def initialize(job)
+        def initialize(queue_name)
           msg = <<-MSG
-The job is bound to queue at #{job.queue_name}. Unfortunately a queue
+The job is bound to queue at #{queue_name}. Unfortunately a queue
 with this name does not exist in this region. Either create an Amazon SQS queue
-named #{job.queue_name} - you can do this in AWS console, make sure to select
-region '#{ENV['AWS_REGION']}' - or you select another queue for
-#{job.class.name} jobs.
+named #{queue_name} - you can do this in AWS console, make sure to select
+region '#{ENV['AWS_REGION']}' - or you select another queue for your jobs.
           MSG
           super msg
         end
@@ -76,17 +75,10 @@ The message with Message ID #{message_id} sent to SQS might be corrupted.
         end
 
         def enqueue_at(job, timestamp) #:nodoc:
-          queue_url = nil
-          begin
-            resp = aws_sqs_client.get_queue_url(queue_name: job.queue_name.to_s)
-            queue_url = resp.queue_url
-          rescue Aws::SQS::Errors::NonExistentQueue => e
-            raise NonExistentQueue, job
-          end
           serialized_job = JSON.dump(job.serialize)
           check_job_size!(serialized_job)
           message = {
-            queue_url: queue_url,
+            queue_url: queue_url(job.queue_name),
             message_body: serialized_job,
             delay_seconds: calculate_delay(timestamp),
             message_attributes: {
@@ -98,13 +90,29 @@ The message with Message ID #{message_id} sent to SQS might be corrupted.
           }
           resp = aws_sqs_client.send_message(message)
           verify_md5_digests!(
-            resp,
+          resp,
             message[:message_body],
             message[:message_attributes]
           )
+        rescue Aws::SQS::Errors::NonExistentQueue => e
+          unless @queue_urls[job.queue_name.to_s].nil?
+            @queue_urls[job.queue_name.to_s] = nil
+            retry
+          end
+          raise NonExistentQueue, job
         end
 
         private
+
+        def queue_url(queue_name)
+          cache_key = queue_name.to_s
+          @queue_urls ||= { }
+          return @queue_urls[cache_key] if @queue_urls[cache_key]
+          resp = aws_sqs_client.get_queue_url(queue_name: queue_name.to_s)
+          @queue_urls[cache_key] = resp.queue_url
+        rescue Aws::SQS::Errors::NonExistentQueue => e
+          raise NonExistentQueue, queue_name
+        end
 
         def calculate_delay(timestamp)
           delay = (timestamp - Time.current.to_f).to_i + 1
