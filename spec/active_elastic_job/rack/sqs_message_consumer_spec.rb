@@ -78,6 +78,17 @@ describe ActiveElasticJob::Rack::SqsMessageConsumer do
         expect(sqs_message_consumer.call(env)[0]).to eq('200')
       end
 
+      context "when DISABLE_SQS_CONSUMER is true" do
+        around(:example) do |example|
+          with_modified_env DISABLE_SQS_CONSUMER: 'true', &example
+        end
+
+        it "passes request through" do
+          expect(app).to receive(:call).with(env).and_return(original_response)
+          expect(sqs_message_consumer.call(env)).to eq(original_response)
+        end
+      end
+
       context "when digest is ommited" do
         before do
           env['HTTP_X_AWS_SQSD_ATTR_MESSAGE_DIGEST'] = nil

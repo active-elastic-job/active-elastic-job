@@ -26,7 +26,7 @@ module ActiveElasticJob
 
       def call(env) #:nodoc:
         request = ActionDispatch::Request.new env
-        if aws_sqsd?(request) && originates_from_gem?(request)
+        if enabled? && aws_sqsd?(request) && originates_from_gem?(request)
           begin
             verify!(request)
             job = JSON.load(request.body)
@@ -42,6 +42,11 @@ module ActiveElasticJob
       end
 
       private
+
+      def enabled?
+        var = ENV['DISABLE_SQS_CONSUMER'.freeze]
+        var == nil || var == 'false'.freeze
+      end
 
       def verify!(request)
         secret_key_base = Rails.application.secrets[:secret_key_base]
