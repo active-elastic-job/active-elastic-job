@@ -23,7 +23,7 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
   let(:calculated_md5_attributes) { md5_attributes }
 
   before do
-    allow(Aws::SQS::Client).to receive(:new) { aws_sqs_client }
+    allow(adapter).to receive(:aws_sqs_client) { aws_sqs_client }
     allow(Rails).to receive(:application) { rails_app }
     allow(rails_app).to receive(:secrets) { { secret_key_base: secret_key_base } }
     allow(aws_sqs_client).to receive(:get_queue_url) { queue_url_resp }
