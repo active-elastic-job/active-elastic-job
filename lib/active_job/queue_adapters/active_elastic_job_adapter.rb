@@ -153,8 +153,8 @@ for further details!
 
         def message_digest(messsage_body)
           secret_key_base = Rails.application.secrets[:secret_key_base]
-          verifier = ActiveElasticJob::MessageVerifier.new(secret_key_base)
-          verifier.generate_digest(messsage_body)
+          @verifier ||= ActiveElasticJob::MessageVerifier.new(secret_key_base)
+          @verifier.generate_digest(messsage_body)
         end
 
         def verify_md5_digests!(response, messsage_body, message_attributes = nil)
