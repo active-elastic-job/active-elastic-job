@@ -58,7 +58,13 @@ module ActiveElasticJob
       end
 
       def originates_from_gem?(request)
-        request.headers['HTTP_X_AWS_SQSD_ATTR_ORIGIN'] == 'AEJ'
+        if request.headers['HTTP_X_AWS_SQSD_ATTR_ORIGIN'] == 'AEJ'
+          return true
+        elsif request.headers['HTTP_X_AWS_SQSD_ATTR_MESSAGE_DIGEST'] != nil
+          return true
+        else
+          return false
+        end
       end
     end
   end

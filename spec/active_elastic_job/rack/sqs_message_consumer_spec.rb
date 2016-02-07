@@ -36,14 +36,29 @@ describe ActiveElasticJob::Rack::SqsMessageConsumer do
     context "when origin is not set" do
       let(:origin_attribute) { nil }
 
-      it "passes request through" do
-        expect(app).to receive(:call).with(env).and_return(original_response)
-        expect(sqs_message_consumer.call(env)).to eq(original_response)
+      context "when disgest is ommited" do
+        before do
+          env['HTTP_X_AWS_SQSD_ATTR_MESSAGE_DIGEST'] = nil
+        end
+        it "passes request through" do
+          expect(app).to receive(:call).with(env).and_return(original_response)
+          expect(sqs_message_consumer.call(env)).to eq(original_response)
+        end
+      end
+
+      context "when digest is present" do
+        it "intercepts request" do
+          expect(app).not_to receive(:call).with(env)
+          sqs_message_consumer.call(env)
+        end
       end
     end
 
     context "when origin is not Active Elastic Job" do
       let(:origin_attribute) { "some thing else" }
+      before do
+        env['HTTP_X_AWS_SQSD_ATTR_MESSAGE_DIGEST'] = nil
+      end
 
       it "passes request through" do
         expect(app).to receive(:call).with(env).and_return(original_response)
