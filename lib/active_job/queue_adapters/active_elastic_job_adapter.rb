@@ -77,24 +77,10 @@ The message with Message ID #{message_id} sent to SQS might be corrupted.
         def enqueue_at(job, timestamp) #:nodoc:
           serialized_job = JSON.dump(job.serialize)
           check_job_size!(serialized_job)
-          message = {
-            queue_url: queue_url(job.queue_name),
-            message_body: serialized_job,
-            delay_seconds: calculate_delay(timestamp),
-            message_attributes: {
-              "message_digest" => {
-                string_value: message_digest(serialized_job),
-                data_type: "String"
-              },
-              "origin" => {
-                string_value: "AEJ",
-                data_type: "String"
-              }
-            }
-          }
+          message = build_message(job.queue_name, serialized_job, timestamp)
           resp = aws_sqs_client.send_message(message)
           verify_md5_digests!(
-          resp,
+            resp,
             message[:message_body],
             message[:message_attributes]
           )
@@ -109,6 +95,24 @@ The message with Message ID #{message_id} sent to SQS might be corrupted.
         end
 
         private
+
+        def build_message(queue_name, serialized_job, timestamp)
+          {
+            queue_url: queue_url(queue_name),
+            message_body: serialized_job,
+            delay_seconds: calculate_delay(timestamp),
+            message_attributes: {
+              "message_digest" => {
+                string_value: message_digest(serialized_job),
+                data_type: "String"
+              },
+              "origin" => {
+                string_value: "AEJ",
+                data_type: "String"
+              }
+            }
+          }
+        end
 
         def queue_url(queue_name)
           cache_key = queue_name.to_s
