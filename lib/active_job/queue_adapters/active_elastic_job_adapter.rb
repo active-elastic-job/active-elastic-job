@@ -15,6 +15,7 @@ module ActiveJob
     #   Rails.application.config.active_job.queue_adapter = :active_elastic_job
     class ActiveElasticJobAdapter
       MAX_MESSAGE_SIZE = (256 * 1024)
+      MAX_DELAY_IN_MINUTES = 15
 
       extend ActiveElasticJob::MD5MessageDigestCalculation
 
@@ -126,13 +127,13 @@ The message with Message ID #{message_id} sent to SQS might be corrupted.
 
         def calculate_delay(timestamp)
           delay = (timestamp - Time.current.to_f).to_i + 1
-          if delay > 15.minutes
+          if delay > MAX_DELAY_IN_MINUTES.minutes
             msg =<<-MSG
-Jobs cannot be scheduled more than 15 minutes into the future.
+Jobs cannot be scheduled more than #{MAX_DELAY_IN_MINUTES} minutes into the future.
 See http://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_SendMessage.html
 for further details!
             MSG
-            raise RangeError, msg if delay > 15.minutes
+            raise RangeError
           end
           delay
         end
