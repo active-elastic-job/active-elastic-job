@@ -13,7 +13,12 @@ module ActiveElasticJob
     # environment, which verifies the digest, have to use the *same*
     # +secrets.secret_key_base+ setting.
     class SqsMessageConsumer
-      USER_AGENT_PREFIX = 'aws-sqsd'
+      USER_AGENT_PREFIX = 'aws-sqsd'.freeze
+      DIGEST_HEADER_NAME = 'HTTP_X_AWS_SQSD_ATTR_MESSAGE_DIGEST'.freeze
+      ORIGIN_HEADER_NAME = 'HTTP_X_AWS_SQSD_ATTR_ORIGIN'.freeze
+      CONTENT_TYPE = 'application/json'.freeze
+      CONTENT_TYPE_HEADER_NAME = 'Content-Type'.freeze
+      OK_RESPONSE_CODE = '200'.freeze
 
       def initialize(app) #:nodoc:
         @app = app
@@ -27,11 +32,11 @@ module ActiveElasticJob
             job = JSON.load(request.body)
             ActiveJob::Base.execute(job)
           rescue ActiveElasticJob::MessageVerifier::InvalidDigest => e
-            return ['403', {'Content-Type' => env['text/plain'] }, ["incorrect digest"]]
+            return ['403', {CONTENT_TYPE_HEADER_NAME => env['text/plain'] }, ["incorrect digest"]]
           rescue StandardError => e
-            return ['500', {'Content-Type' => env['text/plain'] }, [e.message]]
+            return ['500', {CONTENT_TYPE_HEADER_NAME => env['text/plain'] }, [e.message]]
           end
-          return ['200', {'Content-Type' => 'application/json' }, [ '' ]]
+          return [OK_RESPONSE_CODE , {CONTENT_TYPE_HEADER_NAME => CONTENT_TYPE }, [ '' ]]
         end
         @app.call(env)
       end
@@ -41,7 +46,7 @@ module ActiveElasticJob
       def verify!(request)
         secret_key_base = Rails.application.secrets[:secret_key_base]
         @verifier ||= ActiveElasticJob::MessageVerifier.new(secret_key_base)
-        digest = request.headers['HTTP_X_AWS_SQSD_ATTR_MESSAGE_DIGEST']
+        digest = request.headers[DIGEST_HEADER_NAME]
         @verifier.verify!(request.body.string, digest)
       end
 
@@ -51,16 +56,16 @@ module ActiveElasticJob
         # Instead we make a simple string comparison.
         # Benchmark runs showed an performance increase of
         # up to 40%
-        current_user_agent = request.headers['User-Agent']
+        current_user_agent = request.headers['User-Agent'.freeze]
         return (current_user_agent.present? &&
           current_user_agent.size >= USER_AGENT_PREFIX.size &&
           current_user_agent[0..(USER_AGENT_PREFIX.size - 1)] == USER_AGENT_PREFIX)
       end
 
       def originates_from_gem?(request)
-        if request.headers['HTTP_X_AWS_SQSD_ATTR_ORIGIN'] == 'AEJ'
+        if request.headers[ORIGIN_HEADER_NAME] == ActiveElasticJob::ACRONYM
           return true
-        elsif request.headers['HTTP_X_AWS_SQSD_ATTR_MESSAGE_DIGEST'] != nil
+        elsif request.headers[DIGEST_HEADER_NAME] != nil
           return true
         else
           return false

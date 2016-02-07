@@ -102,13 +102,13 @@ The message with Message ID #{message_id} sent to SQS might be corrupted.
             message_body: serialized_job,
             delay_seconds: calculate_delay(timestamp),
             message_attributes: {
-              "message_digest" => {
+              message_digest: {
                 string_value: message_digest(serialized_job),
-                data_type: "String"
+                data_type: "String".freeze
               },
-              "origin" => {
-                string_value: "AEJ",
-                data_type: "String"
+              origin: {
+                string_value: ActiveElasticJob::ACRONYM,
+                data_type: "String".freeze
               }
             }
           }
