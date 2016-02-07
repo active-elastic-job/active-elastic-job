@@ -53,6 +53,8 @@ GEM
     benchmark-ips (2.3.0)
     builder (3.2.2)
     byebug (8.2.2)
+    climate_control (0.0.3)
+      activesupport (>= 3.0)
     concurrent-ruby (1.0.0)
     diff-lcs (1.2.5)
     dotenv (2.1.0)
@@ -138,6 +140,7 @@ DEPENDENCIES
   benchmark-ips
   bundler
   byebug
+  climate_control
   dotenv
   fuubar
   rdoc

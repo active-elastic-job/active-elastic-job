@@ -2,6 +2,7 @@ require 'fileutils'
 require 'aws-sdk'
 require 'open-uri'
 require 'active_job'
+require 'climate_control'
 
 module Helpers
   WEB_ENV_HOST = ENV['WEB_ENV_HOST']
@@ -63,6 +64,10 @@ module Helpers
     { "random_string" => random_string }
     resp.value
     resp
+  end
+
+  def with_modified_env(options, &block)
+    ClimateControl.modify(options, &block)
   end
 
   private
