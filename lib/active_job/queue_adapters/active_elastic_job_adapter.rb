@@ -103,7 +103,7 @@ The message with Message ID #{message_id} sent to SQS might be corrupted.
             message_body: serialized_job,
             delay_seconds: calculate_delay(timestamp),
             message_attributes: {
-              message_digest: {
+              "message-digest".freeze => {
                 string_value: message_digest(serialized_job),
                 data_type: "String".freeze
               },
