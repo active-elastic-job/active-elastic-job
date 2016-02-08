@@ -31,7 +31,7 @@ This gem allows Rails applications which run in Elastic Beanstalk environments t
   * Stay logged in and select the _Elastic Beanstalk_ option from the services menu.
   * Select your application, click the _Actions_ button and select **Launch New Environment**.
   * Click the **create worker** button, select the identical platform that you had chosen for your web environment.
-  * In the _Worker Details_ form, select the queue, that you created in step 2, as the worker queue, leave the MIME type to application/json.
+  * In the _Worker Details_ form, select the queue, that you created in step 2, as the worker queue, leave the MIME type to application/json. The visibility timeout setting should exceed the maximum time that you expect a single background job will take.
 5. Configure Active Elastic Job as the queue adapter:
 
   ```Ruby
