@@ -1,3 +1,6 @@
+## [v1.3.2] - 2016-02-08
+- Fix worker environments running Puma servers. Remove underscore from header.
+ - Close [issue #15](https://github.com/tawan/active-elastic-job/issues/15)
 ## [v1.3.1] - 2016-02-07
 
 - Fix backwards incompatibility
