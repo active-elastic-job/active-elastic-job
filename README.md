@@ -14,6 +14,22 @@ This gem allows Rails applications which run in Elastic Beanstalk environments t
 * configuring Active Elastic Job as the queue adapter,
 * deploying the updated application (identical versions) to web and the worker environments.
 
+## Why use this gem?
+You decided to deploy your Rails application to Amazon Elastic Beanstalk because
+it makes deployment as easy as pushing a button. You don't need to configure load balancers,
+setup monitoring and everything scales automatically.
+
+Your application now incorporates several long running operations which make the user waiting for the response often unnecessarily. You want to offload the long running tasks into background jobs. There are [several alternatives](http://api.rubyonrails.org/classes/ActiveJob/QueueAdapters.html) which provide this functionality that you can choose from.
+
+However, using one of these options makes deployment difficult (you will need to setup an additional EC2 instance and also deploy your application to it) and demands continuos maintenance. But a simple deployment and low maintenance burden were to actual reasons to use Elastic Beanstalk. You can try to circumvent the need for an extra instance by starting the background job process in your Elastic Beanstalk web instances, as apparently [many](http://junkheap.net/blog/2013/05/20/elastic-beanstalk-post-deployment-scripts/) [others](http://www.dannemanne.com/posts/post-deployment_script_on_elastic_beanstalk_restart_delayed_job) do. But this approach is rather a hack and suboptimal. The worker processes and your web server will fight for the same resources, since now they are running in the same instance. Consequently, your web server will response slower to your users, but that's what you actually wanted to avoid with a background solution.
+
+### Active Elastic Job to the rescue
+Active Elastic Job keeps deployment and maintenance simple. It allows your application to be deployed on both, Elastic Beanstalk web and worker environments, which are essentially
+identical, but a worker environment can process messages from an [Amazon SQS](https://aws.amazon.com/de/sqs/) queue. An SQS is created with a few mouse clicks  and  can be connected to your worker environment simply by selecting it from a menu when creating the environment.
+
+Originally, worker environments are intended to host a specialized version of your application, which is only responsible for processing jobs. But then you would have to keep two versions at hand, probably in two different branches or repositories - again, additional administrative burden.
+Active Elastic Beanstalk, however, makes it possible to deploy the exact same version to both environments, which is a big win.
+
 ## Usage
 
 1. Add this line to your application's Gemfile:
