@@ -22,7 +22,13 @@ This gem allows Rails applications which run in Elastic Beanstalk environments t
 
 2. Create an SQS queue:
   * Log into your Amazon Web Service Console and select _SQS_ from the services menu.
-  * Create a new queue.
+  * Create a new queue. Select a name of choice but don't forget to use the **same name** in your Active Job class definition.
+
+  ```Ruby
+  class YourJob < ActiveJob::Base
+    queue_as :name_of_your_queue
+  end
+  ```
 3. Create a new user with SQS permissions:
   * Stay logged in and select the _IAM_ service from the services menu.
   * Create a new user and store the credentials.
@@ -48,27 +54,9 @@ This gem allows Rails applications which run in Elastic Beanstalk environments t
     * add **AWS_SECRET_ACCESS_KEY** and set it to the _secret access key_ of the newly created user (step 3),
     * add **AWS_REGION** and set it to the _region_ of the SQS queue, created in step 2,
     * add **DISABLE_SQS_CONSUMER** and set it to `true`.
-7. Create an Active Job class:
-
-  ```Bash
-  $ bin/rails generate job resize_image --queue [name of queue that you chose in step 2]
-  invoke  test_unit
-  create    test/jobs/resize_image_job_test.rb
-  create  app/jobs/resize_image_job.rb
-  ```
-  This generated job looks like this:
-
-  ```Ruby
-  # app/jobs/resize_image_job.rb
-  class ResizeImageJob < ActiveJob::Base
-    queue_as :default # here should be the name of the queue that was created in step 2.
-
-    def perform(image)
-      ImageResizer.resize(image) # long running operation
-    end
-  end
-  ```
-  Read more about Active Job in the [Active Job Basics Guide](http://guides.rubyonrails.org/active_job_basics.html).
+7. Verify that both environments, web and worker, have the same secret base key
+  * In the _Software Configuration_ settings of the web environment, copy the value of the `SECRET_KEY_BASE` variable,
+  * open the _Software Configuration_ settings of the worker environment and add the `SECRET_KEY_BASE` variable. Paste the value from the web environment, so that both environments have the same secret key base.
 
 8. Deploy the application to both environments (web and worker).
 
