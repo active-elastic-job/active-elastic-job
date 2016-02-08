@@ -42,11 +42,12 @@ This gem allows Rails applications which run in Elastic Beanstalk environments t
     end
   end
   ```
-6. Add three environment variables to the web environment
+6. Add four environment variables to the web environment
   * Select the web environment that is currently hosting your application and open the _Software Configuration_ settings:
     * add **AWS_ACCESS_KEY_ID** and set it to _access key id_ of the newly created user (from step 3),
     * add **AWS_SECRET_ACCESS_KEY** and set it to the _secret access key_ of the newly created user (step 3),
-    * add **AWS_REGION** and set it to the _region_ of the SQS queue, created in step 2.
+    * add **AWS_REGION** and set it to the _region_ of the SQS queue, created in step 2,
+    * add **DISABLE_SQS_CONSUMER** and set it to `true`.
 7. Create an Active Job class:
 
   ```Bash
