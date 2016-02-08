@@ -32,9 +32,9 @@ module ActiveElasticJob
             job = JSON.load(request.body)
             ActiveJob::Base.execute(job)
           rescue ActiveElasticJob::MessageVerifier::InvalidDigest => e
-            return ['403', {CONTENT_TYPE_HEADER_NAME => env['text/plain'] }, ["incorrect digest"]]
+            return ['403', {CONTENT_TYPE_HEADER_NAME => 'text/plain' }, ["incorrect digest"]]
           rescue StandardError => e
-            return ['500', {CONTENT_TYPE_HEADER_NAME => env['text/plain'] }, [e.message]]
+            return ['500', {CONTENT_TYPE_HEADER_NAME => 'text/plain' }, [e.message]]
           end
           return [OK_RESPONSE_CODE , {CONTENT_TYPE_HEADER_NAME => CONTENT_TYPE }, [ '' ]]
         end
