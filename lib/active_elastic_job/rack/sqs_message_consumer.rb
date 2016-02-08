@@ -27,6 +27,10 @@ module ActiveElasticJob
       def call(env) #:nodoc:
         request = ActionDispatch::Request.new env
         if enabled? && aws_sqsd?(request) && originates_from_gem?(request)
+          unless request.local?
+            m = "Accepts only requests from localhost for job processing".freeze
+            return ['403', {CONTENT_TYPE_HEADER_NAME => 'text/plain' }, [ m ]]
+          end
           begin
             verify!(request)
             job = JSON.load(request.body)
