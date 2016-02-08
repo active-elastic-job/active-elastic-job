@@ -61,6 +61,12 @@ This gem allows Rails applications which run in Elastic Beanstalk environments t
 8. Deploy the application to both environments (web and worker).
 
 ## Caveats
-
-  * Both environments need to have the same value for the environment variable `SECRET_KEY_BASE`.
   * Jobs can not be scheduled more than **15 minutes** into the future, see [the Amazon SQS API reference](http://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_SendMessage.html).
+  * The rails application will treat requests presenting a user agent value `aws-sqsd/*`
+  as a request from the SQS daemon and therefore tries to unmarshal the request body back into a job object for further execution. This adds a potential attack vector since anyone can fabricate a request with this user agent, and therefore might try to spoof the application into processing jobs or even malicious code. This gem takes several counter measures to block this attack vector.
+   * The middleware that processes the requests from the SQS daemon is disabled in the web environment. (Only if the environment variable **DISABLE_SQS_CONSUMER** has been set to `true` as instructed in the Usage section!
+   * Messages that represent the jobs are signed before they are enqueued. The signature is verified before the job is executed. This is the reason that both environments, web and worker, need to have the same value for the environment variable **SECRET_KEY_BASE** (see the Usage section step 7), since the secret key base will be used to generate and verify the signature.
+   * Only requests that originate from the same host (localhost) are considered to be a request from the SQS daemon. SQS daemons are installed in all instances running in a worker environments and will only send requests to the application running in the same instance.
+
+
+Because of this safety measures it is possible to deploy the same codebase to both environments, which keeps deployment simple and reduces complexity.
