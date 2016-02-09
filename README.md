@@ -86,3 +86,13 @@ Deployment is kept simple and you can continue focusing on developing your appli
 
 
 Because of this safety measures it is possible to deploy the same codebase to both environments, which keeps deployment simple and reduces complexity.
+
+## Bugs, Questions, Improvements
+
+If you catch a bug, have a question or a suggestion for an improvement, I sincerely appreciate any feedback. Please, feel free to [create an issue](https://github.com/tawan/active-elastic-job/issues/new), I will follow up a soon as possible.
+
+
+## Contribute
+1. Fork
+1. Commit
+1. Issue a pull request
