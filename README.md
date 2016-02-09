@@ -19,7 +19,7 @@ You decided to deploy your Rails application to Amazon Elastic Beanstalk because
 it makes deployment as easy as pushing a button. You don't need to configure load balancers,
 setup monitoring and install an application server. Active Elastic Job allows you to use a powerful queueing backend for your background jobs but still keep the deployment process simple and easy.
 
-There are [several alternative](http://api.rubyonrails.org/classes/ActiveJob/QueueAdapters.html) queueing backends (Resque, Sidekiq, etc.) that you can choose from, however, they complicate deployment and you lose the comfort of Elastic Beanstalk. You will need to setup an additional EC2 instance and take care of setting up deployment scripts, install the queue application and keep worker process up and running. They demand constant monitoring and you have to make sure that your queue is protected against dataloss.
+There are [several alternative](http://api.rubyonrails.org/classes/ActiveJob/QueueAdapters.html) queueing backends (Resque, Sidekiq, etc.) that you can choose from, however, they complicate deployment and you lose the comfort of Elastic Beanstalk. You will need to setup an additional EC2 instance and take care of setting up deployment scripts, install the queue application and keep worker processes up and running. They demand constant monitoring and you have to make sure that your queue is protected against dataloss.
 
 [Others tried](http://junkheap.net/blog/2013/05/20/elastic-beanstalk-post-deployment-scripts/) [workarounds](http://www.dannemanne.com/posts/post-deployment_script_on_elastic_beanstalk_restart_delayed_job) in order to avoid this additional operational burden. The idea is to install the queueing backend directly in the Elastic Beanstalk web environment. But these approaches will not scale in the long run. The worker processes and your web server will fight for the same resources.
 
@@ -27,7 +27,7 @@ Amazon therefore provides dedicated [worker environments](http://docs.aws.amazon
 * send jobs to an Amazon SQS queue
 * and process requests from the SQS daemon.
 
-Active Elastic Job adds both missing parts. Furthermore you don't need to keep two separate versions of your application, one which you deploy to the web environment and one that you deploy to the worker environment. With this gem you can deploy the identical version of your application to both, web and worker environments, and you application is ready to send and process jobs from the queue (see also the [Caveats section](#caveats) for details on this topic).
+Active Elastic Job adds both missing parts. Furthermore you don't need to keep two separate versions of your application, one which you deploy to the web environment and one that you deploy to the worker environment. With this gem you can deploy the identical version of your application to both, web and worker environments, and your application is ready to send and process jobs from the queue (see also the [Caveats section](#caveats) for details on this topic).
 Deployment is kept simple and you can continue focusing on developing your application.
 
 ## Usage
