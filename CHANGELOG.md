@@ -1,3 +1,9 @@
+## [v1.4.0] - 2016-02-09
+- Disable middleware that processes SQS daemon request with an environment variable
+ - Closes [issue #12](https://github.com/tawan/active-elastic-job/issues/12)
+- Check if SQS daemon request originates from localhost
+ - Closes [issue #13]((https://github.com/tawan/active-elastic-job/issues/13)
+
 ## [v1.3.2] - 2016-02-08
 - Fix worker environments running Puma servers. Remove underscore from header.
  - Close [issue #15](https://github.com/tawan/active-elastic-job/issues/15)
