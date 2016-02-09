@@ -17,18 +17,18 @@ This gem allows Rails applications which run in Elastic Beanstalk environments t
 ## Why use this gem?
 You decided to deploy your Rails application to Amazon Elastic Beanstalk because
 it makes deployment as easy as pushing a button. You don't need to configure load balancers,
-setup monitoring and everything scales automatically.
+setup monitoring and install an application server. Active Elastic Job allows you to use a powerful queueing backend for your background jobs but still keep the deployment process simple and easy.
 
-Your application now incorporates several long running operations which make the user waiting for the response often unnecessarily. You want to offload the long running tasks into background jobs. There are [several alternatives](http://api.rubyonrails.org/classes/ActiveJob/QueueAdapters.html) which provide this functionality that you can choose from.
+There are [several alternative](http://api.rubyonrails.org/classes/ActiveJob/QueueAdapters.html) queueing backends (Resque, Sidekiq, etc.) that you can choose from, however, they complicate deployment and you lose the comfort of Elastic Beanstalk. You will need to setup an additional EC2 instance and take care of setting up deployment scripts, install the queue application and keep worker process up and running. They demand constant monitoring and you have to make sure that your queue is protected against dataloss.
 
-However, using one of these options makes deployment difficult (you will need to setup an additional EC2 instance and also deploy your application to it) and demands continuos maintenance. But a simple deployment and low maintenance burden were to actual reasons to use Elastic Beanstalk. You can try to circumvent the need for an extra instance by starting the background job process in your Elastic Beanstalk web instances, as apparently [many](http://junkheap.net/blog/2013/05/20/elastic-beanstalk-post-deployment-scripts/) [others](http://www.dannemanne.com/posts/post-deployment_script_on_elastic_beanstalk_restart_delayed_job) do. But this approach is rather a hack and suboptimal. The worker processes and your web server will fight for the same resources, since now they are running in the same instance. Consequently, your web server will response slower to your users, but that's what you actually wanted to avoid with a background solution.
+[Others tried](http://junkheap.net/blog/2013/05/20/elastic-beanstalk-post-deployment-scripts/) [workarounds](http://www.dannemanne.com/posts/post-deployment_script_on_elastic_beanstalk_restart_delayed_job) in order to avoid this additional operational burden. The idea is to install the queueing backend directly in the Elastic Beanstalk web environment. But these approaches will not scale in the long run. The worker processes and your web server will fight for the same resources.
 
-### Active Elastic Job to the rescue
-Active Elastic Job keeps deployment and maintenance simple. It allows your application to be deployed on both, Elastic Beanstalk web and worker environments, which are essentially
-identical, but a worker environment can process messages from an [Amazon SQS](https://aws.amazon.com/de/sqs/) queue. An SQS is created with a few mouse clicks  and  can be connected to your worker environment simply by selecting it from a menu when creating the environment.
+Amazon therefore provides dedicated [worker environments](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html). A worker environment can process messages from an [Amazon SQS](https://aws.amazon.com/de/sqs/) queue. It comes with a daemon installed that will pull messages from the SQS queue and transform it into HTTP requests. Your application then needs to be able to:
+* send jobs to an Amazon SQS queue
+* and process requests from the SQS daemon.
 
-Originally, worker environments are intended to host a specialized version of your application, which is only responsible for processing jobs. But then you would have to keep two versions at hand, probably in two different branches or repositories - again, additional administrative burden.
-Active Elastic Beanstalk, however, makes it possible to deploy the exact same version to both environments, which is a big win.
+Active Elastic Job adds both missing parts. Furthermore you don't need to keep two separate versions of your application, one which you deploy to the web environment and one that you deploy to the worker environment. With this gem you can deploy the identical version of your application to both, web and worker environments, and you application is ready to send and process jobs from the queue (see also the [Caveats section](#caveats) for details on this topic).
+Deployment is kept simple and you can continue focusing on developing your application.
 
 ## Usage
 
@@ -80,8 +80,8 @@ Active Elastic Beanstalk, however, makes it possible to deploy the exact same ve
   * Jobs can not be scheduled more than **15 minutes** into the future, see [the Amazon SQS API reference](http://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_SendMessage.html).
   * The rails application will treat requests presenting a user agent value `aws-sqsd/*`
   as a request from the SQS daemon and therefore tries to unmarshal the request body back into a job object for further execution. This adds a potential attack vector since anyone can fabricate a request with this user agent, and therefore might try to spoof the application into processing jobs or even malicious code. This gem takes several counter measures to block this attack vector.
-   * The middleware that processes the requests from the SQS daemon is disabled in the web environment. (Only if the environment variable **DISABLE_SQS_CONSUMER** has been set to `true` as instructed in the Usage section!
-   * Messages that represent the jobs are signed before they are enqueued. The signature is verified before the job is executed. This is the reason that both environments, web and worker, need to have the same value for the environment variable **SECRET_KEY_BASE** (see the Usage section step 7), since the secret key base will be used to generate and verify the signature.
+   * The middleware that processes the requests from the SQS daemon is disabled in the web environment. (Only if the environment variable **DISABLE_SQS_CONSUMER** has been set to `true` as instructed in the [Usage](#usage) section!
+   * Messages that represent the jobs are signed before they are enqueued. The signature is verified before the job is executed. This is the reason that both environments, web and worker, need to have the same value for the environment variable **SECRET_KEY_BASE** (see the [Usage](#usage) section step 7), since the secret key base will be used to generate and verify the signature.
    * Only requests that originate from the same host (localhost) are considered to be a request from the SQS daemon. SQS daemons are installed in all instances running in a worker environments and will only send requests to the application running in the same instance.
 
 
