@@ -67,6 +67,8 @@ region '#{ENV['AWS_REGION']}' - or you select another queue for your jobs.
 MD5 returned by Amazon SQS does not match the calculation on the original request.
 The message with Message ID #{message_id} sent to SQS might be corrupted.
           MSG
+
+          super msg
         end
       end
 
