@@ -54,10 +54,7 @@ describe Aws::SQS::Client do
       context "when message size exeeds 256 KB" do
         let(:exceeds_max_size) { 266 * 1024 }
         let(:message_content) do
-          body = "x"
-          exceeds_max_size.times do
-            body << "x"
-          end
+          body = "x" * exceeds_max_size
           JSON.dump(body)
         end
 
