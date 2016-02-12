@@ -29,35 +29,30 @@ module ActiveElasticJob
       'Number' => 1
     }
 
-    CHARSET_ENCODING = Encoding::UTF_8
+    NORMALIZED_ENCODING = Encoding::UTF_8
 
-    # Returns MD5 digest of +message_body+.
     def md5_of_message_body(message_body)
       OpenSSL::Digest::MD5.hexdigest(message_body)
     end
 
-    # Returns MD5 digest of +message_attributes+.
-    #
-    # The calculation follows the official algorithm which
-    # is specified by Amazon.
     def md5_of_message_attributes(message_attributes)
-      encoded = message_attributes.each.with_object({ }) do |(name, v), hash|
-        hash[name.to_s] = ""
-        data_type = v['data_type'] || v[:data_type]
+      encoded = { }
+      message_attributes.each do |name, attribute|
+        name = name.to_s
+        encoded[name] = String.new
+        encoded[name] << encode_length_and_bytes(name) <<
+        encode_length_and_bytes(attribute[:data_type]) <<
+        [TRANSPORT_TYPE_ENCODINGS[attribute[:data_type]]].pack('C'.freeze)
 
-        hash[name.to_s] << encode_length_and_bytes(name.to_s) <<
-          encode_length_and_bytes(data_type) <<
-          [ TRANSPORT_TYPE_ENCODINGS[data_type] ].pack('C')
-
-        if string_value = v['string_value'] || v[:string_value]
-          hash[name.to_s] << encode_length_and_string(string_value)
-        elsif binary_value = v['binary_value'] || v[:binary_value]
-          hash[name.to_s] << encode_length_and_bytes(binary_value)
+        if string_value = attribute[:string_value]
+          encoded[name] << encode_length_and_string(string_value)
+        elsif binary_value = attribute[:binary_value]
+          encoded[name] << encode_length_and_bytes(binary_value)
         end
       end
 
-      buffer = encoded.keys.sort.reduce("") do |b, name|
-        b << encoded[name]
+      buffer = encoded.keys.sort.reduce(String.new) do |string, name|
+        string << encoded[name]
       end
       OpenSSL::Digest::MD5.hexdigest(buffer)
     end
@@ -65,15 +60,13 @@ module ActiveElasticJob
     private
 
     def encode_length_and_string(string)
-      return '' if string.nil?
       string = String.new(string)
-      string.encode!(CHARSET_ENCODING)
+      string.encode!(NORMALIZED_ENCODING)
       encode_length_and_bytes(string)
     end
 
     def encode_length_and_bytes(bytes)
-      return '' if bytes.nil?
-      [ bytes.bytesize, bytes ].pack("L>a#{bytes.bytesize}")
+      [bytes.bytesize, bytes].pack('L>a*'.freeze)
     end
   end
 end
