@@ -13,15 +13,20 @@ module ActiveElasticJob
       @secret = secret
     end
 
-    def verify!(message, digest)
+    def verify(message, digest)
       if message.nil? || message.blank? || digest.nil? || digest.blank?
-        raise InvalidDigest
+        return false
       end
 
       unless ActiveSupport::SecurityUtils.secure_compare(digest, generate_digest(message))
-        raise InvalidDigest
+        return false
       end
       true
+
+    end
+
+    def verify!(message, digest)
+      raise InvalidDigest unless verify(message, digest)
     end
 
     def generate_digest(message)
