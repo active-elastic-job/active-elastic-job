@@ -62,7 +62,7 @@ region '#{ENV['AWS_REGION']}' - or you select another queue for your jobs.
       # Raised when calculated MD5 digest does not match the MD5 Digest
       # of the response from Amazon SQS.
       class MD5MismatchError < Error
-        def initialize( message_id)
+        def initialize(message_id)
           msg = <<-MSG
 MD5 returned by Amazon SQS does not match the calculation on the original request.
 The message with Message ID #{message_id} sent to SQS might be corrupted.
