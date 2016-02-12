@@ -1,4 +1,4 @@
-require 'digest'
+require 'openssl'
 module ActiveElasticJob
   # This module provides methods that calculate the MD5 digest for Amazon
   # SQS message bodies and message attributes.
