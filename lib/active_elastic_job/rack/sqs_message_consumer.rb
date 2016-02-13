@@ -5,8 +5,8 @@ module ActiveElasticJob
     # This middleware intercepts requests which are sent by the SQS daemon
     # running in {Amazon Elastic Beanstalk worker environments}[http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html].
     # It does this by looking at the +User-Agent+ header.
-    # Furthermore, it verifies the digest which is sent along with a legit SQS message,
-    # and passed as an HTTP header in the resulting request.
+    # Furthermore, it verifies the digest which is sent along with a legit SQS
+    # message, and passed as an HTTP header in the resulting request.
     # The digest is based on Rails' +secrets.secret_key_base+.
     # Therefore, the application running in the web environment, which generates
     # the digest, and the application running in the worker
@@ -36,11 +36,20 @@ module ActiveElasticJob
             job = JSON.load(request.body)
             ActiveJob::Base.execute(job)
           rescue ActiveElasticJob::MessageVerifier::InvalidDigest => e
-            return ['403', {CONTENT_TYPE_HEADER_NAME => 'text/plain' }, ["incorrect digest"]]
+            return [
+              '403',
+              {CONTENT_TYPE_HEADER_NAME => 'text/plain' },
+              ["incorrect digest"]]
           rescue StandardError => e
-            return ['500', {CONTENT_TYPE_HEADER_NAME => 'text/plain' }, [e.message]]
+            return [
+              '500',
+              {CONTENT_TYPE_HEADER_NAME => 'text/plain' },
+              [e.message]]
           end
-          return [OK_RESPONSE_CODE , {CONTENT_TYPE_HEADER_NAME => CONTENT_TYPE }, [ '' ]]
+          return [
+            OK_RESPONSE_CODE ,
+            {CONTENT_TYPE_HEADER_NAME => CONTENT_TYPE },
+            [ '' ]]
         end
         @app.call(env)
       end

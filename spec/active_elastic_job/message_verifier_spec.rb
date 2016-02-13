@@ -17,7 +17,8 @@ describe ActiveElasticJob::MessageVerifier do
     let(:digest) { 'sth incorrect' }
 
     it "does not verify" do
-      expect { verifier.verify!(message, digest) }.to raise_error(ActiveElasticJob::MessageVerifier::InvalidDigest)
+      expect { verifier.verify!(message, digest) }.to(
+        raise_error(ActiveElasticJob::MessageVerifier::InvalidDigest))
     end
   end
 end

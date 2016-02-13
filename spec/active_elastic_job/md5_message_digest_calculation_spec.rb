@@ -5,7 +5,9 @@ require 'securerandom'
 
 describe ActiveElasticJob::MD5MessageDigestCalculation do
   let(:queue_name) { "ActiveElasticJob-integration-testing" }
-  let(:queue_url) { aws_sqs_client.create_queue(queue_name: queue_name).queue_url }
+  let(:queue_url) {
+    aws_sqs_client.create_queue(queue_name: queue_name).queue_url
+  }
   let(:base_class) {
     Class.new { extend ActiveElasticJob::MD5MessageDigestCalculation }
   }

@@ -18,11 +18,8 @@ module ActiveElasticJob
         return false
       end
 
-      unless ActiveSupport::SecurityUtils.secure_compare(digest, generate_digest(message))
-        return false
-      end
-      true
-
+      return ActiveSupport::SecurityUtils.secure_compare(
+        digest, generate_digest(message))
     end
 
     def verify!(message, digest)
@@ -31,7 +28,7 @@ module ActiveElasticJob
 
     def generate_digest(message)
       require 'openssl' unless defined?(OpenSSL)
-      OpenSSL::HMAC.hexdigest(OpenSSL::Digest.const_get('SHA1').new, @secret, message)
+      OpenSSL::HMAC.hexdigest(OpenSSL::Digest::SHA1.new, @secret, message)
     end
   end
 end

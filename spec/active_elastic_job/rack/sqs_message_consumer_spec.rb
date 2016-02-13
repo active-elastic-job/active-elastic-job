@@ -11,10 +11,14 @@ describe ActiveElasticJob::Rack::SqsMessageConsumer do
 
   before do
     allow(Rails).to receive(:application) { rails_app }
-    allow(rails_app).to receive(:secrets) { { secret_key_base: secret_key_base } }
+    allow(rails_app).to receive(:secrets) {
+      { secret_key_base: secret_key_base }
+    }
   end
 
-  subject(:sqs_message_consumer) { ActiveElasticJob::Rack::SqsMessageConsumer.new(app) }
+  subject(:sqs_message_consumer) {
+    ActiveElasticJob::Rack::SqsMessageConsumer.new(app)
+  }
 
   it "passes an ordinary request through" do
     expect(app).to receive(:call).with(env).and_return(original_response)
@@ -28,7 +32,8 @@ describe ActiveElasticJob::Rack::SqsMessageConsumer do
     before do
       verifier = ActiveElasticJob::MessageVerifier.new(secret_key_base)
       message_body = JSON.dump(job.serialize)
-      env['HTTP_X_AWS_SQSD_ATTR_MESSAGE_DIGEST'] = verifier.generate_digest(message_body)
+      digest = verifier.generate_digest(message_body)
+      env['HTTP_X_AWS_SQSD_ATTR_MESSAGE_DIGEST'] = digest
       env['HTTP_X_AWS_SQSD_ATTR_ORIGIN'] = origin_attribute
       env['HTTP_USER_AGENT'] = 'aws-sqsd/1.1'
       env['rack.input'] = StringIO.new(message_body)
@@ -57,7 +62,8 @@ describe ActiveElasticJob::Rack::SqsMessageConsumer do
             env['HTTP_X_AWS_SQSD_ATTR_MESSAGE_DIGEST'] = nil
           end
           it "passes request through" do
-            expect(app).to receive(:call).with(env).and_return(original_response)
+            expect(app).to receive(:call).with(env).
+              and_return(original_response)
             expect(sqs_message_consumer.call(env)).to eq(original_response)
           end
         end
@@ -100,7 +106,8 @@ describe ActiveElasticJob::Rack::SqsMessageConsumer do
           end
 
           it "passes request through" do
-            expect(app).to receive(:call).with(env).and_return(original_response)
+            expect(app).to receive(:call).with(env).
+              and_return(original_response)
             expect(sqs_message_consumer.call(env)).to eq(original_response)
           end
         end

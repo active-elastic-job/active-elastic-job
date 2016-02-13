@@ -25,7 +25,9 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
   before do
     allow(adapter).to receive(:aws_sqs_client) { aws_sqs_client }
     allow(Rails).to receive(:application) { rails_app }
-    allow(rails_app).to receive(:secrets) { { secret_key_base: secret_key_base } }
+    allow(rails_app).to receive(:secrets) {
+      { secret_key_base: secret_key_base }
+    }
     allow(aws_sqs_client).to receive(:get_queue_url) { queue_url_resp }
     allow(queue_url_resp).to receive(:queue_url) { queue_url }
     allow(aws_sqs_client).to receive(:send_message) { resp }
@@ -90,10 +92,10 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
       let(:job) { Helpers::TestJob.new(arg) }
 
       it "raises a SerializedJobTooBig error" do
-        expected_error = ActiveJob::QueueAdapters::ActiveElasticJobAdapter::SerializedJobTooBig
         expect do
           adapter.enqueue(job)
-        end.to raise_error(expected_error)
+        end.to raise_error(
+          ActiveJob::QueueAdapters::ActiveElasticJobAdapter::SerializedJobTooBig)
       end
     end
 
@@ -103,10 +105,10 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
       end
 
       it "raises NonExistentQueue error" do
-        expected_error = ActiveJob::QueueAdapters::ActiveElasticJobAdapter::NonExistentQueue
         expect do
           adapter.enqueue(job)
-        end.to raise_error(expected_error)
+        end.to raise_error(
+          ActiveJob::QueueAdapters::ActiveElasticJobAdapter::NonExistentQueue)
       end
     end
   end
@@ -115,7 +117,7 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
     let(:delay) { 2.minutes }
     let(:timestamp) { Time.now + delay }
 
-    it "sends the seralized job as a message with a delay to match given timestamp" do
+    it "sends the job as a message with a delay to match given timestamp" do
       expect(aws_sqs_client).to receive(:send_message).with(hash_including(
         delay_seconds: delay
       ))

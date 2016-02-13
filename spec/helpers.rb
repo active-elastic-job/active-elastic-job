@@ -42,14 +42,16 @@ module Helpers
   end
 
   def create_job(random_string, delay = 0)
-    resp = Net::HTTP.post_form URI("http://#{WEB_ENV_HOST}:#{WEB_ENV_PORT}/jobs"),
-    { "random_string" => random_string, "delay" => delay }
+    resp = Net::HTTP.post_form(
+      URI("http://#{WEB_ENV_HOST}:#{WEB_ENV_PORT}/jobs"),
+      { "random_string" => random_string, "delay" => delay })
     resp.value
     resp
   end
 
   def fetch_random_strings
-    resp = JSON.load(open("http://#{WEB_ENV_HOST}:#{WEB_ENV_PORT}/random_strings.json"))
+    resp = JSON.load(
+      open("http://#{WEB_ENV_HOST}:#{WEB_ENV_PORT}/random_strings.json"))
     resp.collect { |a| a["random_string"] }
   end
 
@@ -60,8 +62,9 @@ module Helpers
   end
 
   def create_random_string(random_string)
-    resp = Net::HTTP.post_form URI("http://#{WEB_ENV_HOST}:#{WEB_ENV_PORT}/random_strings"),
-    { "random_string" => random_string }
+    resp = Net::HTTP.post_form(
+      URI("http://#{WEB_ENV_HOST}:#{WEB_ENV_PORT}/random_strings"),
+      { "random_string" => random_string })
     resp.value
     resp
   end
@@ -92,7 +95,8 @@ module Helpers
       raise "Could not unpack gem"
     end
     Dir.chdir(target_dir) do
-      unless system("rm -rf active_elastic_job-current") && system("mv #{gem_package_name} active_elastic_job-current")
+      unless system("rm -rf active_elastic_job-current") &&
+        system("mv #{gem_package_name} active_elastic_job-current")
         raise "Could not move gem"
       end
     end

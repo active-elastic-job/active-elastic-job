@@ -8,9 +8,11 @@ module ActiveJob
     # environments}[http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html].
     #
     # This adapter serializes job objects and sends them as a message to an
-    # Amazon SQS queue specified by the job's queue name, see <tt>ActiveJob::Base.queue_as</tt>
+    # Amazon SQS queue specified by the job's queue name,
+    # see <tt>ActiveJob::Base.queue_as</tt>
     #
-    # To use Active Elastic Job, set the queue_adapter config to +:active_elastic_job+.
+    # To use Active Elastic Job, set the queue_adapter config
+    # to +:active_elastic_job+.
     #
     #   Rails.application.config.active_job.queue_adapter = :active_elastic_job
     class ActiveElasticJobAdapter
@@ -34,9 +36,9 @@ which exceeds the allowed maximum of #{MAX_MESSAGE_SIZE} bytes imposed by Amazon
       end
 
       # Raised when job queue does not exist. The job queue is determined by
-      # <tt>ActiveJob::Base.queue_as</tt>. You can either: (1) create a new Amazon
-      # SQS queue and attach a worker environment to it, or (2) select a different
-      # queue for your jobs.
+      # <tt>ActiveJob::Base.queue_as</tt>. You can either: (1) create a new
+      # Amazon SQS queue and attach a worker environment to it, or (2) select a
+      # different queue for your jobs.
       #
       # Example:
       # * Open your AWS console and create an SQS queue named +high_priority+ in
@@ -49,12 +51,12 @@ which exceeds the allowed maximum of #{MAX_MESSAGE_SIZE} bytes imposed by Amazon
       #  end
       class NonExistentQueue < Error
         def initialize(queue_name)
-          msg = <<-MSG
-The job is bound to queue at #{queue_name}. Unfortunately a queue
-with this name does not exist in this region. Either create an Amazon SQS queue
-named #{queue_name} - you can do this in AWS console, make sure to select
-region '#{ENV['AWS_REGION']}' - or you select another queue for your jobs.
-          MSG
+          msg = "The job is bound to queue at #{queue_name}. " <<
+           "Unfortunately a queue with this name does not exist in this " <<
+           "region. Either create an Amazon SQS queue named #{queue_name} - " <<
+           "you can do this in AWS console, make sure to select region " <<
+           "'#{ENV['AWS_REGION']}' - or you select another queue for your jobs."
+
           super msg
         end
       end
@@ -63,10 +65,9 @@ region '#{ENV['AWS_REGION']}' - or you select another queue for your jobs.
       # of the response from Amazon SQS.
       class MD5MismatchError < Error
         def initialize(message_id)
-          msg = <<-MSG
-MD5 returned by Amazon SQS does not match the calculation on the original request.
-The message with Message ID #{message_id} sent to SQS might be corrupted.
-          MSG
+          msg = "MD5 returned by Amazon SQS does not match the calculation " <<
+            "on the original request. The message with Message ID " <<
+            "#{message_id} sent to SQS might be corrupted."
 
           super msg
         end
@@ -130,12 +131,12 @@ The message with Message ID #{message_id} sent to SQS might be corrupted.
         def calculate_delay(timestamp)
           delay = (timestamp - Time.current.to_f).to_i + 1
           if delay > MAX_DELAY_IN_MINUTES.minutes
-            msg =<<-MSG
-Jobs cannot be scheduled more than #{MAX_DELAY_IN_MINUTES} minutes into the future.
-See http://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_SendMessage.html
-for further details!
-            MSG
-            raise RangeError
+            msg = "Jobs cannot be scheduled more than " <<
+            "#{MAX_DELAY_IN_MINUTES} minutes into the future. " <<
+            "See http://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_SendMessage.html" <<
+            " for further details!"
+
+            raise RangeError, msg
           end
           delay
         end
@@ -160,7 +161,7 @@ for further details!
           @verifier.generate_digest(messsage_body)
         end
 
-        def verify_md5_digests!(response, messsage_body, message_attributes = nil)
+        def verify_md5_digests!(response, messsage_body, message_attributes)
           if md5_of_message_body(messsage_body) != response.md5_of_message_body
             raise MD5MismatchError, response.message_id
           end

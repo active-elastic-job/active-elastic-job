@@ -46,7 +46,8 @@ describe Aws::SQS::Client do
         )
 
         body_digest = md5_digest_verifier.md5_of_message_body(message_content)
-        attributes_digest = md5_digest_verifier.md5_of_message_attributes(message_attributes)
+        attributes_digest = md5_digest_verifier.md5_of_message_attributes(
+          message_attributes)
         expect(response.md5_of_message_body).to match(body_digest)
         expect(response.md5_of_message_attributes).to match(attributes_digest)
       end
