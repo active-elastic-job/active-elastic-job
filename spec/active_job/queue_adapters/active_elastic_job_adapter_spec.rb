@@ -8,42 +8,17 @@ end
 describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
   subject(:adapter) { ActiveJob::QueueAdapters::ActiveElasticJobAdapter }
 
-  let(:aws_sqs_client)  {
-    double("aws_sqs_client")
-  }
   let(:job) { Helpers::TestJob.new }
-  let(:queue_url) { "http://some_url" }
-  let(:queue_url_resp) { double("queue_url_resp") }
-  let(:secret_key_base) { 's3krit' }
-  let(:rails_app) { double("rails_app") }
-  let(:resp) { double("resp") }
-  let(:md5_body) { "body_digest" }
-  let(:md5_attributes) { "attributes_digest" }
-  let(:calculated_md5_body) { md5_body }
-  let(:calculated_md5_attributes) { md5_attributes }
+  let(:secret_key_base) { "s3krit" }
 
   before do
-    allow(adapter).to receive(:aws_sqs_client) { aws_sqs_client }
-    allow(Rails).to receive(:application) { rails_app }
-    allow(rails_app).to receive(:secrets) {
-      { secret_key_base: secret_key_base }
-    }
-    allow(aws_sqs_client).to receive(:get_queue_url) { queue_url_resp }
-    allow(queue_url_resp).to receive(:queue_url) { queue_url }
-    allow(aws_sqs_client).to receive(:send_message) { resp }
-    allow(resp).to receive(:md5_of_message_body) { md5_body }
-    allow(resp).to receive(:md5_of_message_attributes) { md5_attributes }
-    allow(resp).to receive(:message_id) { "" }
-    allow(adapter).to receive(:md5_of_message_body) { calculated_md5_body }
-    allow(adapter).to receive(:md5_of_message_attributes) {
-      calculated_md5_attributes
-    }
+    allow(adapter).to receive(:secret_key_base) { secret_key_base }
   end
 
   describe ".enqueue" do
     it "selects the correct queue" do
-      expected_args = { queue_name: job.queue_name.to_s }
-      expect(aws_sqs_client).to receive(:get_queue_url).with(expected_args)
+      expect(adapter).to receive(:queue_url).with(job.queue_name).and_return(
+        aws_sqs_client.get_queue_url(queue_name: job.queue_name.to_s).queue_url)
 
       adapter.enqueue job
     end
@@ -54,41 +29,19 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
     end
 
     it "sends the serialized job as a message to an AWS SQS queue" do
-      expect(aws_sqs_client).to receive(:send_message)
-
+      expect(adapter.send(:aws_sqs_client)).to(receive(:send_message))
+      allow(adapter).to receive(:verify_md5_digests!)
       adapter.enqueue job
     end
 
-    describe "md5 digest verification" do
-      let(:expected_error) {
-        ActiveJob::QueueAdapters::ActiveElasticJobAdapter::MD5MismatchError
-      }
-      context "when md5 hash of message body does not match" do
-        let(:calculated_md5_body) { "a different digest" }
-
-        it "raises MD5MismatchError " do
-          expect { adapter.enqueue(job) }.to raise_error(expected_error)
-        end
-      end
-
-      context "when md5 hash of message attributes does not match" do
-        let(:calculated_md5_attributes) { "a different digest" }
-
-        it "raises MD5MismatchError " do
-          expect { adapter.enqueue(job) }.to raise_error(expected_error)
-        end
-      end
+    it "verifies returned md5 digests" do
+      expect(adapter).to receive(:verify_md5_digests!)
+      adapter.enqueue job
     end
 
     context "when serialized job exeeds 256KB" do
       let(:exceeds_max_size) { 266 * 1024 }
-      let(:arg) do
-        arg = "x"
-        exceeds_max_size.times do
-          arg << "x"
-        end
-        arg
-      end
+      let(:arg) { "." * exceeds_max_size }
       let(:job) { Helpers::TestJob.new(arg) }
 
       it "raises a SerializedJobTooBig error" do
@@ -118,7 +71,9 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
     let(:timestamp) { Time.now + delay }
 
     it "sends the job as a message with a delay to match given timestamp" do
-      expect(aws_sqs_client).to receive(:send_message).with(hash_including(
+      client = adapter.send(:aws_sqs_client)
+      allow(adapter).to receive(:verify_md5_digests!)
+      expect(client).to receive(:send_message).with(hash_including(
         delay_seconds: delay
       ))
       adapter.enqueue_at(job, timestamp)

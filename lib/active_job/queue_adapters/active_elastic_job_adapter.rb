@@ -64,10 +64,11 @@ which exceeds the allowed maximum of #{MAX_MESSAGE_SIZE} bytes imposed by Amazon
       # Raised when calculated MD5 digest does not match the MD5 Digest
       # of the response from Amazon SQS.
       class MD5MismatchError < Error
-        def initialize(message_id)
-          msg = "MD5 returned by Amazon SQS does not match the calculation " <<
-            "on the original request. The message with Message ID " <<
-            "#{message_id} sent to SQS might be corrupted."
+        def initialize(message_id, calculated, returned)
+          msg = "MD5 '#{returned}' returned by Amazon SQS does not match the" <<
+            " calculation on the original request which was '#{calculated}'. " <<
+            "The message with Message ID #{message_id} sent to SQS might be " <<
+            "corrupted."
 
           super msg
         end
@@ -157,22 +158,28 @@ which exceeds the allowed maximum of #{MAX_MESSAGE_SIZE} bytes imposed by Amazon
         end
 
         def message_digest(messsage_body)
-          secret_key_base = Rails.application.secrets[:secret_key_base]
           @verifier ||= ActiveElasticJob::MessageVerifier.new(secret_key_base)
           @verifier.generate_digest(messsage_body)
         end
 
         def verify_md5_digests!(response, messsage_body, message_attributes)
-          if md5_of_message_body(messsage_body) != response.md5_of_message_body
-            raise MD5MismatchError, response.message_id
+          calculated = md5_of_message_body(messsage_body)
+          returned = response.md5_of_message_body
+          if calculated != returned
+            raise MD5MismatchError.new response.message_id, calculated, returned
           end
 
           if message_attributes
-            if md5_of_message_attributes(message_attributes) !=
-              response.md5_of_message_attributes
-              raise MD5MismatchError, response.message_id
+            calculated = md5_of_message_attributes(message_attributes)
+            returned = response.md5_of_message_attributes
+            if  calculated != returned
+              raise MD5MismatchError.new response.message_id, calculated, returned
             end
           end
+        end
+
+        def secret_key_base
+          @secret_key_base ||= Rails.application.secrets[:secret_key_base]
         end
       end
     end
