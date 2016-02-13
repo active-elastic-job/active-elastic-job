@@ -138,6 +138,7 @@ which exceeds the allowed maximum of #{MAX_MESSAGE_SIZE} bytes imposed by Amazon
 
             raise RangeError, msg
           end
+          delay = 0 if delay < 0
           delay
         end
 
