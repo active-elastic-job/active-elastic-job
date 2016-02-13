@@ -134,6 +134,7 @@ for further details!
             MSG
             raise RangeError, msg if delay > 15.minutes
           end
+          delay = 0 if delay < 0
           delay
         end
 
