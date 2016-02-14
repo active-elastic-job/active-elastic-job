@@ -44,10 +44,10 @@ module ActiveElasticJob
         encode_length_and_bytes(attribute[:data_type]) <<
         [TRANSPORT_TYPE_ENCODINGS[attribute[:data_type]]].pack('C'.freeze)
 
-        if string_value = attribute[:string_value]
-          encoded[name] << encode_length_and_string(string_value)
-        elsif binary_value = attribute[:binary_value]
-          encoded[name] << encode_length_and_bytes(binary_value)
+        if attribute[:string_value] != nil
+          encoded[name] << encode_length_and_string(attribute[:string_value])
+        elsif attribute[:binary_value] != nil
+          encoded[name] << encode_length_and_bytes(attribute[:binary_value])
         end
       end
 
