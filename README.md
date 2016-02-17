@@ -7,13 +7,6 @@ Active Elastic Job is a queuing backend implementation, targeting Rails >= 4.2 a
 [Amazon Elastic Beanstalk](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/Welcome.html) platform. It provides an
 adapter for Rails' [Active Job](http://guides.rubyonrails.org/active_job_basics.html) framework and a [Rack](http://rack.github.io/) middleware to consume messages pulled by the SQS daemon running in Elastic Beanstalk [worker environments](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html).
 
-This gem allows Rails applications which run in Elastic Beanstalk environments to offload long running tasks into background jobs by simply
-* adding this gem to the bundle,
-* creating an [Amazon SQS](https://aws.amazon.com/de/sqs/) queue,
-* creating a [worker environment](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html)
-* configuring Active Elastic Job as the queue adapter,
-* deploying the updated application (identical versions) to web and the worker environments.
-
 ## Why use this gem?
 You decided to deploy your Rails application to Amazon Elastic Beanstalk because
 it makes deployment as easy as pushing a button. Active Elastic Job allows you to use a powerful queueing backend for your background jobs but still keep the deployment process simple and easy. It connects your Rails application to the Amazon Simple Queue Service (SQS) which is a fully managed queueing backend.
