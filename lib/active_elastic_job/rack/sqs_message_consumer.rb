@@ -40,11 +40,6 @@ module ActiveElasticJob
               '403',
               {CONTENT_TYPE_HEADER_NAME => 'text/plain' },
               ["incorrect digest"]]
-          rescue StandardError => e
-            return [
-              '500',
-              {CONTENT_TYPE_HEADER_NAME => 'text/plain' },
-              [e.message]]
           end
           return [
             OK_RESPONSE_CODE ,

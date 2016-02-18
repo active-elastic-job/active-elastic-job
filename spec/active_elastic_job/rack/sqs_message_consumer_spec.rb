@@ -133,20 +133,6 @@ describe ActiveElasticJob::Rack::SqsMessageConsumer do
             expect(response[0]).to eq('403')
           end
         end
-
-        context "when job execution fails" do
-          let(:error_message)  { "intentional error" }
-
-          before do
-            allow(ActiveJob::Base).to receive(:execute).and_raise(error_message)
-          end
-
-          it "responds with a 500 error code" do
-            response = sqs_message_consumer.call(env)
-            expect(response[0]).to eq('500')
-            expect(response[2][0]).to eq(error_message)
-          end
-        end
       end
     end
   end
