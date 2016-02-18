@@ -1,3 +1,5 @@
+## [v1.4.2] - 2016-02-18
+- Escalate errors to make debugging easier
 ## [v1.4.0] - 2016-02-09
 - Disable middleware that processes SQS daemon request with an environment variable
  - Closes [issue #12](https://github.com/tawan/active-elastic-job/issues/12)
