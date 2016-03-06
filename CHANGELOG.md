@@ -1,8 +1,11 @@
 ## [v1.4.3] - 2016-03-06
 - Skip SQS MD5 digest verification if not necessary
  - Closes [issue #21](https://github.com/tawan/active-elastic-job/issues/21)
+
 ## [v1.4.2] - 2016-02-18
 - Escalate errors to make debugging easier
+
+
 ## [v1.4.0] - 2016-02-09
 - Disable middleware that processes SQS daemon request with an environment variable
  - Closes [issue #12](https://github.com/tawan/active-elastic-job/issues/12)
@@ -12,6 +15,7 @@
 ## [v1.3.2] - 2016-02-08
 - Fix worker environments running Puma servers. Remove underscore from header.
  - Close [issue #15](https://github.com/tawan/active-elastic-job/issues/15)
+
 ## [v1.3.1] - 2016-02-07
 
 - Fix backwards incompatibility
