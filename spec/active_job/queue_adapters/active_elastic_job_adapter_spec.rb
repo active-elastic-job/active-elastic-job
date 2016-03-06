@@ -34,9 +34,15 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
       adapter.enqueue job
     end
 
-    it "verifies returned md5 digests" do
-      expect(adapter).to receive(:verify_md5_digests!)
-      adapter.enqueue job
+    context "when aws client does not verify md5 diggests" do
+      before do
+        allow(adapter).to receive(:aws_client_verifies_md5_digests?) { false }
+      end
+
+      it "verifies returned md5 digests" do
+        expect(adapter).to receive(:verify_md5_digests!)
+        adapter.enqueue job
+      end
     end
 
     context "when serialized job exeeds 256KB" do

@@ -19,6 +19,12 @@ module ActiveJob
       MAX_MESSAGE_SIZE = (256 * 1024)
       MAX_DELAY_IN_MINUTES = 15
 
+      if Gem::Version.new(Aws::VERSION) >= Gem::Version.new('2.2.19')
+        AWS_CLIENT_VERIFIES_MD5_DIGESTS = true
+      else
+        AWS_CLIENT_VERIFIES_MD5_DIGESTS = false
+      end
+
       extend ActiveElasticJob::MD5MessageDigestCalculation
 
       class Error < RuntimeError; end;
@@ -84,11 +90,12 @@ which exceeds the allowed maximum of #{MAX_MESSAGE_SIZE} bytes imposed by Amazon
           check_job_size!(serialized_job)
           message = build_message(job.queue_name, serialized_job, timestamp)
           resp = aws_sqs_client.send_message(message)
-          verify_md5_digests!(
-            resp,
-            message[:message_body],
-            message[:message_attributes]
-          )
+          unless aws_client_verifies_md5_digests?
+            verify_md5_digests!(
+              resp,
+              message[:message_body],
+              message[:message_attributes])
+          end
         rescue Aws::SQS::Errors::NonExistentQueue => e
           unless @queue_urls[job.queue_name.to_s].nil?
             @queue_urls[job.queue_name.to_s] = nil
@@ -100,6 +107,10 @@ which exceeds the allowed maximum of #{MAX_MESSAGE_SIZE} bytes imposed by Amazon
         end
 
         private
+
+        def aws_client_verifies_md5_digests?
+          return AWS_CLIENT_VERIFIES_MD5_DIGESTS
+        end
 
         def build_message(queue_name, serialized_job, timestamp)
           {
