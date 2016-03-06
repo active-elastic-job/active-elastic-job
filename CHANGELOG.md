@@ -1,3 +1,6 @@
+## [v1.4.3] - 2016-03-06
+- Skip SQS MD5 digest verification if not necessary
+ - Closes [issue #21](https://github.com/tawan/active-elastic-job/issues/21)
 ## [v1.4.2] - 2016-02-18
 - Escalate errors to make debugging easier
 ## [v1.4.0] - 2016-02-09
