@@ -34,10 +34,10 @@ module ActiveJob
       class SerializedJobTooBig < Error
         def initialize(serialized_job)
           msg = <<-MSG
-The job contains #{serialized_job.bytesize} bytes in its serialzed form,
-which exceeds the allowed maximum of #{MAX_MESSAGE_SIZE} bytes imposed by Amazon SQS.
+          super(<<-MSG)
+            The job contains #{serialized_job.bytesize} bytes in its serialzed form,
+            which exceeds the allowed maximum of #{MAX_MESSAGE_SIZE} bytes imposed by Amazon SQS.
           MSG
-          super msg
         end
       end
 
@@ -57,13 +57,14 @@ which exceeds the allowed maximum of #{MAX_MESSAGE_SIZE} bytes imposed by Amazon
       #  end
       class NonExistentQueue < Error
         def initialize(queue_name)
-          msg = "The job is bound to queue at #{queue_name}. " <<
-           "Unfortunately a queue with this name does not exist in this " <<
-           "region. Either create an Amazon SQS queue named #{queue_name} - " <<
-           "you can do this in AWS console, make sure to select region " <<
-           "'#{ENV['AWS_REGION']}' - or you select another queue for your jobs."
 
-          super msg
+          super(<<-MSG)
+            The job is bound to queue at #{queue_name}.
+            Unfortunately a queue with this name does not exist in this
+            region. Either create an Amazon SQS queue named #{queue_name} -
+            you can do this in AWS console, make sure to select region
+            '#{ENV['AWS_REGION']}' - or you select another queue for your jobs.
+          MSG
         end
       end
 
@@ -71,12 +72,13 @@ which exceeds the allowed maximum of #{MAX_MESSAGE_SIZE} bytes imposed by Amazon
       # of the response from Amazon SQS.
       class MD5MismatchError < Error
         def initialize(message_id, calculated, returned)
-          msg = "MD5 '#{returned}' returned by Amazon SQS does not match the" <<
-            " calculation on the original request which was '#{calculated}'. " <<
-            "The message with Message ID #{message_id} sent to SQS might be " <<
-            "corrupted."
 
-          super msg
+          super(<<-MSG)
+            MD5 '#{returned}' returned by Amazon SQS does not match the
+            calculation on the original request which was '#{calculated}'.
+            The message with Message ID #{message_id} sent to SQS might be
+            corrupted.
+          MSG
         end
       end
 
