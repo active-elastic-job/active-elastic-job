@@ -1,3 +1,5 @@
+require 'net/http'
+
 class TestJob < ActiveJob::Base
   queue_as :active_elastic_job_integration_testing
 
