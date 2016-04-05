@@ -7,8 +7,9 @@ class TestJob < ActiveJob::Base
   WEB_ENV_PORT = ENV['WEB_ENV_PORT']
 
   def perform(random_string)
-    Net::HTTP.start(WEB_ENV_HOST, WEB_ENV_PORT) do |http|
-      http.delete("/random_strings/#{random_string}")
+    Net::HTTP.start(WEB_ENV_HOST, WEB_ENV_PORT, use_ssl: true, verify_mode: OpenSSL::SSL::VERIFY_NONE) do |https|
+      request = Net::HTTP::Delete.new "/random_strings/#{random_string}"
+      https.request request
     end
   end
 end

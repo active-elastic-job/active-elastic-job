@@ -6,7 +6,7 @@ require 'climate_control'
 
 module Helpers
   WEB_ENV_HOST = ENV['WEB_ENV_HOST']
-  WEB_ENV_PORT = ENV['WEB_ENV_PORT']
+  WEB_ENV_PORT = ENV['WEB_ENV_PORT'].to_i
   WEB_ENV_NAME = ENV['WEB_ENV_NAME']
   WORKER_ENV_NAME = ENV['WORKER_ENV_NAME']
 
@@ -32,7 +32,7 @@ module Helpers
 
   class RailsApp
     def initialize
-      @base_url = "http://#{WEB_ENV_HOST}:#{WEB_ENV_PORT}/"
+      @base_url = "https://#{WEB_ENV_HOST}/"
     end
 
     def deploy
@@ -47,31 +47,31 @@ module Helpers
     end
 
     def create_delete_job(random_string, delay = 0)
-      resp = Net::HTTP.post_form(
-      URI("#{@base_url}jobs"),
-      { "random_string" => random_string, "delay" => delay })
-      resp.value
-      resp
-    end
-
-    def fetch_random_strings
-      resp = JSON.load(
-      open("#{@base_url}random_strings.json"))
-      resp.collect { |a| a["random_string"] }
-    end
-
-    def delete_random_string(random_string)
-      Net::HTTP.start(WEB_ENV_HOST, WEB_ENV_PORT) do |http|
-        http.delete("/random_strings/#{random_string}")
+      Net::HTTP.start(WEB_ENV_HOST, WEB_ENV_PORT, use_ssl: true, verify_mode: OpenSSL::SSL::VERIFY_NONE) do |https|
+        req = Net::HTTP::Post.new("/jobs")
+        req.set_form_data("random_string" => random_string, "delay" => delay)
+        resp = https.request req
       end
     end
 
+    def fetch_random_strings
+      resp = nil
+      Net::HTTP.start(WEB_ENV_HOST, WEB_ENV_PORT, use_ssl: true, verify_mode: OpenSSL::SSL::VERIFY_NONE) do |https|
+        request = Net::HTTP::Get.new("/random_strings.json")
+        resp = https.request request
+      end
+      resp = JSON.load(
+        resp.body
+      )
+      resp.collect { |a| a["random_string"] }
+    end
+
     def create_random_string(random_string)
-      resp = Net::HTTP.post_form(
-      URI("#{@base_url}random_strings"),
-      { "random_string" => random_string })
-      resp.value
-      resp
+      Net::HTTP.start(WEB_ENV_HOST, WEB_ENV_PORT, use_ssl: true, verify_mode: OpenSSL::SSL::VERIFY_NONE) do |https|
+        req = Net::HTTP::Post.new("/random_strings.json")
+        req.set_form_data("random_string" => random_string)
+        resp = https.request req
+      end
     end
 
     private

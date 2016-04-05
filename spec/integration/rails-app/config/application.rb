@@ -24,5 +24,7 @@ module RailsApp
     config.active_record.raise_in_transactional_callbacks = true
 
     config.active_job.queue_adapter = :active_elastic_job
+
+    config.force_ssl = true
   end
 end
