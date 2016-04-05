@@ -83,6 +83,20 @@ Because of these safety measures it is possible to deploy the same codebase to b
 ### Can jobs get lost?
 Active Elastic Job will raise an error if a job has not been sent successfully to the SQS queue. It expects the queue to return an MD5 digest of the message contents, which it verifies for correctness. Amazon advertises SQS to be reliable and messages are stored redundantly. If a job is not executed successfully, the corresponding message become visible in the queue again. Depending on the queue's setting, the worker environment will pull the message again and an attempt will be made to execute the jobs again.
 
+### What can be the reason if jobs are not executed?
+
+Inspect the log files of your worker tier environment. It should contain entries for the requests that are performed
+by the AWS SQS daemon. Look out for POST requests from user agents starting with `aws-sqsd/`. If the log does not
+contain any, then make sure that there are messages enqueued in the SQS queue which is attached to your worker tier. You can do this from
+your AWS console.
+
+When you have found the requests, check their response codes which give a clue on why a job is not executed:
+
+* status code `500`: something went wrong. The job might have raised an error.
+* status code `403`: the request seems to originate from another host than `localhost` (this is a known issue for deployments using Docker containers) or the message which represents the job has not been verified successfully. Make sure that both environment, web and worker, use the same `SECRET_KEY_BASE`.
+* status code `404`: the gem is not included in the bundle, the `DISABLE_SQS_CONSUMER` is set to `true` in the worker environment or the worker environment uses an outdated platform which uses the AWS SQS daemon version 1. Check the user agent again, if it lookes like this `aws-sqsd/1.*` then it uses the old version. This gem works only for daemons version 2 or newer.
+
+
 ## Bugs - Questions - Improvements
 
 Whether you catch a bug, have a question or a suggestion for improvement, I sincerely appreciate any feedback. Please feel free to [create an issue](https://github.com/tawan/active-elastic-job/issues/new) and I will follow up as soon as possible.
