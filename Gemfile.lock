@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    active_elastic_job (1.4.3)
+    active_elastic_job (1.4.4)
       aws-sdk (~> 2)
       rails (~> 4.2)
 

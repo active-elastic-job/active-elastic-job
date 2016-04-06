@@ -1,3 +1,7 @@
+## [v1.4.4] - 2016-04-06
+- Support Rails application configured to force SSL
+ - Closes [issue #25](https://github.com/tawan/active-elastic-job/issues/25)
+
 ## [v1.4.3] - 2016-03-06
 - Skip SQS MD5 digest verification if not necessary
  - Closes [issue #21](https://github.com/tawan/active-elastic-job/issues/21)
