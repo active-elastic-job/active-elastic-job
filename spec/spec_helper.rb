@@ -1,10 +1,6 @@
 require 'bundler/setup'
 Bundler.setup
 
-if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.0.0')
-  require 'byebug'
-end
-
 require 'active_elastic_job'
 
 require 'dotenv'

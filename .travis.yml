@@ -1,7 +1,6 @@
 sudo: required
 language: ruby
 rvm:
-  - "1.9.3"
   - "2.0"
   - "2.1"
   - "2.2"
@@ -10,6 +9,8 @@ gemfile:
 install:
   - "sudo pip install --upgrade pip"
   - "sudo pip install awsebcli --ignore-installed"
+  - "gem install bundler"
+  - "bundle install"
 
 script:
    - "export EXCEPT_DEPLOYED=true"
