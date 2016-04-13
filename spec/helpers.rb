@@ -2,6 +2,7 @@ require 'fileutils'
 require 'aws-sdk'
 require 'open-uri'
 require 'active_job'
+require 'active_job/queue_adapters'
 require 'climate_control'
 
 module Helpers
@@ -31,7 +32,8 @@ module Helpers
   end
 
   class RailsApp
-    def initialize
+    def initialize(version = "4.2")
+      @version = version
       @base_url = "https://#{WEB_ENV_HOST}/"
     end
 
@@ -77,7 +79,7 @@ module Helpers
     private
 
     def deploy_to_environment(env)
-      Dir.chdir("#{root_dir}/spec/integration/rails-app") do
+      Dir.chdir("#{root_dir}/spec/integration/rails-app-#{@version}") do
         unless system("eb deploy #{env}")
           raise "Could not deploy application to environment #{env}"
         end
@@ -95,7 +97,7 @@ module Helpers
     end
 
     def unpack_gem_into_vendor_dir
-      target_dir = "#{root_dir}/spec/integration/rails-app/vendor/gems"
+      target_dir = "#{root_dir}/spec/integration/rails-app-#{@version}/vendor/gems"
       unless File.directory?(target_dir)
         FileUtils.mkdir_p(target_dir)
       end
