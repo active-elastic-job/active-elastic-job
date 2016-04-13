@@ -1,3 +1,8 @@
+## [v.1.5.0] - 2016-04-13
+- Support Rails 5 applications
+ - Closes [issue #28](https://github.com/tawan/active-elastic-job/issues/28)
+ - Acknowledgments: Many thanks to Matt D from San Jose.
+
 ## [v1.4.4] - 2016-04-06
 - Support Rails application configured to force SSL
  - Closes [issue #25](https://github.com/tawan/active-elastic-job/issues/25)
