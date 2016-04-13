@@ -3,7 +3,7 @@ PATH
   specs:
     active_elastic_job (1.4.4)
       aws-sdk (~> 2)
-      rails (>= 4.2)
+      rails (>= 4.2, < 5.0.1)
 
 GEM
   remote: https://rubygems.org/
