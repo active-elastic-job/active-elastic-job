@@ -86,6 +86,10 @@ module ActiveJob
         ActiveElasticJobAdapter.enqueue job
       end
 
+      def enqueue_at(job, timestamp) #:nodoc:
+        ActiveElasticJobAdapter.enqueue_at(job, timestamp)
+      end
+
       class << self
         def enqueue(job) #:nodoc:
           enqueue_at(job, Time.now)
