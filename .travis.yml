@@ -1,5 +1,3 @@
-before_install:
-  - ./bootstrap.sh
 sudo: required
 language: ruby
 rvm:
@@ -9,6 +7,9 @@ rvm:
   - "2.2"
 gemfile:
   - gemfiles/Gemfile.rails-4.2.x
+install:
+  - "sudo pip install --upgrade pip"
+  - "sudo pip install awsebcli --ignore-installed"
 
 script:
    - "export EXCEPT_DEPLOYED=true"

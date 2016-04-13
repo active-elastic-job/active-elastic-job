@@ -55,6 +55,6 @@ install nodejs nodejs
 # install Amazon EB CLI
 install python-dev python-dev
 curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
-python get-pip.py
+python get-pip.py --no-setuptools
 #pip install --upgrade pip
 sudo pip install awsebcli
