@@ -5,7 +5,7 @@ describe "standard scenarios", slow: true, deployed: true do
   let(:random_string) { SecureRandom.hex }
 
   before(:all) do
-    @rails_app = Helpers::RailsApp.new
+    @rails_app = Helpers::RailsApp.new("#{Rails::VERSION::MAJOR}.#{Rails::VERSION::MINOR}")
     @rails_app.deploy
   end
 
