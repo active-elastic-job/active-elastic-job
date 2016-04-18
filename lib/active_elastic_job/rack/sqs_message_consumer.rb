@@ -1,4 +1,5 @@
 require "action_dispatch"
+require "ipaddr"
 
 module ActiveElasticJob
   module Rack
@@ -27,7 +28,7 @@ module ActiveElasticJob
       def call(env) #:nodoc:
         request = ActionDispatch::Request.new env
         if enabled? && aws_sqsd?(request) && originates_from_gem?(request)
-          unless request.local?
+          unless request.local? || in_allowed_network?(request.ip)
             m = "Accepts only requests from localhost for job processing".freeze
             return ['403', {CONTENT_TYPE_HEADER_NAME => 'text/plain' }, [ m ]]
           end
@@ -85,6 +86,10 @@ module ActiveElasticJob
         else
           return false
         end
+      end
+
+      def in_allowed_network?(ip)
+        IPAddr.new(ActiveElasticJob.configuration.allowed_network).include?(ip)
       end
     end
   end
