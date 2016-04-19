@@ -28,7 +28,7 @@ module ActiveElasticJob
       def call(env) #:nodoc:
         request = ActionDispatch::Request.new env
         if enabled? && aws_sqsd?(request) && originates_from_gem?(request)
-          unless request.local? || in_allowed_network?(request.ip)
+          unless in_allowed_network?(request.ip)
             m = "Accepts only requests from localhost for job processing".freeze
             return ['403', {CONTENT_TYPE_HEADER_NAME => 'text/plain' }, [ m ]]
           end
@@ -89,7 +89,9 @@ module ActiveElasticJob
       end
 
       def in_allowed_network?(ip)
-        IPAddr.new(ActiveElasticJob.configuration.allowed_network).include?(ip)
+        ["127.0.0.1/32", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"].any? do |network|
+          IPAddr.new(network).include? ip
+        end
       end
     end
   end

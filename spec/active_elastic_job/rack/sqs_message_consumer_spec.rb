@@ -52,7 +52,6 @@ describe ActiveElasticJob::Rack::SqsMessageConsumer do
 
     context "when request is from an allowed network" do
       before do
-        ActiveElasticJob::Configuration.configuration.allowed_network = '172.17.0.0/16'
         env['REMOTE_ADDR'] = '172.17.0.1'
       end
 
