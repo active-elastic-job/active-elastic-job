@@ -50,6 +50,17 @@ describe ActiveElasticJob::Rack::SqsMessageConsumer do
       end
     end
 
+    context "when request is from an allowed network" do
+      before do
+        env['REMOTE_ADDR'] = '172.17.0.1'
+      end
+
+      it "responds with a 200 status code" do
+        response = sqs_message_consumer.call(env)
+        expect(response[0]).to eq('200')
+      end
+    end
+
     context "when request was local" do
       before do
         env['REMOTE_ADDR'] = '127.0.0.1'
