@@ -19,6 +19,8 @@ module ActiveElasticJob
       CONTENT_TYPE = 'application/json'.freeze
       CONTENT_TYPE_HEADER_NAME = 'Content-Type'.freeze
       OK_RESPONSE_CODE = '200'.freeze
+      INSIDE_DOCKER_CONTAINER = `cat /proc/1/cgroup` =~ /docker/
+      DOCKER_HOST_IP = "172.17.0.1".freeze
 
       def initialize(app) #:nodoc:
         @app = app
@@ -27,7 +29,7 @@ module ActiveElasticJob
       def call(env) #:nodoc:
         request = ActionDispatch::Request.new env
         if enabled? && aws_sqsd?(request) && originates_from_gem?(request)
-          unless request.local?
+          unless request.local? || sent_from_docker_host?(request)
             m = "Accepts only requests from localhost for job processing".freeze
             return ['403', {CONTENT_TYPE_HEADER_NAME => 'text/plain' }, [ m ]]
           end
@@ -85,6 +87,10 @@ module ActiveElasticJob
         else
           return false
         end
+      end
+
+      def sent_from_docker_host?(request)
+        INSIDE_DOCKER_CONTAINER && request.remote_ip == DOCKER_HOST_IP
       end
     end
   end
