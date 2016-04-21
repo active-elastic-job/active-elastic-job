@@ -1,3 +1,9 @@
+## [v.1.6.0] - 2016-04-21
+- Support Docker environments
+ - Closes [issue #26](https://github.com/tawan/active-elastic-job/issues/26)
+- Support common environment variable names
+ - Closes [issue #31](https://github.com/tawan/active-elastic-job/issues/31)
+
 ## [v.1.5.0] - 2016-04-13
 - Support Rails 5 applications
  - Closes [issue #28](https://github.com/tawan/active-elastic-job/issues/28)
