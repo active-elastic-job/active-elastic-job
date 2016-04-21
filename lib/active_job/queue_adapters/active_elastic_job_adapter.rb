@@ -171,9 +171,10 @@ module ActiveJob
         end
 
         def aws_sqs_client
+          @aws_key ||= ENV['AWS_SECRET_ACCESS_KEY'] || ENV['AWS_SECRET_KEY'] || ENV['AMAZON_SECRET_ACCESS_KEY']
           @aws_sqs_client ||= Aws::SQS::Client.new(
             access_key_id: ENV['AWS_ACCESS_KEY_ID'],
-            secret_access_key: ENV['AWS_SECRET_ACCESS_KEY'],
+            secret_access_key: @aws_key,
             region: ENV['AWS_REGION']
           )
         end
