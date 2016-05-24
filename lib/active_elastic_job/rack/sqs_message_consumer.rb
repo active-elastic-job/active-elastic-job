@@ -19,7 +19,7 @@ module ActiveElasticJob
       CONTENT_TYPE = 'application/json'.freeze
       CONTENT_TYPE_HEADER_NAME = 'Content-Type'.freeze
       OK_RESPONSE_CODE = '200'.freeze
-      INSIDE_DOCKER_CONTAINER = `cat /proc/1/cgroup` =~ /docker/
+      INSIDE_DOCKER_CONTAINER = `[ -f /proc/1/cgroup ] && cat /proc/1/cgroup` =~ /docker/
       DOCKER_HOST_IP = "172.17.0.1".freeze
 
       def initialize(app) #:nodoc:
