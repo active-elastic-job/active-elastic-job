@@ -4,9 +4,9 @@ module ActiveElasticJob
       disabled = ENV['DISABLE_SQS_CONSUMER']
       if disabled == 'false' || disabled.nil?
         if app.config.force_ssl
-          app.config.middleware.insert_before("ActionDispatch::SSL","ActiveElasticJob::Rack::SqsMessageConsumer")
+          app.config.middleware.insert_before(ActionDispatch::SSL,ActiveElasticJob::Rack::SqsMessageConsumer)
         else
-          app.config.middleware.use("ActiveElasticJob::Rack::SqsMessageConsumer")
+          app.config.middleware.use(ActiveElasticJob::Rack::SqsMessageConsumer)
         end
       end
     end
