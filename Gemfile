@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '5.0.0.beta3'
+gem 'rails', '5.0.0'
 gemspec
 gem 'bundler'
 gem 'rspec', '~> 3.4'
