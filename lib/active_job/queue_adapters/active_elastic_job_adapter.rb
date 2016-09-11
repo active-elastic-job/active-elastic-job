@@ -83,11 +83,11 @@ module ActiveJob
       end
 
       def enqueue(job) #:nodoc:
-        ActiveElasticJobAdapter.enqueue job
+        self.class.enqueue job
       end
 
       def enqueue_at(job, timestamp) #:nodoc:
-        ActiveElasticJobAdapter.enqueue_at(job, timestamp)
+        self.class.enqueue_at(job, timestamp)
       end
 
       class << self
