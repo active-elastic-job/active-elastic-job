@@ -49,7 +49,7 @@ module Helpers
     end
 
     def create_delete_job(random_string, delay = 0)
-      Net::HTTP.start(WEB_ENV_HOST, WEB_ENV_PORT, use_ssl: true, verify_mode: OpenSSL::SSL::VERIFY_NONE) do |https|
+      Net::HTTP.start(WEB_ENV_HOST, WEB_ENV_PORT, use_ssl: false, verify_mode: OpenSSL::SSL::VERIFY_NONE) do |https|
         req = Net::HTTP::Post.new("/jobs")
         req.set_form_data("random_string" => random_string, "delay" => delay)
         resp = https.request req
@@ -58,7 +58,7 @@ module Helpers
 
     def fetch_random_strings
       resp = nil
-      Net::HTTP.start(WEB_ENV_HOST, WEB_ENV_PORT, use_ssl: true, verify_mode: OpenSSL::SSL::VERIFY_NONE) do |https|
+      Net::HTTP.start(WEB_ENV_HOST, WEB_ENV_PORT, use_ssl: false, verify_mode: OpenSSL::SSL::VERIFY_NONE) do |https|
         request = Net::HTTP::Get.new("/random_strings.json")
         resp = https.request request
       end
@@ -69,7 +69,7 @@ module Helpers
     end
 
     def create_random_string(random_string)
-      Net::HTTP.start(WEB_ENV_HOST, WEB_ENV_PORT, use_ssl: true, verify_mode: OpenSSL::SSL::VERIFY_NONE) do |https|
+      Net::HTTP.start(WEB_ENV_HOST, WEB_ENV_PORT, use_ssl: false, verify_mode: OpenSSL::SSL::VERIFY_NONE) do |https|
         req = Net::HTTP::Post.new("/random_strings.json")
         req.set_form_data("random_string" => random_string)
         resp = https.request req
