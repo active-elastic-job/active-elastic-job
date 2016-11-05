@@ -171,12 +171,17 @@ module ActiveJob
         end
 
         def aws_sqs_client
-          @aws_key ||= ENV['AWS_SECRET_ACCESS_KEY'] || ENV['AWS_SECRET_KEY'] || ENV['AMAZON_SECRET_ACCESS_KEY']
-          @aws_sqs_client ||= Aws::SQS::Client.new(
-            access_key_id: ENV['AWS_ACCESS_KEY_ID'],
-            secret_access_key: @aws_key,
-            region: ENV['AWS_REGION']
-          )
+          c =  Rails.application.config.active_elastic_job
+          @aws_sqs_client ||= if c.aws_credentials.present?
+                                Aws::SQS::Client.new(
+                                  credentials: c.aws_credentials,
+                                  region: c.aws_region)
+                              else
+                                Aws::SQS::Client.new(
+                                  access_key_id: c.aws_access_key_id,
+                                  secret_access_key: c.aws_secret_access_key,
+                                  region: c.aws_region)
+                              end
         end
 
         def message_digest(messsage_body)

@@ -33,12 +33,42 @@ You have your Rails application deployed on the [Amazon Elastic Beanstalk](http:
   * Stay logged in and select the _IAM_ service from the services menu.
   * Create a new user and store the credentials.
   * Attach the **AmazonSQSFullAccess** policy to this user.
-4. Add four environment variables to the web environment
+4. Give your web application permissions to send messages to the SQS queue by adding:
+
   * Select the web environment that is currently hosting your application and open the _Software Configuration_ settings.
     * Add **AWS_ACCESS_KEY_ID** and set it to _access key id_ of the newly created user (from Step 3).
     * Add **AWS_SECRET_ACCESS_KEY** and set it to the _secret access key_ of the newly created user (from Step 3).
     * Add **AWS_REGION** and set it to the _region_ of the SQS queue, created in Step 2.
     * Add **DISABLE_SQS_CONSUMER** and set it to `true`.
+
+  * Alternatively, instead of passing the credentials through the these specific environment variables, you change the configuration and
+  use different variables.
+
+  ```Ruby
+  # config/application.rb
+  module YourApp
+    class Application < Rails::Application
+      config.active_elastic_job.aws_region =  # defaults to ENV['AWS_REGION']
+      config.active_elastic_job.aws_access_key_id = # defaults to ENV['AWS_ACCESS_KEY_ID']
+      config.active_elastic_job.aws_secret_access_key = # defaults to ENV['AWS_SECRET_ACCESS_KEY'] || ENV['AWS_SECRET_KEY'] || ENV['AMAZON_SECRET_ACCESS_KEY']
+      config.active_elastic_job.disable_sqs_confumer = # defaults to ENV['DISABLE_SQS_CONSUMER']
+    end
+  end
+  ```
+
+  * Or , if your web environment is runinng EC2 instances with sufficient permissions, you tell this gem to use the EC2 credentials:
+
+  ```Ruby
+  # config/application.rb
+  module YourApp
+    class Application < Rails::Application
+      config.active_elastic_job.aws_region =  # defaults to ENV['AWS_REGION']
+      config.active_elastic_job.aws_credentials = Aws::InstanceProfileCredentials.new
+      config.active_elastic_job.disable_sqs_confumer = # defaults to ENV['DISABLE_SQS_CONSUMER']
+    end
+  end
+  ```
+
 5. Create a worker environment:
   * Stay logged in and select the _Elastic Beanstalk_ option from the services menu.
   * Select your application, click the _Actions_ button and select **Launch New Environment**.
