@@ -25,6 +25,6 @@ module RailsApp
 
     config.active_job.queue_adapter = :active_elastic_job
 
-    config.force_ssl = false
+    config.force_ssl = true
   end
 end
