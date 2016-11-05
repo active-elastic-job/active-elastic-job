@@ -1,5 +1,10 @@
+## [v.1.7.0] - 2016-11-05
+ - Closes [issue #42](https://github.com/tawan/active-elastic-job/issues/42)
+ - Closes [issue #33](https://github.com/tawan/active-elastic-job/issues/33)
+## [v.1.6.3] - 2016-11-05
+ - Closes [issue #41](https://github.com/tawan/active-elastic-job/issues/41)
 ## [v.1.6.1] - 2016-05-24
- Closes [issue #35](https://github.com/tawan/active-elastic-job/issues/35)
+ - Closes [issue #35](https://github.com/tawan/active-elastic-job/issues/35)
 ## [v.1.6.0] - 2016-04-21
 - Support Docker environments
  - Closes [issue #26](https://github.com/tawan/active-elastic-job/issues/26)
