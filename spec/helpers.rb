@@ -53,6 +53,8 @@ module Helpers
         req = Net::HTTP::Post.new("/jobs")
         req.set_form_data("random_string" => random_string, "delay" => delay)
         resp = https.request req
+
+        raise "Could not delete job. HTTP Request failed #{resp.code}" if resp.code != "200"
       end
     end
 
@@ -73,6 +75,7 @@ module Helpers
         req = Net::HTTP::Post.new("/random_strings.json")
         req.set_form_data("random_string" => random_string)
         resp = https.request req
+        raise "Could not create randoom string. HTTP Request got #{resp.code} response" if resp.code != "200"
       end
     end
 
