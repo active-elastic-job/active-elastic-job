@@ -41,7 +41,7 @@ You have your Rails application deployed on the [Amazon Elastic Beanstalk](http:
     * Add **AWS_REGION** and set it to the _region_ of the SQS queue, created in Step 2.
     * Add **DISABLE_SQS_CONSUMER** and set it to `true`.
 
-  * Alternatively, instead of passing the credentials through the these specific environment variables, you change the configuration and
+  * Alternatively, instead of passing the credentials through these specific environment variables, you can change the configuration in order to
   use different variables.
 
   ```Ruby
@@ -56,15 +56,14 @@ You have your Rails application deployed on the [Amazon Elastic Beanstalk](http:
   end
   ```
 
-  * Or , if your web environment is runinng EC2 instances with sufficient permissions, you tell this gem to use the EC2 credentials:
+  * Or , if your web environment is runinng EC2 instances with sufficient permissions, you can tell this gem to use the EC2 credentials:
 
   ```Ruby
   # config/application.rb
   module YourApp
     class Application < Rails::Application
-      config.active_elastic_job.aws_region =  # defaults to ENV['AWS_REGION']
+      # ..
       config.active_elastic_job.aws_credentials = Aws::InstanceProfileCredentials.new
-      config.active_elastic_job.disable_sqs_confumer = # defaults to ENV['DISABLE_SQS_CONSUMER']
     end
   end
   ```
