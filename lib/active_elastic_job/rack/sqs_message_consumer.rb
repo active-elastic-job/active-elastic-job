@@ -41,7 +41,7 @@ module ActiveElasticJob
             return [
               '403',
               {CONTENT_TYPE_HEADER_NAME => 'text/plain' },
-              ["incorrect digest"]]
+              ["Incorrect digest! Please, make sure that both environments, worker and web, use the same SECRET_KEY_BASE setting."]]
           end
           return [
             OK_RESPONSE_CODE ,
