@@ -21,6 +21,7 @@ module ActiveElasticJob
       OK_RESPONSE_CODE = '200'.freeze
       INSIDE_DOCKER_CONTAINER = `[ -f /proc/1/cgroup ] && cat /proc/1/cgroup` =~ /docker/
       DOCKER_HOST_IP = "172.17.0.1".freeze
+			PERIODIC_TASK_PATH = "/periodic_tasks".freeze
 
       def initialize(app) #:nodoc:
         @app = app
@@ -28,26 +29,35 @@ module ActiveElasticJob
 
       def call(env) #:nodoc:
         request = ActionDispatch::Request.new env
-        if enabled? && aws_sqsd?(request) && originates_from_gem?(request)
+        if enabled? && aws_sqsd?(request)
           unless request.local? || sent_from_docker_host?(request)
             m = "Accepts only requests from localhost for job processing".freeze
             return ['403', {CONTENT_TYPE_HEADER_NAME => 'text/plain' }, [ m ]]
           end
-          begin
-            verify!(request)
-            job = JSON.load(request.body)
-            ActiveJob::Base.execute(job)
-          rescue ActiveElasticJob::MessageVerifier::InvalidDigest => e
-            return [
-              '403',
-              {CONTENT_TYPE_HEADER_NAME => 'text/plain' },
-              ["Incorrect digest! Please, make sure that both environments, worker and web, use the same SECRET_KEY_BASE setting."]]
-          end
-          return [
-            OK_RESPONSE_CODE ,
-            {CONTENT_TYPE_HEADER_NAME => CONTENT_TYPE },
-            [ '' ]]
-        end
+
+					if periodic_task?(request)
+						execute_periodic_task(request)
+						return [
+							OK_RESPONSE_CODE ,
+							{CONTENT_TYPE_HEADER_NAME => CONTENT_TYPE },
+							[ '' ]]
+					elsif originates_from_gem?(request)
+						begin
+							verify!(request)
+							job = JSON.load(request.body)
+							ActiveJob::Base.execute(job)
+						rescue ActiveElasticJob::MessageVerifier::InvalidDigest => e
+							return [
+								'403',
+								{CONTENT_TYPE_HEADER_NAME => 'text/plain' },
+								["Incorrect digest! Please, make sure that both environments, worker and web, use the same SECRET_KEY_BASE setting."]]
+						end
+						return [
+							OK_RESPONSE_CODE ,
+							{CONTENT_TYPE_HEADER_NAME => CONTENT_TYPE },
+							[ '' ]]
+					end
+				end
         @app.call(env)
       end
 
@@ -78,6 +88,16 @@ module ActiveElasticJob
           current_user_agent.size >= USER_AGENT_PREFIX.size &&
           current_user_agent[0..(USER_AGENT_PREFIX.size - 1)] == USER_AGENT_PREFIX)
       end
+
+			def periodic_task?(request)
+				!request.fullpath.nil? && request.fullpath[0..(PERIODIC_TASK_PATH.size - 1)] == PERIODIC_TASK_PATH
+			end
+
+			def execute_periodic_task(request)
+				job_name = request.headers['X-Aws-Sqsd-Taskname']
+				job = job_name.constantize.new
+				job.perform_now
+			end
 
       def originates_from_gem?(request)
         if request.headers[ORIGIN_HEADER_NAME] == ActiveElasticJob::ACRONYM
