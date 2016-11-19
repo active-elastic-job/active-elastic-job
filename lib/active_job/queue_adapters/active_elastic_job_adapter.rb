@@ -19,12 +19,6 @@ module ActiveJob
       MAX_MESSAGE_SIZE = (256 * 1024)
       MAX_DELAY_IN_MINUTES = 15
 
-      if Gem::Version.new(Aws::VERSION) >= Gem::Version.new('2.2.19')
-        AWS_CLIENT_VERIFIES_MD5_DIGESTS = true
-      else
-        AWS_CLIENT_VERIFIES_MD5_DIGESTS = false
-      end
-
       extend ActiveElasticJob::MD5MessageDigestCalculation
 
       class Error < RuntimeError; end;
@@ -63,7 +57,8 @@ module ActiveJob
             Unfortunately a queue with this name does not exist in this
             region. Either create an Amazon SQS queue named #{queue_name} -
             you can do this in AWS console, make sure to select region
-            '#{ENV['AWS_REGION']}' - or you select another queue for your jobs.
+            '#{Rails.application.config.active_elastic_job.aws_region}' - or you
+            select another queue for your jobs.
           MSG
         end
       end
@@ -119,7 +114,7 @@ module ActiveJob
         private
 
         def aws_client_verifies_md5_digests?
-          return AWS_CLIENT_VERIFIES_MD5_DIGESTS
+          Gem::Version.new(Aws::VERSION) >= Gem::Version.new('2.2.19'.freeze)
         end
 
         def build_message(queue_name, serialized_job, timestamp)
