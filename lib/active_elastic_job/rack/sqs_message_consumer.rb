@@ -7,7 +7,7 @@ module ActiveElasticJob
     # It does this by looking at the +User-Agent+ header.
     # Requesets from the SQS daemon are handled in two alternative cases:
     #
-    # (1) the processed SQS message was orignally triggered by a periodic task
+    # (1) the processed SQS message was originally triggered by a periodic task
     # supported by Elastic Beanstalk's Periodic Task feature
     #
     # (2) the processed SQS message was queued by this gem representing an active job.
