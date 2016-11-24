@@ -57,8 +57,7 @@ module ActiveElasticJob
       private
 
       def enabled?
-        var = ENV['DISABLE_SQS_CONSUMER'.freeze]
-        var == nil || var == 'false'.freeze
+        Rails.application.config.active_elastic_job.process_jobs == true
       end
 
       def verify!(request)

@@ -50,14 +50,14 @@ module ActiveJob
       #    #..
       #  end
       class NonExistentQueue < Error
-        def initialize(queue_name)
+        def initialize(queue_name, aws_region)
 
           super(<<-MSG)
             The job is bound to queue at #{queue_name}.
             Unfortunately a queue with this name does not exist in this
             region. Either create an Amazon SQS queue named #{queue_name} -
             you can do this in AWS console, make sure to select region
-            '#{Rails.application.config.active_elastic_job.aws_region}' - or you
+            '#{aws_region}' - or you
             select another queue for your jobs.
           MSG
         end
@@ -106,7 +106,7 @@ module ActiveJob
             @queue_urls[job.queue_name.to_s] = nil
             retry
           end
-          raise NonExistentQueue, job
+          raise NonExistentQueue.new(job, aws_region)
         rescue Aws::Errors::ServiceError => e
           raise Error, "Could not enqueue job, #{e.message}"
         end
@@ -166,17 +166,15 @@ module ActiveJob
         end
 
         def aws_sqs_client
-          c =  Rails.application.config.active_elastic_job
-          @aws_sqs_client ||= if c.aws_credentials.present?
-                                Aws::SQS::Client.new(
-                                  credentials: c.aws_credentials,
-                                  region: c.aws_region)
-                              else
-                                Aws::SQS::Client.new(
-                                  access_key_id: c.aws_access_key_id,
-                                  secret_access_key: c.aws_secret_access_key,
-                                  region: c.aws_region)
-                              end
+          @aws_sqs_client ||= Aws::SQS::Client.new(credentials: aws_sqs_client_credentials )
+        end
+
+        def aws_sqs_client_credentials
+          Rails.application.config.active_elastic_job.aws_credentials
+        end
+
+        def aws_region
+          Rails.application.config.active_elastic_job.aws_region
         end
 
         def message_digest(messsage_body)

@@ -29,51 +29,27 @@ You have your Rails application deployed on the [Amazon Elastic Beanstalk](http:
   end
   ```
   * Choose a visibility timeout that exceeds the maximum amount of time a single job will take.
-3. Create a new user with SQS permissions:
+3. Give your EC2 instances permission to send messages to SQS queues:
   * Stay logged in and select the _IAM_ service from the services menu.
-  * Create a new user and store the credentials.
-  * Attach the **AmazonSQSFullAccess** policy to this user.
-4. Give your web application permissions to send messages to the SQS queue by adding:
-
+  * Select the _Roles_ submenu.
+  * Find the role that you select as the instance profile when creating the Elastic Beanstalk web environment.
+  ![Instance Profile](/docs/instance_profile.png?raw=true "Architecture Diagram" =20x20)
+  * Attach the **AmazonSQSFullAccess** policy to this role.
+  * Make yourself familiar with [AWS Service Roles, Instance Profiles, and User Policies](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/concepts-roles.html).
+4. Tell the gem the region of your SQS queue that you created in step 2:
   * Select the web environment that is currently hosting your application and open the _Software Configuration_ settings.
-    * Add **AWS_ACCESS_KEY_ID** and set it to _access key id_ of the newly created user (from Step 3).
-    * Add **AWS_SECRET_ACCESS_KEY** and set it to the _secret access key_ of the newly created user (from Step 3).
-    * Add **AWS_REGION** and set it to the _region_ of the SQS queue, created in Step 2.
-    * Add **DISABLE_SQS_CONSUMER** and set it to `true`.
-
-  * Alternatively, instead of passing the credentials through these specific environment variables, you can change the configuration in order to
-  use different variables.
-
-  ```Ruby
-  # config/application.rb
-  module YourApp
-    class Application < Rails::Application
-      config.active_elastic_job.aws_region =  # defaults to ENV['AWS_REGION']
-      config.active_elastic_job.aws_access_key_id = # defaults to ENV['AWS_ACCESS_KEY_ID']
-      config.active_elastic_job.aws_secret_access_key = # defaults to ENV['AWS_SECRET_ACCESS_KEY'] || ENV['AWS_SECRET_KEY'] || ENV['AMAZON_SECRET_ACCESS_KEY']
-      config.active_elastic_job.disable_sqs_confumer = # defaults to ENV['DISABLE_SQS_CONSUMER']
-    end
-  end
-  ```
-
-  * Or , if your web environment is runinng EC2 instances with sufficient permissions, you can tell this gem to use the EC2 credentials:
-
-  ```Ruby
-  # config/application.rb
-  module YourApp
-    class Application < Rails::Application
-      # ..
-      config.active_elastic_job.aws_credentials = Aws::InstanceProfileCredentials.new
-    end
-  end
-  ```
+  * Add **AWS_REGION** and set it to the _region_ of the SQS queue, created in Step 2.
 
 5. Create a worker environment:
   * Stay logged in and select the _Elastic Beanstalk_ option from the services menu.
   * Select your application, click the _Actions_ button and select **Launch New Environment**.
   * Click the **create worker** button and select the identical platform that you had chosen for your web environment.
   * In the _Worker Details_ form, select the queue, that you created in Step 2, as the worker queue, and leave the MIME type to `application/json`. The visibility timeout setting should exceed the maximum time that you expect a single background job will take. The HTTP path setting can be left as it is (it will be ignored).
-6. Configure Active Elastic Job as the queue adapter.
+
+6. Configure the worker environment for processing jobs:
+  * Select the worker environment that you just have created and open the _Software Configuration_ settings.
+  * Add **PROCESS_ACTIVE_ELASTIC_JOBS** and set it to `true`.
+7. Configure Active Elastic Job as the queue adapter.
 
   ```Ruby
   # config/application.rb
@@ -83,11 +59,11 @@ You have your Rails application deployed on the [Amazon Elastic Beanstalk](http:
     end
   end
   ```
-7. Verify that both environments—web and worker—have the same secret base key:
+8. Verify that both environments—web and worker—have the same secret base key:
   * In the _Software Configuration_ settings of the web environment, copy the value of the **SECRET_KEY_BASE** variable.
   * Open the _Software Configuration_ settings of the worker environment and add the **SECRET_KEY_BASE** variable. Paste the value from the web environment, so that both environments have the same secret key base.
 
-8. Deploy the application to both environments (web and worker).
+9. Deploy the application to both environments (web and worker).
 
 ## FAQ
 A summary of frequently asked questions:

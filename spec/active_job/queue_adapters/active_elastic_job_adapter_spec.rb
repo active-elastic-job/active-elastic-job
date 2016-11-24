@@ -10,37 +10,15 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
 
   let(:job) { Helpers::TestJob.new }
   let(:secret_key_base) { "s3krit" }
-
-  let(:rails_app) { double("rails_app") }
-
-  class StubbedConfig
-
-    def aws_access_key_id
-      ENV['AWS_ACCESS_KEY_ID']
-    end
-
-    def aws_secret_access_key
-      ENV['AWS_SECRET_ACCESS_KEY']
-    end
-
-    def aws_region
-      ENV['AWS_REGION']
-    end
-
-    def aws_credentials
-      nil
-    end
-  end
-
-  let(:config) { double('config') }
+  let(:aws_credentials) { 
+    Aws::Credentials.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY'])
+  }
 
   before do
-    allow(Rails).to receive(:application) { rails_app }
-    allow(rails_app).to receive(:config) { config }
-    allow(config).to receive(:active_elastic_job) { StubbedConfig.new }
     allow(adapter).to receive(:secret_key_base) { secret_key_base }
+    allow(adapter).to receive(:aws_sqs_client_credentials) { aws_credentials }
+    allow(adapter).to receive(:aws_region) { ENV['AWS_REGION'] }
   end
-
 
   describe ".enqueue" do
     it "selects the correct queue" do

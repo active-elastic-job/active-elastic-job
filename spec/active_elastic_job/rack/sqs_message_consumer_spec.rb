@@ -9,16 +9,17 @@ describe ActiveElasticJob::Rack::SqsMessageConsumer do
   let(:secret_key_base) { 's3krit' }
   let(:rails_app) { double("rails_app") }
 
+  subject(:sqs_message_consumer) {
+    ActiveElasticJob::Rack::SqsMessageConsumer.new(app)
+  }
+
   before do
     allow(Rails).to receive(:application) { rails_app }
     allow(rails_app).to receive(:secrets) {
       { secret_key_base: secret_key_base }
     }
+    allow(sqs_message_consumer).to receive(:enabled?) { true }
   end
-
-  subject(:sqs_message_consumer) {
-    ActiveElasticJob::Rack::SqsMessageConsumer.new(app)
-  }
 
   it "passes an ordinary request through" do
     expect(app).to receive(:call).with(env).and_return(original_response)
@@ -98,18 +99,6 @@ describe ActiveElasticJob::Rack::SqsMessageConsumer do
 
         it "performs the job" do
           expect(sqs_message_consumer.call(env)[0]).to eq('200')
-        end
-
-        context "when DISABLE_SQS_CONSUMER is true" do
-          around(:example) do |example|
-            with_modified_env DISABLE_SQS_CONSUMER: 'true', &example
-          end
-
-          it "passes request through" do
-            expect(app).to receive(:call).with(env).
-              and_return(original_response)
-            expect(sqs_message_consumer.call(env)).to eq(original_response)
-          end
         end
 
         context "when digest is ommited" do

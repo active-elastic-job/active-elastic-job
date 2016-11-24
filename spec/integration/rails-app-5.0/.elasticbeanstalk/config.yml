@@ -3,7 +3,7 @@ branch-defaults:
     environment: web-env
     group_suffix: null
 global:
-  application_name: rails-eb-job-integration-testing
+  application_name: active_elastic_job
   default_ec2_keyname: null
   default_platform: Ruby 2.2 (Passenger Standalone)
   default_region: eu-central-1
