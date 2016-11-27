@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/tawan/active-elastic-job.svg)](https://travis-ci.org/tawan/active-elastic-job)
 [![Gem Version](https://badge.fury.io/rb/active_elastic_job.svg)](https://badge.fury.io/rb/active_elastic_job)
 
-You have your Rails application deployed on the [Amazon Elastic Beanstalk](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/Welcome.html) platform and now your application needs to offload work—like sending emails—into asynchronous background jobs. Then Active Elastic Job is the right gem. It provides an adapter for Rails' [Active Job](http://guides.rubyonrails.org/active_job_basics.html) framework that allows your application to queue jobs as messages in an [Amazon SQS](https://aws.amazon.com/sqs/) queue. Elastic Beanstalk provides [worker environments](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html) that automatically pull messages from the queue and transforms them into HTTP requests. This gem knows how to handle these requests. It comes with a [Rack](http://rack.github.io/) middleware that intercepts these requests and transforms them back into jobs which are subsequently executed.
+You have your Rails application deployed on the [Amazon Elastic Beanstalk](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/Welcome.html) platform and now your application needs to offload work—like sending emails—into asynchronous background jobs. Or you want to perform jobs periodically similar to cron jobs. Then Active Elastic Job is the right gem. It provides an adapter for Rails' [Active Job](http://guides.rubyonrails.org/active_job_basics.html) framework that allows your application to queue jobs as messages in an [Amazon SQS](https://aws.amazon.com/sqs/) queue. Elastic Beanstalk provides [worker environments](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html) that automatically pull messages from the queue and transforms them into HTTP requests. This gem knows how to handle these requests. It comes with a [Rack](http://rack.github.io/) middleware that intercepts these requests and transforms them back into jobs which are subsequently executed.
 ![Architecture Diagram](/docs/architecture.png?raw=true "Architecture Diagram" =20x20)
 
 ## Why use this gem?
@@ -65,6 +65,34 @@ You have your Rails application deployed on the [Amazon Elastic Beanstalk](http:
 
 9. Deploy the application to both environments (web and worker).
 
+## Set up periodic tasks (cron jobs)
+
+Elastic beanstalk worker environments support the execution of
+[periodic tasks](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html#worker-periodictasks)
+similar to cron jobs. We recommend you to make yourself familiar with Elastic Beanstalks' [official doumentation](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html#worker-periodictasks) first.
+
+You don't need this gem to make us of Elastic Beanstalk's periodic tasks feature, however, this gem takes care of intercepting the POST requests from
+the SQS daemon (explained in the [official documenation](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html#worker-periodictasks)).
+If the gem detects a POST reqeust from the daemon caused by a periodic task definition, then the gem will create a corresponding Active Job instance and trigger the execution.
+To make use of the gem, just follow these conventions when writing your definition of the perdiodic tasks in `cron.yaml`:
+
+* Set `name` to the class name the of the (ActiveJob) job that should be performed.
+* Set `url` to `/periodic_tasks`.
+
+This is an example of a `cron.yaml` file which sets up a periodic task that is executed each minute.
+The `url` setting leads to requests which will be intercepted by the gem.
+It then looks at the `name` setting, passed as a request header value by the SQS daemon, and instantiates a `PeriodicTaskJob` job object.
+Subsequently it triggers its execution by calling the `#perform_now` method.
+
+  ```Yaml
+
+  version: 1
+  cron:
+   - name: "PeriodicTaskJob"
+     url: "/periodic_tasks"
+     schedule: "* * * * *"
+  ```
+
 ## Optional configuration
 This gem is configurable in case your setup requires different settings than the defaults.  
 
@@ -86,7 +114,7 @@ It [is](http://junkheap.net/blog/2013/05/20/elastic-beanstalk-post-deployment-sc
 ### Is there a possibility to prioritize certain jobs?
 Amazon SQS does not support prioritization. In order to achieve faster processing of your jobs you can add more instances to the worker environment or create a separate queue with its own worker environment for your  high-priority jobs.
 ### Can jobs be delayed?
-You can schedule jobs not more than **15 minutes** into the future. See [the Amazon SQS API reference](http://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_SendMessage.html).
+You can schedule jobs not more than **15 minutes** into the future. See [the Amazon SQS API reference](http://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_SendMessage.html). If you need to postpone the execution of a job further into the future, then consider the possibility of setting up a periodic task.
 ### Can I monitor and inspect failed jobs?
 Amazon SQS provides [dead-letter queues](http://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/SQSDeadLetterQueue.html). These queues can be used to isolate and sideline unsuccessful jobs.
 ### Is my internet-facing web environment protected against being spoofed into processing jobs?
