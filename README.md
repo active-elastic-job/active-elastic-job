@@ -94,14 +94,15 @@ Subsequently it triggers its execution by calling the `#perform_now` method.
   ```
 
 ## Optional configuration
-This gem is configurable in case your setup requires different settings than the defaults.  
+This gem is configurable in case your setup requires different settings than the defaults.
+The snippet below shows the various configurable settings and their defaults.
 
   ```Ruby
   Rails.application.configure do
-    config.active_elastic_job.process_jobs = # defaults to ENV['PROCESS_ACTIVE_ELASTIC_JOBS'] == 'true' || false
-    config.active_elastic_job.aws_credentials = # defaults to Aws::InstanceProfileCredentials.new
-    config.active_elastic_job.secret_key_base = # defaults to Rails.application.secrets[:secret_key_base]
-    cofnig.active_elastic_job.periodic_tasks_route = # defaults to '/periodic_tasks'.freeze
+    config.active_elastic_job.process_jobs = ENV['PROCESS_ACTIVE_ELASTIC_JOBS'] == 'true' || false
+    config.active_elastic_job.aws_credentials = Aws::InstanceProfileCredentials.new
+    config.active_elastic_job.secret_key_base = Rails.application.secrets[:secret_key_base]
+    cofnig.active_elastic_job.periodic_tasks_route = '/periodic_tasks'.freeze
   end
   ```
 
