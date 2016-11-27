@@ -65,6 +65,17 @@ You have your Rails application deployed on the [Amazon Elastic Beanstalk](http:
 
 9. Deploy the application to both environments (web and worker).
 
+## Optional configuration
+This gem is configurable in case your setup requires different settings than the defaults.  
+
+  ```Ruby
+  Rails.application.configure do
+    config.active_elastic_job.process_jobs = # defaults to ENV['PROCESS_ACTIVE_ELASTIC_JOBS'] == 'true' || false
+    config.active_elastic_job.aws_credentials = # defaults to Aws::InstanceProfileCredentials.new
+    config.active_elastic_job.secret_key_base = # defaults to Rails.application.secrets[:secret_key_base]
+  end
+  ```
+
 ## FAQ
 A summary of frequently asked questions:
 ### What are the advantages in comparison to popular alternatives like Resque, Sidekiq or DelayedJob?
