@@ -1,3 +1,7 @@
+## [v.2.0.0] - 2016-11-27
+ - Closes [issue #40](https://github.com/tawan/active-elastic-job/issues/40) Thanks to @masonjeffreys for the inspiration.
+ - Makes processing of jobs opt-in per default.
+ - Simplifies set up by using AWS instance profiles per default.
 ## [v.1.7.0] - 2016-11-05
  - Closes [issue #42](https://github.com/tawan/active-elastic-job/issues/42)
  - Closes [issue #33](https://github.com/tawan/active-elastic-job/issues/33)

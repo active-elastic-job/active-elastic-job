@@ -1,7 +1,7 @@
 module ActiveElasticJob
   module VERSION
-    MAJOR = 1
-    MINOR = 7
+    MAJOR = 2
+    MINOR = 0
     TINY  = 0
     PRE   = nil
 
