@@ -26,7 +26,6 @@ module ActiveElasticJob
         [ 'Request forbidden!'.freeze ]
       ]
       DOCKER_HOST_IP = '172.17.0.1'.freeze
-      PERIODIC_TASKS_PATH = '/periodic_tasks'.freeze
 
       def initialize(app) #:nodoc:
         @app = app
@@ -88,8 +87,12 @@ module ActiveElasticJob
           current_user_agent[0..('aws-sqsd'.freeze.size - 1)] == 'aws-sqsd'.freeze)
       end
 
+      def periodic_tasks_route
+        @periodic_tasks_route ||= config.periodic_tasks_route
+      end
+
       def periodic_task?(request)
-        !request.fullpath.nil? && request.fullpath[0..(PERIODIC_TASKS_PATH.size - 1)] == PERIODIC_TASKS_PATH
+        !request.fullpath.nil? && request.fullpath[0..(periodic_tasks_route.size - 1)] == periodic_tasks_route
       end
 
       def execute_job(request)

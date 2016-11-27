@@ -3,6 +3,7 @@ module ActiveElasticJob
     config.active_elastic_job = ActiveSupport::OrderedOptions.new
     config.active_elastic_job.process_jobs = ENV['PROCESS_ACTIVE_ELASTIC_JOBS'] == 'true' || false
     config.active_elastic_job.aws_credentials = Aws::InstanceProfileCredentials.new
+    cofnig.active_elastic_job.periodic_tasks_route = '/periodic_tasks'.freeze
 
     initializer "active_elastic_job.insert_middleware" do |app|
       if app.config.active_elastic_job.secret_key_base.blank?

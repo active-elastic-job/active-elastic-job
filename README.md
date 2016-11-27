@@ -73,6 +73,7 @@ This gem is configurable in case your setup requires different settings than the
     config.active_elastic_job.process_jobs = # defaults to ENV['PROCESS_ACTIVE_ELASTIC_JOBS'] == 'true' || false
     config.active_elastic_job.aws_credentials = # defaults to Aws::InstanceProfileCredentials.new
     config.active_elastic_job.secret_key_base = # defaults to Rails.application.secrets[:secret_key_base]
+    cofnig.active_elastic_job.periodic_tasks_route = # defaults to '/periodic_tasks'.freeze
   end
   ```
 

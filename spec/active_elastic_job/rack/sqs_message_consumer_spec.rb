@@ -15,6 +15,7 @@ describe ActiveElasticJob::Rack::SqsMessageConsumer do
 
   before do
     allow(sqs_message_consumer).to receive(:secret_key_base) { secret_key_base }
+    allow(sqs_message_consumer).to receive(:periodic_tasks_route) { '/periodic_tasks' }
     allow(sqs_message_consumer).to receive(:enabled?) { true }
   end
 
