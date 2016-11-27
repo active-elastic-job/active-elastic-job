@@ -203,7 +203,7 @@ module ActiveJob
         end
 
         def secret_key_base
-          @secret_key_base ||= Rails.application.secrets[:secret_key_base]
+          config.secret_key_base
         end
       end
     end

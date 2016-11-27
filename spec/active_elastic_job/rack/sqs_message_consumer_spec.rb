@@ -14,10 +14,7 @@ describe ActiveElasticJob::Rack::SqsMessageConsumer do
   }
 
   before do
-    allow(Rails).to receive(:application) { rails_app }
-    allow(rails_app).to receive(:secrets) {
-      { secret_key_base: secret_key_base }
-    }
+    allow(sqs_message_consumer).to receive(:secret_key_base) { secret_key_base }
     allow(sqs_message_consumer).to receive(:enabled?) { true }
   end
 

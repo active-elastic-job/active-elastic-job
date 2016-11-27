@@ -5,6 +5,10 @@ module ActiveElasticJob
     config.active_elastic_job.aws_credentials = Aws::InstanceProfileCredentials.new
 
     initializer "active_elastic_job.insert_middleware" do |app|
+      if app.config.active_elastic_job.secret_key_base.blank?
+        app.config.active_elastic_job.secret_key_base = app.secrets[:secret_key_base]
+      end
+
       if app.config.active_elastic_job.process_jobs == true
         if app.config.force_ssl
           app.config.middleware.insert_before(ActionDispatch::SSL,ActiveElasticJob::Rack::SqsMessageConsumer)

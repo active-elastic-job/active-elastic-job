@@ -61,12 +61,19 @@ module ActiveElasticJob
       end
 
       def verify!(request)
-        secret_key_base = Rails.application.secrets[:secret_key_base]
         @verifier ||= ActiveElasticJob::MessageVerifier.new(secret_key_base)
         digest = request.headers['HTTP_X_AWS_SQSD_ATTR_MESSAGE_DIGEST'.freeze]
         message = request.body_stream.read
         request.body_stream.rewind
         @verifier.verify!(message, digest)
+      end
+
+      def secret_key_base
+        config.secret_key_base
+      end
+
+      def config
+        Rails.application.config.active_elastic_job
       end
 
       def aws_sqsd?(request)
