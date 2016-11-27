@@ -170,11 +170,15 @@ module ActiveJob
         end
 
         def aws_sqs_client_credentials
-          Rails.application.config.active_elastic_job.aws_credentials
+          config.aws_credentials
         end
 
         def aws_region
-          Rails.application.config.active_elastic_job.aws_region
+          config.aws_region
+        end
+
+        def config
+          Rails.application.config.active_elastic_job
         end
 
         def message_digest(messsage_body)
