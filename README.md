@@ -79,7 +79,7 @@ To make use of the gem, just follow these conventions when writing your definiti
 * Set `name` to the class name the of the (ActiveJob) job that should be performed.
 * Set `url` to `/periodic_tasks`.
 
-This is an example of a `cron.yaml` file which sets up a periodic task that is executed each minute.
+This is an example of a `cron.yaml` file which sets up a periodic task that is executed at 11pm UTC every day.
 The `url` setting leads to requests which will be intercepted by the gem.
 It then looks at the `name` setting, passed as a request header value by the SQS daemon, and instantiates a `PeriodicTaskJob` job object.
 Subsequently it triggers its execution by calling the `#perform_now` method.
@@ -90,7 +90,7 @@ Subsequently it triggers its execution by calling the `#perform_now` method.
   cron:
    - name: "PeriodicTaskJob"
      url: "/periodic_tasks"
-     schedule: "* * * * *"
+     schedule: "0 23 * * *"
   ```
 
 ## Optional configuration
