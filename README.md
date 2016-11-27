@@ -80,7 +80,7 @@ Amazon SQS provides [dead-letter queues](http://docs.aws.amazon.com/AWSSimpleQue
 ### Is my internet-facing web environment protected against being spoofed into processing jobs?
 The Rails application will treat requests presenting a user agent value `aws-sqsd/*`
   as a request from the SQS daemo; therefore, it tries to un-marshal the request body back into a job object for further execution. This adds a potential attack vector since anyone can fabricate a request with this user agent and, therefore, might try to spoof the application into processing jobs or even malicious code. This gem takes several counter-measures to block the attack vector.
-   * The middleware that processes the requests from the SQS daemon is disabled in the web environment, but only if the environment variable **DISABLE_SQS_CONSUMER** has `true` as its setting, as instructed in the [Usage](#usage) section.
+   * The middleware that processes the requests from the SQS daemon is disabled per default. It has to be enabled deliberately by setting the environment variable **PROCESS_ACTIVE_ELASTIC_JOBS**  to `true`, as instructed in the [Usage](#usage) section.
    * Messages that represent the jobs are signed before they are enqueued. The signature is verified before the job is executed. This is the reason both environments-web and worker-need to have the same value for the environment variable **SECRET_KEY_BASE** (see the [Usage](#usage) section Step 7) since the secret key base will be used to generate and verify the signature.
    * Only requests that originate from the same host (localhost) are considered to be requests from the SQS daemon. SQS daemons are installed in all instances running in a worker environment and will only send requests to the application running in the same instance.
 Because of these safety measures it is possible to deploy the same codebase to both environments, which keeps the deployment simple and reduces complexity.
@@ -99,7 +99,7 @@ When you have found the requests, check their response codes which give a clue o
 
 * status code `500`: something went wrong. The job might have raised an error.
 * status code `403`: the request seems to originate from another host than `localhost` or the message which represents the job has not been verified successfully. Make sure that both environment, web and worker, use the same `SECRET_KEY_BASE`.
-* status code `404`: the gem is not included in the bundle, the `DISABLE_SQS_CONSUMER` is set to `true` in the worker environment or the worker environment uses an outdated platform which uses the AWS SQS daemon version 1. Check the user agent again, if it lookes like this `aws-sqsd/1.*` then it uses the old version. This gem works only for daemons version 2 or newer.
+* status code `404` or `301`: the gem is not included in the bundle, or the `PROCESS_ACTIVE_ELASTIC_JOBS` is **not** set to `true` (see step 6) in the worker environment or the worker environment uses an outdated platform which uses the AWS SQS daemon version 1. Check the user agent again, if it lookes like this `aws-sqsd/1.*` then it uses the old version. This gem works only for daemons version 2 or newer.
 
 
 ## Bugs - Questions - Improvements
