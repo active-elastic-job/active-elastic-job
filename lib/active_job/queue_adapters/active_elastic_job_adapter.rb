@@ -27,7 +27,6 @@ module ActiveJob
       # imposed by Amazon SQS.
       class SerializedJobTooBig < Error
         def initialize(serialized_job)
-          msg = <<-MSG
           super(<<-MSG)
             The job contains #{serialized_job.bytesize} bytes in its serialzed form,
             which exceeds the allowed maximum of #{MAX_MESSAGE_SIZE} bytes imposed by Amazon SQS.
