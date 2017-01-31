@@ -142,7 +142,7 @@ module ActiveJob
           resp = aws_sqs_client.get_queue_url(queue_name: queue_name.to_s)
           @queue_urls[cache_key] = resp.queue_url
         rescue Aws::SQS::Errors::NonExistentQueue => e
-          raise NonExistentQueue, queue_name
+          raise NonExistentQueue.new(queue_name, aws_region)
         end
 
         def calculate_delay(timestamp)
