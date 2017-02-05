@@ -106,7 +106,7 @@ The snippet below shows the various configurable settings and their defaults.
   end
   ```
 
-If you want to provide the AWS credentials not by the EC2 instance prodfile, but via environment variables, you can do so:
+If you don't want to provide AWS credentials by using EC2 instance profiles, but via environment variables, you can do so:
   ```Ruby
   Rails.application.configure do
     config.active_elastic_job.aws_credentials = Aws::Credentials.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY'])
