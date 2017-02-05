@@ -1,6 +1,7 @@
 source 'https://rubygems.org'
 
 gem 'rails', '~> 4.2'
+gem 'sqlite3'
 gemspec :path => '../'
 gem 'bundler'
 gem 'rspec', '~> 3.4'

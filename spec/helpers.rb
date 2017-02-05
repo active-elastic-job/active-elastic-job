@@ -79,10 +79,16 @@ module Helpers
       end
     end
 
+    def run_in_rails_app_root_dir(&block)
+      Dir.chdir("#{root_dir}/spec/integration/rails-app-#{@version}") do
+        yield
+      end
+    end
+
     private
 
     def deploy_to_environment(env)
-      Dir.chdir("#{root_dir}/spec/integration/rails-app-#{@version}") do
+      run_in_rails_app_root_dir do
         unless system("eb deploy #{env}")
           raise "Could not deploy application to environment #{env}"
         end
