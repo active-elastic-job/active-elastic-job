@@ -169,7 +169,11 @@ module ActiveJob
         end
 
         def aws_sqs_client_credentials
-          config.aws_credentials
+          @aws_credentials ||= if config.aws_credentials.kind_of?(Proc)
+                                 config.aws_credentials.call
+                               else
+                                 config.aws_credentials
+                               end
         end
 
         def aws_region

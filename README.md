@@ -100,9 +100,16 @@ The snippet below shows the various configurable settings and their defaults.
   ```Ruby
   Rails.application.configure do
     config.active_elastic_job.process_jobs = ENV['PROCESS_ACTIVE_ELASTIC_JOBS'] == 'true'
-    config.active_elastic_job.aws_credentials = Aws::InstanceProfileCredentials.new
+    config.active_elastic_job.aws_credentials = lambda { Aws::InstanceProfileCredentials.new } # allows lambdas for lazy loading
     config.active_elastic_job.secret_key_base = Rails.application.secrets[:secret_key_base]
     cofnig.active_elastic_job.periodic_tasks_route = '/periodic_tasks'.freeze
+  end
+  ```
+
+If you want to provide the AWS credentials not by the EC2 instance prodfile, but via environment variables, you can do so:
+  ```Ruby
+  Rails.application.configure do
+    config.active_elastic_job.aws_credentials = Aws::Credentials.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY'])
   end
   ```
 
