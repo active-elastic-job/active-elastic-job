@@ -1,3 +1,6 @@
+## [v.2.0.1] - 2017-02-05
+ - Closes [issue #51](https://github.com/tawan/active-elastic-job/issues/51) Lazy loading of AWS credentials in order to prevent slowing down of Rails start up time.
+
 ## [v.2.0.0] - 2016-11-27
  - Closes [issue #40](https://github.com/tawan/active-elastic-job/issues/40) Thanks to @masonjeffreys for the inspiration.
  - Makes processing of jobs opt-in per default.
