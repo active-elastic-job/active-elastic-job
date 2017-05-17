@@ -4,7 +4,8 @@
 [![Gem Version](https://badge.fury.io/rb/active_elastic_job.svg)](https://badge.fury.io/rb/active_elastic_job)
 
 You have your Rails application deployed on the [Amazon Elastic Beanstalk](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/Welcome.html) platform and now your application needs to offload work—like sending emails—into asynchronous background jobs. Or you want to perform jobs periodically similar to cron jobs. Then Active Elastic Job is the right gem. It provides an adapter for Rails' [Active Job](http://guides.rubyonrails.org/active_job_basics.html) framework that allows your application to queue jobs as messages in an [Amazon SQS](https://aws.amazon.com/sqs/) queue. Elastic Beanstalk provides [worker environments](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html) that automatically pull messages from the queue and transforms them into HTTP requests. This gem knows how to handle these requests. It comes with a [Rack](http://rack.github.io/) middleware that intercepts these requests and transforms them back into jobs which are subsequently executed.
-![Architecture Diagram](/docs/architecture.png?raw=true "Architecture Diagram" =20x20)
+
+![Architecture Diagram](/docs/architecture.png?raw=true "Architecture Diagram")
 
 ## Why use this gem?
   * It is easy to setup.
@@ -32,8 +33,8 @@ You have your Rails application deployed on the [Amazon Elastic Beanstalk](http:
 3. Give your EC2 instances permission to send messages to SQS queues:
   * Stay logged in and select the _IAM_ service from the services menu.
   * Select the _Roles_ submenu.
-  * Find the role that you select as the instance profile when creating the Elastic Beanstalk web environment.
-  ![Instance Profile](/docs/instance_profile.png?raw=true "Architecture Diagram" =20x20)
+  * Find the role that you select as the instance profile when creating the Elastic Beanstalk web environment:
+  ![Instance Profile](/docs/instance_profile.png?raw=true "Architecture Diagram")
   * Attach the **AmazonSQSFullAccess** policy to this role.
   * Make yourself familiar with [AWS Service Roles, Instance Profiles, and User Policies](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/concepts-roles.html).
 4. Tell the gem the region of your SQS queue that you created in step 2:
