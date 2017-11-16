@@ -94,6 +94,15 @@ Subsequently it triggers its execution by calling the `#perform_now` method.
      schedule: "0 23 * * *"
   ```
 
+## FIFO Queues
+
+FIFO (First-In-First-Out) queues are designed to enhance messaging between applications when the order of operations and
+events is critical, or where duplicates can't be tolerated. FIFO queues also provide exactly-once processing but have a
+limited number of transactions per second (TPS).
+
+In order to make it work, you'll need to specify both `message_deduplication_id` and `message_group_id` in your job's
+arguments when calling `perform_later` or `perform_now`. Both mentioned arguments are required and both are `String` objects.
+
 ## Optional configuration
 This gem is configurable in case your setup requires different settings than the defaults.
 The snippet below shows the various configurable settings and their defaults.
