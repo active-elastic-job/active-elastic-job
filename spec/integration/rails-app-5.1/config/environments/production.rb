@@ -76,9 +76,4 @@ Rails.application.configure do
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
-
-  # Test gem's configuration
-  config.active_elastic_job.process_jobs = true
-  config.active_elastic_job.aws_credentials = Aws::Credentials.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY'])
-  config.active_elastic_job.secret_key_base = 's3krit'
 end
