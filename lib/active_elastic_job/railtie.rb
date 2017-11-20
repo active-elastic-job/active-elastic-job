@@ -1,7 +1,8 @@
 module ActiveElasticJob
   class Railtie < Rails::Railtie
     config.active_elastic_job = ActiveSupport::OrderedOptions.new
-    config.active_elastic_job.process_jobs = ENV['PROCESS_ACTIVE_ELASTIC_JOBS'].downcase == 'true'
+    process_active_elastic_jobs = ENV['PROCESS_ACTIVE_ELASTIC_JOBS']
+    config.active_elastic_job.process_jobs = !process_active_elastic_jobs.nil? && process_active_elastic_jobs.downcase == 'true'
     config.active_elastic_job.aws_credentials = lambda { Aws::InstanceProfileCredentials.new }
     config.active_elastic_job.periodic_tasks_route = '/periodic_tasks'.freeze
 
