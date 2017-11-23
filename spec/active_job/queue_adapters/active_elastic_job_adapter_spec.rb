@@ -93,8 +93,9 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
     context "when scheduled timestamp exceeds 15 minutes" do
       let(:delay) { 16.minutes }
 
-      it "raises a RangeError" do
-        expect { adapter.enqueue_at(job, timestamp) }.to raise_error(RangeError)
+      it "raises a DelayTooLong" do
+        expect { adapter.enqueue_at(job, timestamp) }
+          .to raise_error(ActiveJob::QueueAdapters::ActiveElasticJobAdapter::DelayTooLong)
       end
     end
   end
