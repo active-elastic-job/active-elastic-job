@@ -37,8 +37,33 @@ module Helpers
       @base_url = "https://#{WEB_ENV_HOST}/"
     end
 
+    def launch_eb_environemnts
+      run_in_rails_app_root_dir do
+        unless system("./launch_eb.sh")
+          raise "Could not create eb environments"
+        end
+      end
+      
+    end
+
+    def terminate_eb_environments
+      env = WEB_ENV_NAME
+      run_in_rails_app_root_dir do
+        unless system("eb terminate --force  #{env}")
+          raise "Could not terminate environment #{env}"
+        end
+      end
+      env = WORKER_ENV_NAME
+      run_in_rails_app_root_dir do
+        unless system("eb terminate --force  #{env}")
+          raise "Could not terminate environment #{env}"
+        end
+      end
+    end
+
     def deploy
       use_gem do
+        launch_eb_environemnts
         deploy_to_environment(WEB_ENV_NAME)
         deploy_to_environment(WORKER_ENV_NAME)
       end

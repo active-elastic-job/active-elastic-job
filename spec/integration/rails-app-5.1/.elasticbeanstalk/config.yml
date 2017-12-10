@@ -1,6 +1,6 @@
 branch-defaults:
   default:
-    environment: web-env
+    environment: null
     group_suffix: null
 global:
   application_name: active_elastic_job
