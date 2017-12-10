@@ -76,6 +76,18 @@ module ActiveJob
         end
       end
 
+      # Raised when the delay is longer than the MAX_DELAY_IN_MINUTES
+      class DelayTooLong < RangeError
+        def initialize()
+          super(<<-MSG)
+            Jobs cannot be scheduled more than #{MAX_DELAY_IN_MINUTES} minutes
+            into the future.
+            See http://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_SendMessage.html
+            for further details!
+          MSG
+        end
+      end
+
       def enqueue(job) #:nodoc:
         self.class.enqueue job
       end
@@ -147,12 +159,7 @@ module ActiveJob
         def calculate_delay(timestamp)
           delay = (timestamp - Time.current.to_f).to_i + 1
           if delay > MAX_DELAY_IN_MINUTES.minutes
-            msg = "Jobs cannot be scheduled more than " <<
-            "#{MAX_DELAY_IN_MINUTES} minutes into the future. " <<
-            "See http://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_SendMessage.html" <<
-            " for further details!"
-
-            raise RangeError, msg
+            raise DelayTooLong.new
           end
           delay = 0 if delay < 0
           delay
