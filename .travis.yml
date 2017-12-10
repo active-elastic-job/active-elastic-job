@@ -14,7 +14,7 @@ install:
   - "bundle install"
 
 script:
-   - "export EXCEPT_DEPLOYED=true"
+   - "export EXCEPT_DEPLOYED=false"
    - "bundle exec rspec spec"
 
 matrix:
