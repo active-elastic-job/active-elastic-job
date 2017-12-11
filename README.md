@@ -157,6 +157,9 @@ Whether you catch a bug, have a question or a suggestion for improvement, I sinc
 
 
 ## Contribute
-1. Fork
-1. Commit
-1. Issue a pull request
+
+Running the complete test suite requires to launch elastic beanstalk environments. Travis builds triggered by a pull request will launch the needed elastic beanstalk environments and subsequently run the complete test suite. You can run all specs that do not depend on running elasitic beanstalk environments by setting an environment variable:
+ ```bash
+EXCEPT_DEPLOYED=true bundle exec rspec spec
+```
+Feel free to issue a pull request, if this subset of specs passes.
