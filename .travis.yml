@@ -4,6 +4,7 @@ rvm:
   - "2.0"
   - "2.1"
   - "2.2.2"
+  - "2.4.2"
 gemfile:
   - gemfiles/Gemfile.rails-4.2.x
   - gemfiles/Gemfile.rails-5.0.x
@@ -14,7 +15,8 @@ install:
   - "bundle install"
 
 script:
-   - "export EXCEPT_DEPLOYED=false"
+   - "export EXCEPT_DEPLOYED=true"
+   - "if [[ $TRAVIS_RUBY_VERSION == '2.4.2' ]]; then export EXCEPT_DEPLOYED=false; fi"
    - "bundle exec rspec spec"
 
 matrix:
