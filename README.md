@@ -24,22 +24,22 @@ You have your Rails application deployed on the [Amazon Elastic Beanstalk](http:
   * Log into your Amazon Web Service Console and select _SQS_ from the services menu.
   * Create a new queue. Select a name of choice but do not forget to use the **same name** in your Active Job class definition.
 
-  ```Ruby
-  class YourJob < ActiveJob::Base
-    queue_as :name_of_your_queue
-  end
-  ```
-
-  Also use that **same name** in your Action Mailer configuration (if you send emails in background jobs):
-
-  ```Ruby
-  # config/application.rb
-  module YourApp
-    class Application < Rails::Application
-      config.action_mailer.deliver_later_queue_name = :name_of_your_queue
+    ```Ruby
+    class YourJob < ActiveJob::Base
+      queue_as :name_of_your_queue
     end
-  end
-  ```
+    ```
+
+    Also use that **same name** in your Action Mailer configuration (if you send emails in background jobs):
+
+    ```Ruby
+    # config/application.rb
+    module YourApp
+      class Application < Rails::Application
+        config.action_mailer.deliver_later_queue_name = :name_of_your_queue
+      end
+    end
+    ```
   * Choose a visibility timeout that exceeds the maximum amount of time a single job will take.
 3. Give your EC2 instances permission to send messages to SQS queues:
   * Stay logged in and select the _IAM_ service from the services menu.
@@ -63,14 +63,14 @@ You have your Rails application deployed on the [Amazon Elastic Beanstalk](http:
   * Add **PROCESS_ACTIVE_ELASTIC_JOBS** and set it to `true`.
 7. Configure Active Elastic Job as the queue adapter.
 
-  ```Ruby
-  # config/application.rb
-  module YourApp
-    class Application < Rails::Application
-      config.active_job.queue_adapter = :active_elastic_job
+    ```Ruby
+    # config/application.rb
+    module YourApp
+      class Application < Rails::Application
+        config.active_job.queue_adapter = :active_elastic_job
+      end
     end
-  end
-  ```
+    ```
 8. Verify that both environments—web and worker—have the same secret base key:
   * In the _Software Configuration_ settings of the web environment, copy the value of the **SECRET_KEY_BASE** variable.
   * Open the _Software Configuration_ settings of the worker environment and add the **SECRET_KEY_BASE** variable. Paste the value from the web environment, so that both environments have the same secret key base.
