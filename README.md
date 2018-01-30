@@ -29,6 +29,17 @@ You have your Rails application deployed on the [Amazon Elastic Beanstalk](http:
     queue_as :name_of_your_queue
   end
   ```
+
+  Also use that **same name** in your Action Mailer configuration (if you send emails in background jobs):
+
+  ```Ruby
+  # config/application.rb
+  module YourApp
+    class Application < Rails::Application
+      config.action_mailer.deliver_later_queue_name = :name_of_your_queue
+    end
+  end
+  ```
   * Choose a visibility timeout that exceeds the maximum amount of time a single job will take.
 3. Give your EC2 instances permission to send messages to SQS queues:
   * Stay logged in and select the _IAM_ service from the services menu.
