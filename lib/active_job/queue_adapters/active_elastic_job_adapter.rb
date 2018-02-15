@@ -172,9 +172,17 @@ module ActiveJob
         end
 
         def aws_sqs_client
-          @aws_sqs_client ||= Aws::SQS::Client.new(credentials: aws_sqs_client_credentials )
+          @aws_sqs_client ||= Aws::SQS::Client.new(aws_sqs_client_config)
         end
 
+        def aws_sqs_client_config
+          aws_connection_config = config.aws_connection_config || {}
+          aws_connection_config.merge(
+            credentials: aws_sqs_client_credentials
+          )
+        end
+
+        # Returns an Aws::Credentials instance
         def aws_sqs_client_credentials
           @aws_credentials ||= if config.aws_credentials.kind_of?(Proc)
                                  config.aws_credentials.call
