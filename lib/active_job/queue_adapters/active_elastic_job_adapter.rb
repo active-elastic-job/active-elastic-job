@@ -184,7 +184,7 @@ module ActiveJob
         end
 
         def aws_region
-          config.aws_region
+          aws_sqs_client.config.region
         end
 
         def config
