@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # The boostrap script is partly taken from the rails-dev-box project.
 # The original source file can be found here
 # https://github.com/rails/rails-dev-box/blob/2fcf12eee6ce2469d9988694dcaf07ab5c2c3524/bootstrap.sh
@@ -53,8 +54,7 @@ install libsqlite3-dev libsqlite3-dev
 install nodejs nodejs
 
 # install Amazon EB CLI
-install python-dev python-dev
+install python3.4
 curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
-python get-pip.py --no-setuptools
-#pip install --upgrade pip
+python3 get-pip.py
 sudo pip install awsebcli
