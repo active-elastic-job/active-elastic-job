@@ -125,7 +125,7 @@ module ActiveJob
         private
 
         def aws_client_verifies_md5_digests?
-          Gem::Version.new(Aws::VERSION) >= Gem::Version.new('2.2.19'.freeze)
+          Gem::Version.new(Aws::CORE_GEM_VERSION) >= Gem::Version.new('2.2.19'.freeze)
         end
 
         def build_message(queue_name, serialized_job, timestamp)

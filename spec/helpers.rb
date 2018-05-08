@@ -1,5 +1,5 @@
 require 'fileutils'
-require 'aws-sdk'
+require 'aws-sdk-sqs'
 require 'open-uri'
 require 'active_job'
 require 'active_job/queue_adapters'
