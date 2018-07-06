@@ -1,4 +1,4 @@
-require 'aws-sdk-core'
+require 'aws-sdk'
 require 'active_elastic_job/version'
 require 'active_elastic_job/md5_message_digest_calculation'
 require 'active_job/queue_adapters/active_elastic_job_adapter'
