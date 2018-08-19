@@ -163,3 +163,12 @@ Running the complete test suite requires to launch elastic beanstalk environment
 EXCEPT_DEPLOYED=true bundle exec rspec spec
 ```
 Feel free to issue a pull request, if this subset of specs passes.
+
+### Development environment with Docker
+
+We recommend to run the test suite in a controlled and predictable envrionment. If your development machine has [Docker](https://www.docker.com/) installed, then you can make use of the Dockerfile that comes with this package. Build an image and run tests in container of that image.
+
+```bash
+docker build -t active-elastic-job-dev .
+docker run -e EXCEPT_DEPLOYED=true -v $(pwd):/usr/src/app active-elastic-job-dev bundle exec rspec spec
+```
