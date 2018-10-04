@@ -23,7 +23,7 @@ You have your Rails application deployed on the [Amazon Elastic Beanstalk](http:
 2. Create an SQS queue:
   * Log into your Amazon Web Service Console and select _SQS_ from the services menu.
   * Create a new queue. Select a name of choice but do not forget to use the **same name** in your Active Job class definition.
-  * Make sure you select a Standart Queue. **FIFO Queue will not work out of the box**.
+  * Make sure you select a Standard Queue. **FIFO Queue will not work out of the box**.
 
   ```Ruby
   class YourJob < ActiveJob::Base
