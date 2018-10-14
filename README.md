@@ -113,6 +113,7 @@ The snippet below shows the various configurable settings and their defaults.
   Rails.application.configure do
     config.active_elastic_job.process_jobs = ENV['PROCESS_ACTIVE_ELASTIC_JOBS'] == 'true'
     config.active_elastic_job.aws_credentials = lambda { Aws::InstanceProfileCredentials.new } # allows lambdas for lazy loading
+    config.active_elastic_job.aws_region # no default
     config.active_elastic_job.secret_key_base = Rails.application.secrets[:secret_key_base]
     config.active_elastic_job.periodic_tasks_route = '/periodic_tasks'.freeze
   end
