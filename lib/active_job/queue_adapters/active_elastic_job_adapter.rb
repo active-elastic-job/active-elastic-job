@@ -1,3 +1,5 @@
+require 'aws-sdk-sqs'
+
 module ActiveJob
   module QueueAdapters
     # == Active Elastic Job adapter for Active Job
