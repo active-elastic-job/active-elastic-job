@@ -103,7 +103,7 @@ The snippet below shows the various configurable settings and their defaults.
     config.active_elastic_job.process_jobs = ENV['PROCESS_ACTIVE_ELASTIC_JOBS'] == 'true'
     config.active_elastic_job.aws_credentials = lambda { Aws::InstanceProfileCredentials.new } # allows lambdas for lazy loading
     config.active_elastic_job.secret_key_base = Rails.application.secrets[:secret_key_base]
-    cofnig.active_elastic_job.periodic_tasks_route = '/periodic_tasks'.freeze
+    config.active_elastic_job.periodic_tasks_route = '/periodic_tasks'.freeze
   end
   ```
 
@@ -157,6 +157,18 @@ Whether you catch a bug, have a question or a suggestion for improvement, I sinc
 
 
 ## Contribute
-1. Fork
-1. Commit
-1. Issue a pull request
+
+Running the complete test suite requires to launch elastic beanstalk environments. Travis builds triggered by a pull request will launch the needed elastic beanstalk environments and subsequently run the complete test suite. You can run all specs that do not depend on running elasitic beanstalk environments by setting an environment variable:
+ ```bash
+EXCEPT_DEPLOYED=true bundle exec rspec spec
+```
+Feel free to issue a pull request, if this subset of specs passes.
+
+### Development environment with Docker
+
+We recommend to run the test suite in a controlled and predictable envrionment. If your development machine has [Docker](https://www.docker.com/) installed, then you can make use of the Dockerfile that comes with this package. Build an image and run tests in container of that image.
+
+```bash
+docker build -t active-elastic-job-dev .
+docker run -e EXCEPT_DEPLOYED=true -v $(pwd):/usr/src/app active-elastic-job-dev bundle exec rspec spec
+```

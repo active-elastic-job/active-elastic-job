@@ -1,5 +1,5 @@
 require 'fileutils'
-require 'aws-sdk'
+require 'aws-sdk-sqs'
 require 'open-uri'
 require 'active_job'
 require 'active_job/queue_adapters'
@@ -37,14 +37,35 @@ module Helpers
       @base_url = "https://#{WEB_ENV_HOST}/"
     end
 
+    def launch_eb_environemnts
+      run_in_rails_app_root_dir do
+        unless system("./launch_eb.sh")
+          raise "Could not create eb environments"
+        end
+      end
+      
+    end
+
+    def terminate_eb_environments
+      env = WEB_ENV_NAME
+      run_in_rails_app_root_dir do
+        unless system("eb terminate --force  #{env}")
+          raise "Could not terminate environment #{env}"
+        end
+      end
+      env = WORKER_ENV_NAME
+      run_in_rails_app_root_dir do
+        unless system("eb terminate --force  #{env}")
+          raise "Could not terminate environment #{env}"
+        end
+      end
+    end
+
     def deploy
-      build_gem
-      begin
-        unpack_gem_into_vendor_dir
+      use_gem do
+        launch_eb_environemnts
         deploy_to_environment(WEB_ENV_NAME)
         deploy_to_environment(WORKER_ENV_NAME)
-      ensure
-        remove_gem
       end
     end
 
@@ -80,8 +101,10 @@ module Helpers
     end
 
     def run_in_rails_app_root_dir(&block)
-      Dir.chdir("#{root_dir}/spec/integration/rails-app-#{@version}") do
-        yield
+      use_gem do
+        Dir.chdir("#{root_dir}/spec/integration/rails-app-#{@version}") do
+          yield
+        end
       end
     end
 
@@ -95,6 +118,12 @@ module Helpers
       end
     end
 
+    def use_gem(&block)
+      build_gem
+      unpack_gem_into_vendor_dir(&block)
+      remove_gem
+    end
+
     def build_gem
       sh(
         "gem build active-elastic-job.gemspec",
@@ -105,7 +134,7 @@ module Helpers
       sh("rm -rf #{gem_package_name}.gem", "Could not remove gem")
     end
 
-    def unpack_gem_into_vendor_dir
+    def unpack_gem_into_vendor_dir(&block)
       target_dir = "#{root_dir}/spec/integration/rails-app-#{@version}/vendor/gems"
       unless File.directory?(target_dir)
         FileUtils.mkdir_p(target_dir)
@@ -114,11 +143,15 @@ module Helpers
         "gem unpack #{gem_package_name}.gem --target #{target_dir}",
         "Could not unpack gem")
       sh(
-        "rm -rf #{target_dir}/active_elastic_job-current",
-        "Could not move gem")
-      sh(
         "mv #{target_dir}/#{gem_package_name} #{target_dir}/active_elastic_job-current",
         "Could not move gem")
+      begin
+        yield
+      ensure
+        sh(
+          "rm -rf #{target_dir}/active_elastic_job-current",
+          "Could not remove gem")
+      end
     end
 
     def gem_package_name

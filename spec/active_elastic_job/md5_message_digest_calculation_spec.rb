@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'securerandom'
 
-describe ActiveElasticJob::MD5MessageDigestCalculation do
+describe ActiveElasticJob::MD5MessageDigestCalculation, :deployed => true do
   let(:queue_name) { "ActiveElasticJob-integration-testing" }
   let(:queue_url) {
     aws_sqs_client.create_queue(queue_name: queue_name).queue_url
