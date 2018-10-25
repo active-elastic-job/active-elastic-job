@@ -73,7 +73,7 @@ Elastic beanstalk worker environments support the execution of
 similar to cron jobs. We recommend you to make yourself familiar with Elastic Beanstalks' [official doumentation](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html#worker-periodictasks) first.
 
 You don't need this gem to make us of Elastic Beanstalk's periodic tasks feature, however, this gem takes care of intercepting the POST requests from
-the SQS daemon (explained in the [official documenation](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html#worker-periodictasks)).
+the SQS daemon (explained in the [official documentation](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html#worker-periodictasks)).
 If the gem detects a POST request from the daemon caused by a periodic task definition, then the gem will create a corresponding Active Job instance and trigger the execution.
 To make use of the gem, just follow these conventions when writing your definition of the perdiodic tasks in `cron.yaml`:
 
