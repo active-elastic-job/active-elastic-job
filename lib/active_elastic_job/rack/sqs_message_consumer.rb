@@ -29,6 +29,8 @@ module ActiveElasticJob
 
       def initialize(app) #:nodoc:
         @app = app
+        @shutting_down = false
+        Signal.trap('TERM') { term_handler }
       end
 
       def call(env) #:nodoc:
@@ -47,7 +49,7 @@ module ActiveElasticJob
             rescue ActiveElasticJob::MessageVerifier::InvalidDigest => e
               return FORBIDDEN_RESPONSE
             end
-            return OK_RESPONSE 
+            return OK_RESPONSE
           end
         end
         @app.call(env)
@@ -55,8 +57,17 @@ module ActiveElasticJob
 
       private
 
+      def self.term_handler
+        @shutting_down = true
+      end
+
       def enabled?
-        Rails.application.config.active_elastic_job.process_jobs == true
+        # Stop processing jobs when a shutdown signal is recieved
+        if @shutting_down
+          false
+        else
+          Rails.application.config.active_elastic_job.process_jobs == true
+        end
       end
 
       def verify!(request)

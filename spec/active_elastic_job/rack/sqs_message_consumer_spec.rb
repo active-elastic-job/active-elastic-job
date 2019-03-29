@@ -123,4 +123,20 @@ describe ActiveElasticJob::Rack::SqsMessageConsumer do
       end
     end
   end
+
+  context "when receiving TERM signals" do
+     it "traps TERM" do
+       # The MRI default TERM handler does not cause RSpec to exit with an error.
+       # Use the system default TERM handler instead, which does kill RSpec.
+       # If you test a different signal you might not need to do this,
+       # or you might need to install a different signal's handler.
+       old_signal_handler = Signal.trap 'TERM', 'SYSTEM_DEFAULT'
+
+       expect(sqs_message_consumer).to receive(:term_handler).with no_args
+       Process.kill 'TERM', 0 # Send the signal to ourself
+
+       # Put the Ruby default signal handler back in case it matters to other tests
+       Signal.trap 'TERM', old_signal_handler
+     end
+  end
 end
