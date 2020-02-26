@@ -25,7 +25,7 @@ module ActiveElasticJob
         { 'Content-Type'.freeze => 'text/plain'.freeze },
         [ 'Request forbidden!'.freeze ]
       ]
-      DOCKER_HOST_IP = '172.17.0.1'.freeze
+      DOCKER_HOST_IP = /172.17.0.\d+/.freeze
 
       def initialize(app) #:nodoc:
         @app = app
@@ -118,7 +118,7 @@ module ActiveElasticJob
       end
 
       def sent_from_docker_host?(request)
-        app_runs_in_docker_container? && request.remote_ip == DOCKER_HOST_IP
+        app_runs_in_docker_container? && request.remote_ip =~ DOCKER_HOST_IP
       end
 
       def app_runs_in_docker_container?
