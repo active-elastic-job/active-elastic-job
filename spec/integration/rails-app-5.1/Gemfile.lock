@@ -1,7 +1,7 @@
 PATH
   remote: vendor/gems/active_elastic_job-current
   specs:
-    active_elastic_job (2.0.0)
+    active_elastic_job (2.0.1)
       aws-sdk (~> 2)
       rails (>= 4.2)
 
@@ -46,14 +46,14 @@ GEM
       minitest (~> 5.1)
       tzinfo (~> 1.1)
     arel (7.1.4)
-    aws-sdk (2.7.3)
-      aws-sdk-resources (= 2.7.3)
-    aws-sdk-core (2.7.3)
+    aws-sdk (2.10.82)
+      aws-sdk-resources (= 2.10.82)
+    aws-sdk-core (2.10.82)
       aws-sigv4 (~> 1.0)
       jmespath (~> 1.0)
-    aws-sdk-resources (2.7.3)
-      aws-sdk-core (= 2.7.3)
-    aws-sigv4 (1.0.0)
+    aws-sdk-resources (2.10.82)
+      aws-sdk-core (= 2.10.82)
+    aws-sigv4 (1.0.2)
     builder (3.2.3)
     coffee-rails (4.2.1)
       coffee-script (>= 2.2.0)

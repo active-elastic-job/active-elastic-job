@@ -1,10 +1,10 @@
 branch-defaults:
   default:
-    environment: web-env
+    environment: null
     group_suffix: null
 global:
   application_name: active_elastic_job
   default_ec2_keyname: null
-  default_platform: Ruby 2.2 (Passenger Standalone)
+  default_platform: Ruby 2.4 (Passenger Standalone)
   default_region: eu-central-1
   sc: null
