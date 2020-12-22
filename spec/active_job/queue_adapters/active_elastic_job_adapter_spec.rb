@@ -14,10 +14,20 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
     Aws::Credentials.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY'])
   }
 
+  let(:aws_sqs_client) { double("aws_sqs_client") }
+
   before do
     allow(adapter).to receive(:secret_key_base) { secret_key_base }
     allow(adapter).to receive(:aws_sqs_client_credentials) { aws_credentials }
-    allow(adapter).to receive(:aws_region) { ENV['AWS_REGION'] }
+    allow(adapter).to receive(:aws_region) { 'us-east-1' }
+    allow(adapter).to receive(:aws_sqs_client) { aws_sqs_client }
+    allow(aws_sqs_client).to receive(:get_queue_url) {
+      double("queue_url_resp", :queue_url => "http://queue_url")
+    }
+    allow(aws_sqs_client).to receive(:send_message) {
+      double("send_message_response", :md5_of_message_body => "some hash")
+    }
+
   end
 
   describe ".enqueue" do
@@ -29,6 +39,7 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
     end
 
     it "caches the queue url" do
+      adapter.enqueue job
       expect(aws_sqs_client).to receive(:get_queue_url).exactly(0).times
       adapter.enqueue job
     end

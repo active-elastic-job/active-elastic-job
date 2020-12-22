@@ -24,11 +24,22 @@ You have your Rails application deployed on the [Amazon Elastic Beanstalk](http:
   * Log into your Amazon Web Service Console and select _SQS_ from the services menu.
   * Create a new queue. Select a name of choice but do not forget to use the **same name** in your Active Job class definition.
 
-  ```Ruby
-  class YourJob < ActiveJob::Base
-    queue_as :name_of_your_queue
-  end
-  ```
+    ```Ruby
+    class YourJob < ActiveJob::Base
+      queue_as :name_of_your_queue
+    end
+    ```
+
+    Also use that **same name** in your Action Mailer configuration (if you send emails in background jobs):
+
+    ```Ruby
+    # config/application.rb
+    module YourApp
+      class Application < Rails::Application
+        config.action_mailer.deliver_later_queue_name = :name_of_your_queue
+      end
+    end
+    ```
   * Choose a visibility timeout that exceeds the maximum amount of time a single job will take.
 3. Give your EC2 instances permission to send messages to SQS queues:
   * Stay logged in and select the _IAM_ service from the services menu.
@@ -52,14 +63,14 @@ You have your Rails application deployed on the [Amazon Elastic Beanstalk](http:
   * Add **PROCESS_ACTIVE_ELASTIC_JOBS** and set it to `true`.
 7. Configure Active Elastic Job as the queue adapter.
 
-  ```Ruby
-  # config/application.rb
-  module YourApp
-    class Application < Rails::Application
-      config.active_job.queue_adapter = :active_elastic_job
+    ```Ruby
+    # config/application.rb
+    module YourApp
+      class Application < Rails::Application
+        config.active_job.queue_adapter = :active_elastic_job
+      end
     end
-  end
-  ```
+    ```
 8. Verify that both environments—web and worker—have the same secret base key:
   * In the _Software Configuration_ settings of the web environment, copy the value of the **SECRET_KEY_BASE** variable.
   * Open the _Software Configuration_ settings of the worker environment and add the **SECRET_KEY_BASE** variable. Paste the value from the web environment, so that both environments have the same secret key base.
@@ -73,7 +84,7 @@ Elastic beanstalk worker environments support the execution of
 similar to cron jobs. We recommend you to make yourself familiar with Elastic Beanstalks' [official doumentation](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html#worker-periodictasks) first.
 
 You don't need this gem to make us of Elastic Beanstalk's periodic tasks feature, however, this gem takes care of intercepting the POST requests from
-the SQS daemon (explained in the [official documenation](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html#worker-periodictasks)).
+the SQS daemon (explained in the [official documentation](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html#worker-periodictasks)).
 If the gem detects a POST request from the daemon caused by a periodic task definition, then the gem will create a corresponding Active Job instance and trigger the execution.
 To make use of the gem, just follow these conventions when writing your definition of the perdiodic tasks in `cron.yaml`:
 
@@ -163,3 +174,12 @@ Running the complete test suite requires to launch elastic beanstalk environment
 EXCEPT_DEPLOYED=true bundle exec rspec spec
 ```
 Feel free to issue a pull request, if this subset of specs passes.
+
+### Development environment with Docker
+
+We recommend to run the test suite in a controlled and predictable envrionment. If your development machine has [Docker](https://www.docker.com/) installed, then you can make use of the Dockerfile that comes with this package. Build an image and run tests in container of that image.
+
+```bash
+docker build -t active-elastic-job-dev .
+docker run -e EXCEPT_DEPLOYED=true -v $(pwd):/usr/src/app active-elastic-job-dev bundle exec rspec spec
+```
