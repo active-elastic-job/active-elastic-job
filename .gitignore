@@ -12,3 +12,5 @@
 .env
 .vagrant
 .byebug_history
+Gemfile.lock
+.ruby-version
