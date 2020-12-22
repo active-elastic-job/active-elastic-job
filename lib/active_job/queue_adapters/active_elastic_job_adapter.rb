@@ -28,7 +28,7 @@ module ActiveJob
       class SerializedJobTooBig < Error
         def initialize(serialized_job)
           super(<<-MSG)
-            The job contains #{serialized_job.bytesize} bytes in its serialzed form,
+            The job contains #{serialized_job.bytesize} bytes in its serialized form,
             which exceeds the allowed maximum of #{MAX_MESSAGE_SIZE} bytes imposed by Amazon SQS.
           MSG
         end
@@ -76,6 +76,18 @@ module ActiveJob
         end
       end
 
+      # Raised when the delay is longer than the MAX_DELAY_IN_MINUTES
+      class DelayTooLong < RangeError
+        def initialize()
+          super(<<-MSG)
+            Jobs cannot be scheduled more than #{MAX_DELAY_IN_MINUTES} minutes
+            into the future.
+            See http://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_SendMessage.html
+            for further details!
+          MSG
+        end
+      end
+
       def enqueue(job) #:nodoc:
         self.class.enqueue job
       end
@@ -113,7 +125,7 @@ module ActiveJob
         private
 
         def aws_client_verifies_md5_digests?
-          Gem::Version.new(Aws::VERSION) >= Gem::Version.new('2.2.19'.freeze)
+          Gem::Version.new(Aws::CORE_GEM_VERSION) >= Gem::Version.new('2.2.19'.freeze)
         end
 
         def build_message(queue_name, serialized_job, timestamp)
@@ -147,12 +159,7 @@ module ActiveJob
         def calculate_delay(timestamp)
           delay = (timestamp - Time.current.to_f).to_i + 1
           if delay > MAX_DELAY_IN_MINUTES.minutes
-            msg = "Jobs cannot be scheduled more than " <<
-            "#{MAX_DELAY_IN_MINUTES} minutes into the future. " <<
-            "See http://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_SendMessage.html" <<
-            " for further details!"
-
-            raise RangeError, msg
+            raise DelayTooLong.new
           end
           delay = 0 if delay < 0
           delay

@@ -9,6 +9,10 @@ describe "standard scenarios", slow: true, deployed: true do
     @rails_app.deploy
   end
 
+  after(:all) do
+    @rails_app.terminate_eb_environments
+  end
+
   it "posts a job to the queue and processes it" do
     expect(@rails_app.fetch_random_strings).to_not include(random_string)
     @rails_app.create_random_string(random_string)
