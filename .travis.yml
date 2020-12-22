@@ -1,11 +1,11 @@
-sudo: required
+dist: xenial
+os: linux
 language: ruby
 rvm:
-  - "2.0"
-  - "2.1"
-  - "2.2.2"
+  - 2.5
+  - 2.6
+  - 2.7
 gemfile:
-  - gemfiles/Gemfile.rails-4.2.x
   - gemfiles/Gemfile.rails-5.0.x
 install:
   - "sudo pip install --upgrade pip"
@@ -15,12 +15,5 @@ install:
 
 script:
    - "export EXCEPT_DEPLOYED=true"
-   - "if [[ $TRAVIS_PULL_REQUEST == 'false' ]]; then export EXCEPT_DEPLOYED=false; fi"
+   - "if [[ $TRAVIS_RUBY_VERSION == '2.5.8' ]]; then export EXCEPT_DEPLOYED=false; fi"
    - "bundle exec rspec spec"
-
-matrix:
-  exclude:
-    - rvm: "2.0"
-      gemfile: gemfiles/Gemfile.rails-5.0.x
-    - rvm: "2.1"
-      gemfile: gemfiles/Gemfile.rails-5.0.x
