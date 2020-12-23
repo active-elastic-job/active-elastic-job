@@ -173,7 +173,12 @@ module ActiveJob
         end
 
         def aws_sqs_client
-          @aws_sqs_client ||= Aws::SQS::Client.new(credentials: aws_sqs_client_credentials )
+          endpoint = Rails.application.config.active_elastic_job.endpoint
+          options = {
+            credentials: aws_sqs_client_credentials
+          }
+          options[:endpoint] = endpoint if endpoint.present?
+          @aws_sqs_client ||= Aws::SQS::Client.new(options)
         end
 
         def aws_sqs_client_credentials
