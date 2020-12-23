@@ -17,7 +17,7 @@ describe Aws::SQS::Client, :deployed => true do
   end
 
   describe "message dispatching" do
-    let(:queue_name) { "ActiveElasticJob-integration-testing" }
+    let(:queue_name) { "active_elastic_job_integration_testing" }
     let(:queue_url) do
       response = aws_client.create_queue(queue_name: queue_name)
       response.queue_url
