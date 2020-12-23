@@ -112,6 +112,7 @@ module ActiveJob
               message[:message_body],
               message[:message_attributes])
           end
+          job.provider_job_id = resp.message_id
         rescue Aws::SQS::Errors::NonExistentQueue => e
           unless @queue_urls[job.queue_name.to_s].nil?
             @queue_urls[job.queue_name.to_s] = nil
