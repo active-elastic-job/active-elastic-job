@@ -25,7 +25,7 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
       double("queue_url_resp", :queue_url => "http://queue_url")
     }
     allow(aws_sqs_client).to receive(:send_message) {
-      double("send_message_response", :md5_of_message_body => "some hash")
+      double("send_message_response", :md5_of_message_body => "some hash", :message_id => "some string")
     }
 
   end
