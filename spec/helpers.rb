@@ -32,7 +32,7 @@ module Helpers
   end
 
   class RailsApp
-    def initialize(version = "4.2")
+    def initialize(version = "5.2")
       @version = version
       @base_url = "https://#{WEB_ENV_HOST}/"
     end
@@ -96,7 +96,7 @@ module Helpers
         req = Net::HTTP::Post.new("/random_strings.json")
         req.set_form_data("random_string" => random_string)
         resp = https.request req
-        raise "Could not create randoom string. HTTP Request got #{resp.code} response" if resp.code != "200"
+        raise "Could not create random string. HTTP Request got #{resp.code} response" if resp.code != "200"
       end
     end
 
