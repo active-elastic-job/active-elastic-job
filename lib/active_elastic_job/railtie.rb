@@ -12,6 +12,7 @@ module ActiveElasticJob
       end
 
       if app.config.active_elastic_job.process_jobs == true
+        app.config.active_elastic_job.aws_credentials ||= lambda { Aws::InstanceProfileCredentials.new }
         if app.config.force_ssl
           app.config.middleware.insert_before(ActionDispatch::SSL,ActiveElasticJob::Rack::SqsMessageConsumer)
         else
