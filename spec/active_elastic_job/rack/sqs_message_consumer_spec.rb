@@ -122,5 +122,49 @@ describe ActiveElasticJob::Rack::SqsMessageConsumer do
         end
       end
     end
+
+    context "when request was from sqsd to a Docker container" do
+      let(:origin_attribute) { "AEJ" }
+
+      before do
+        expect(sqs_message_consumer).to receive(:app_runs_in_docker_container?) { true }
+      end
+
+      context 'in a single container environment' do
+        before do
+          env['REMOTE_ADDR'] = '172.17.0.1'
+        end
+
+        it "intercepts request and performs the job" do
+          expect(app).not_to receive(:call).with(env)
+
+          expect(sqs_message_consumer.call(env)[0]).to eq('200')
+        end
+      end
+
+      context 'in a multi-container environment' do
+        before do
+          env['REMOTE_ADDR'] = '172.17.0.2'
+        end
+
+        it "intercepts request and performs the job" do
+          expect(app).not_to receive(:call).with(env)
+
+          expect(sqs_message_consumer.call(env)[0]).to eq('200')
+        end
+      end
+
+      context 'with a non-Docker REMOTE_ADDR' do
+        before do
+          env['REMOTE_ADDR'] = '123.45.0.6'
+        end
+
+        it "responds with a 403 status code" do
+          expect(app).not_to receive(:call).with(env)
+
+          expect(sqs_message_consumer.call(env)[0]).to eq('403')
+        end
+      end
+    end
   end
 end
