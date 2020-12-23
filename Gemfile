@@ -1,9 +1,10 @@
 source 'https://rubygems.org'
 
-gem 'rails', '~> 5.0', '>= 5.0.0.1'
+# gem 'rails', '~> 5.0', '>= 5.0.0.1'
 gem 'sqlite3'
 gemspec
 gem 'bundler'
+gem 'aws-sdk', '~> 3'
 gem 'rspec', '~> 3.4'
 gem 'dotenv'
 gem 'fuubar'

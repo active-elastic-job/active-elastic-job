@@ -23,6 +23,7 @@ You have your Rails application deployed on the [Amazon Elastic Beanstalk](http:
 2. Create an SQS queue:
   * Log into your Amazon Web Service Console and select _SQS_ from the services menu.
   * Create a new queue. Select a name of choice but do not forget to use the **same name** in your Active Job class definition.
+  * Make sure you select a Standard Queue. **FIFO Queue will not work out of the box**.
 
     ```Ruby
     class YourJob < ActiveJob::Base
@@ -113,6 +114,7 @@ The snippet below shows the various configurable settings and their defaults.
   Rails.application.configure do
     config.active_elastic_job.process_jobs = ENV['PROCESS_ACTIVE_ELASTIC_JOBS'] == 'true'
     config.active_elastic_job.aws_credentials = lambda { Aws::InstanceProfileCredentials.new } # allows lambdas for lazy loading
+    config.active_elastic_job.aws_region # no default
     config.active_elastic_job.secret_key_base = Rails.application.secrets[:secret_key_base]
     config.active_elastic_job.periodic_tasks_route = '/periodic_tasks'.freeze
   end
