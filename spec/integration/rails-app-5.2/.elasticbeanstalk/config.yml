@@ -5,6 +5,6 @@ branch-defaults:
 global:
   application_name: active_elastic_job
   default_ec2_keyname: null
-  default_platform: Ruby 2.5 (Passenger Standalone)
+  default_platform: Ruby 2.6 (Passenger Standalone)
   default_region: us-east-1
   sc: null
