@@ -30,7 +30,7 @@ module ActiveElasticJob
       def initialize(app) #:nodoc:
         @app = app
         @shutting_down = false
-        Signal.trap('TERM') { term_handler }
+        Signal.trap('TERM') { @shutting_down = true }
       end
 
       def call(env) #:nodoc:
@@ -55,15 +55,15 @@ module ActiveElasticJob
         @app.call(env)
       end
 
-      private
-
-      def self.term_handler
-        @shutting_down = true
+      def shutting_down?
+        @shutting_down
       end
+
+      private
 
       def enabled?
         # Stop processing jobs when a shutdown signal is recieved
-        if @shutting_down
+        if shutting_down?
           false
         else
           Rails.application.config.active_elastic_job.process_jobs == true

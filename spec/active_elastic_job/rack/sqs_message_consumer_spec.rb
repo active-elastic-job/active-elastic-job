@@ -176,8 +176,10 @@ describe ActiveElasticJob::Rack::SqsMessageConsumer do
        # or you might need to install a different signal's handler.
        old_signal_handler = Signal.trap 'TERM', 'SYSTEM_DEFAULT'
 
-       expect(sqs_message_consumer).to receive(:term_handler).with no_args
+       sqs_message_consumer = ActiveElasticJob::Rack::SqsMessageConsumer.new(app)
+       expect(sqs_message_consumer.shutting_down?).to be false
        Process.kill 'TERM', 0 # Send the signal to ourself
+       expect(sqs_message_consumer.shutting_down?).to be true
 
        # Put the Ruby default signal handler back in case it matters to other tests
        Signal.trap 'TERM', old_signal_handler
