@@ -1,9 +1,9 @@
 module ActiveElasticJob
   module VERSION
-    MAJOR = 2
+    MAJOR = 3
     MINOR = 0
-    TINY  = 2
-    PRE   = nil
+    TINY  = 0
+    PRE   = 'alpha'
 
     STRING = [MAJOR, MINOR, TINY, PRE].compact.join('.')
 
