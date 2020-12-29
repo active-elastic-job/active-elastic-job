@@ -15,5 +15,5 @@ install:
 
 script:
    - "export EXCEPT_DEPLOYED=true"
-   - "if [[ $TRAVIS_RUBY_VERSION == '2.5.8' ]]; then export EXCEPT_DEPLOYED=false; fi"
+   - "if [[ $TRAVIS_RUBY_VERSION == '2.6' ]]; then export EXCEPT_DEPLOYED=false; fi"
    - "bundle exec rspec spec"
