@@ -127,6 +127,41 @@ If you don't want to provide AWS credentials by using EC2 instance profiles, but
   end
   ```
 
+## Suggested Elastic Beanstalk configuration
+
+### Extended Nginx read timeout
+By default, Nginx has a read timeout of 60 seconds. If a job takes more than 60 seconds to complete, Nginx will close the connection making AWS SQS think the job failed. However, the job will continue running until it completes (or errors out), and SQS will re-queue the job to be processed again, which typically is not desirable.
+
+The most basic way to make this change is to simply add this to a document within `nginx/conf.d`:
+
+```
+fastcgi_read_timeout 1800; # 30 minutes
+proxy_read_timeout 1800; # 30 minutes
+```
+
+However, one of the best parts about `active-elastic-job` is that you can use the same code base for your web environment and your worker environment. You probably don't want your web environment to have a `read_timeout` longer than 60 seconds. So here's an Elastic Beanstalk configuration file to only add this to your worker environments.
+
+#### Amazon Linux 2
+
+`.platform/hooks/predeploy/nginx_read_timeout.sh`
+```
+#!/usr/bin/env bash
+set -xe
+
+if [ $PROCESS_ACTIVE_ELASTIC_JOBS ]
+then
+  cat >/var/proxy/staging/nginx/conf.d/read_timeout.conf <<EOL
+fastcgi_read_timeout 1800;
+proxy_read_timeout 1800;
+EOL
+fi
+```
+
+#### Pre-Amazon Linux 2
+
+Coming soon
+
+
 ## FAQ
 A summary of frequently asked questions:
 ### What are the advantages in comparison to popular alternatives like Resque, Sidekiq or DelayedJob?
