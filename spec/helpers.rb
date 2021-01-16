@@ -27,6 +27,15 @@ module Helpers
     )
   end
 
+  def localstack_aws_sqs_client
+    Aws::SQS::Client.new(
+      access_key_id: "SQS",
+      secret_access_key: "SQS_QUEUE",
+      region: "ap-southeast-2",
+      endpoint: "http://localhost:4566"
+    )
+  end
+
   def with_modified_env(options, &block)
     ClimateControl.modify(options, &block)
   end
@@ -43,7 +52,7 @@ module Helpers
           raise "Could not create eb environments"
         end
       end
-      
+
     end
 
     def terminate_eb_environments

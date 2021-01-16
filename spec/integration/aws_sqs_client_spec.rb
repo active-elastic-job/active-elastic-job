@@ -9,8 +9,8 @@ class TestJob < ActiveJob::Base
   end
 end
 
-describe Aws::SQS::Client, deployed: true do
-  subject(:aws_client)  { aws_sqs_client}
+describe Aws::SQS::Client do
+  subject(:aws_client)  { localstack_aws_sqs_client }
 
   it "is configured with valid credentials and region" do
     expect { aws_client.list_queues }.to_not raise_error

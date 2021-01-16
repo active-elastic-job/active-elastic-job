@@ -11,6 +11,12 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    services:
+      localstack:
+        image: localstack/localstack
+        ports:
+          - 4566:4566
     strategy:
       matrix:
         gemfile: [rails50, rails51, rails52, rails60, rails61]
