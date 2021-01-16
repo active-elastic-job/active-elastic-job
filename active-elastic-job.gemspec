@@ -23,5 +23,15 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = '>= 2.5'
 
   spec.add_dependency 'aws-sdk-sqs', '~> 1'
-  spec.add_dependency 'rails', '~> 5.0'
+  spec.add_dependency 'rails', '>= 5.0'
+
+  spec.add_development_dependency 'sqlite3'
+  spec.add_development_dependency 'bundler'
+  spec.add_development_dependency  'rspec', '~> 3.4'
+  spec.add_development_dependency  'dotenv'
+  spec.add_development_dependency  'fuubar'
+  spec.add_development_dependency  'rdoc'
+  spec.add_development_dependency  'byebug'
+  spec.add_development_dependency  'benchmark-ips'
+  spec.add_development_dependency  'climate_control'
 end
