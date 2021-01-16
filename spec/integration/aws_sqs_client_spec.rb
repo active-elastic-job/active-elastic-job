@@ -9,7 +9,7 @@ class TestJob < ActiveJob::Base
   end
 end
 
-describe Aws::SQS::Client, :deployed => true do
+describe Aws::SQS::Client, deployed: true do
   subject(:aws_client)  { aws_sqs_client}
 
   it "is configured with valid credentials and region" do
