@@ -1,3 +1,12 @@
+## [v.3.0.0] - Alpha
+ - Update to AWS SDK V3
+ - Closes [issue #104](https://github.com/active-elastic-job/active-elastic-job/issues/104)
+ - Drop support for Ruby <2.5
+ - Drop support for Rails <5
+ - Add support for Ruby 3
+ - Add support for Rails 6
+ - Replace TravisCI with GitHub Actions
+
 ## [v.2.0.1] - 2017-02-05
  - Closes [issue #51](https://github.com/active-elastic-job/active-elastic-job/issues/51) Lazy loading of AWS credentials in order to prevent slowing down of Rails start up time.
 
