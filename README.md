@@ -1,6 +1,6 @@
 # Active Elastic Job
 
-[![Build Status](https://travis-ci.org/tawan/active-elastic-job.svg)](https://travis-ci.org/tawan/active-elastic-job)
+[![Build Status](https://github.com/active-elastic-job/active-elastic-job/workflows/Tests/badge.svg)](https://github.com/active-elastic-job/active-elastic-job/actions)
 [![Gem Version](https://badge.fury.io/rb/active_elastic_job.svg)](https://badge.fury.io/rb/active_elastic_job)
 
 You have your Rails application deployed on the [Amazon Elastic Beanstalk](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/Welcome.html) platform and now your application needs to offload work—like sending emails—into asynchronous background jobs. Or you want to perform jobs periodically similar to cron jobs. Then Active Elastic Job is the right gem. It provides an adapter for Rails' [Active Job](http://guides.rubyonrails.org/active_job_basics.html) framework that allows your application to queue jobs as messages in an [Amazon SQS](https://aws.amazon.com/sqs/) queue. Elastic Beanstalk provides [worker environments](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html) that automatically pull messages from the queue and transforms them into HTTP requests. This gem knows how to handle these requests. It comes with a [Rack](http://rack.github.io/) middleware that intercepts these requests and transforms them back into jobs which are subsequently executed.
@@ -23,12 +23,24 @@ You have your Rails application deployed on the [Amazon Elastic Beanstalk](http:
 2. Create an SQS queue:
   * Log into your Amazon Web Service Console and select _SQS_ from the services menu.
   * Create a new queue. Select a name of choice but do not forget to use the **same name** in your Active Job class definition.
+  * Make sure you select a Standard Queue. **FIFO Queue will not work out of the box**.
 
-  ```Ruby
-  class YourJob < ActiveJob::Base
-    queue_as :name_of_your_queue
-  end
-  ```
+    ```Ruby
+    class YourJob < ActiveJob::Base
+      queue_as :name_of_your_queue
+    end
+    ```
+
+    Also use that **same name** in your Action Mailer configuration (if you send emails in background jobs):
+
+    ```Ruby
+    # config/application.rb
+    module YourApp
+      class Application < Rails::Application
+        config.action_mailer.deliver_later_queue_name = :name_of_your_queue
+      end
+    end
+    ```
   * Choose a visibility timeout that exceeds the maximum amount of time a single job will take.
 3. Give your EC2 instances permission to send messages to SQS queues:
   * Stay logged in and select the _IAM_ service from the services menu.
@@ -52,14 +64,14 @@ You have your Rails application deployed on the [Amazon Elastic Beanstalk](http:
   * Add **PROCESS_ACTIVE_ELASTIC_JOBS** and set it to `true`.
 7. Configure Active Elastic Job as the queue adapter.
 
-  ```Ruby
-  # config/application.rb
-  module YourApp
-    class Application < Rails::Application
-      config.active_job.queue_adapter = :active_elastic_job
+    ```Ruby
+    # config/application.rb
+    module YourApp
+      class Application < Rails::Application
+        config.active_job.queue_adapter = :active_elastic_job
+      end
     end
-  end
-  ```
+    ```
 8. Verify that both environments—web and worker—have the same secret base key:
   * In the _Software Configuration_ settings of the web environment, copy the value of the **SECRET_KEY_BASE** variable.
   * Open the _Software Configuration_ settings of the worker environment and add the **SECRET_KEY_BASE** variable. Paste the value from the web environment, so that both environments have the same secret key base.
@@ -73,7 +85,7 @@ Elastic beanstalk worker environments support the execution of
 similar to cron jobs. We recommend you to make yourself familiar with Elastic Beanstalks' [official doumentation](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html#worker-periodictasks) first.
 
 You don't need this gem to make us of Elastic Beanstalk's periodic tasks feature, however, this gem takes care of intercepting the POST requests from
-the SQS daemon (explained in the [official documenation](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html#worker-periodictasks)).
+the SQS daemon (explained in the [official documentation](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html#worker-periodictasks)).
 If the gem detects a POST request from the daemon caused by a periodic task definition, then the gem will create a corresponding Active Job instance and trigger the execution.
 To make use of the gem, just follow these conventions when writing your definition of the perdiodic tasks in `cron.yaml`:
 
@@ -102,6 +114,7 @@ The snippet below shows the various configurable settings and their defaults.
   Rails.application.configure do
     config.active_elastic_job.process_jobs = ENV['PROCESS_ACTIVE_ELASTIC_JOBS'] == 'true'
     config.active_elastic_job.aws_credentials = lambda { Aws::InstanceProfileCredentials.new } # allows lambdas for lazy loading
+    config.active_elastic_job.aws_region # no default
     config.active_elastic_job.secret_key_base = Rails.application.secrets[:secret_key_base]
     config.active_elastic_job.periodic_tasks_route = '/periodic_tasks'.freeze
   end
@@ -113,6 +126,41 @@ If you don't want to provide AWS credentials by using EC2 instance profiles, but
     config.active_elastic_job.aws_credentials = Aws::Credentials.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY'])
   end
   ```
+
+## Suggested Elastic Beanstalk configuration
+
+### Extended Nginx read timeout
+By default, Nginx has a read timeout of 60 seconds. If a job takes more than 60 seconds to complete, Nginx will close the connection making AWS SQS think the job failed. However, the job will continue running until it completes (or errors out), and SQS will re-queue the job to be processed again, which typically is not desirable.
+
+The most basic way to make this change is to simply add this to a document within `nginx/conf.d`:
+
+```
+fastcgi_read_timeout 1800; # 30 minutes
+proxy_read_timeout 1800; # 30 minutes
+```
+
+However, one of the best parts about `active-elastic-job` is that you can use the same code base for your web environment and your worker environment. You probably don't want your web environment to have a `read_timeout` longer than 60 seconds. So here's an Elastic Beanstalk configuration file to only add this to your worker environments.
+
+#### Amazon Linux 2
+
+`.platform/hooks/predeploy/nginx_read_timeout.sh`
+```
+#!/usr/bin/env bash
+set -xe
+
+if [ $PROCESS_ACTIVE_ELASTIC_JOBS ]
+then
+  cat >/var/proxy/staging/nginx/conf.d/read_timeout.conf <<EOL
+fastcgi_read_timeout 1800;
+proxy_read_timeout 1800;
+EOL
+fi
+```
+
+#### Pre-Amazon Linux 2
+
+Coming soon
+
 
 ## FAQ
 A summary of frequently asked questions:
@@ -153,7 +201,7 @@ When you have found the requests, check their response codes which give a clue o
 
 ## Bugs - Questions - Improvements
 
-Whether you catch a bug, have a question or a suggestion for improvement, I sincerely appreciate any feedback. Please feel free to [create an issue](https://github.com/tawan/active-elastic-job/issues/new) and I will follow up as soon as possible.
+Whether you catch a bug, have a question or a suggestion for improvement, I sincerely appreciate any feedback. Please feel free to [create an issue](https://github.com/active-elastic-job/active-elastic-job/issues/new) and I will follow up as soon as possible.
 
 
 ## Contribute

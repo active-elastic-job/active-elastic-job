@@ -2,7 +2,7 @@
 
 ## Objectives
 
-As identified in [issue 76](https://github.com/tawan/active-elastic-job/issues/76) releases came to a halt which raised the question if the project has been abandoned.
+As identified in [issue 76](https://github.com/active-elastic-job/active-elastic-job/issues/76) releases came to a halt which raised the question if the project has been abandoned.
 At that time, a new version was tested with a suite of integration test prior release.
 The single maintainer was not using this project in production at that time, therefore the maintainer needed to run the integration tests in order to have confidence in the stability of a new version. These integration tests depended on manually creating resources in an AWS account, which was time consuming at slowed down the pace new releases with important changes.
 

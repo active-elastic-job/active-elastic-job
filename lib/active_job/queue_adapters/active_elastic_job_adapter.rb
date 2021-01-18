@@ -28,7 +28,7 @@ module ActiveJob
       class SerializedJobTooBig < Error
         def initialize(serialized_job)
           super(<<-MSG)
-            The job contains #{serialized_job.bytesize} bytes in its serialzed form,
+            The job contains #{serialized_job.bytesize} bytes in its serialized form,
             which exceeds the allowed maximum of #{MAX_MESSAGE_SIZE} bytes imposed by Amazon SQS.
           MSG
         end
@@ -112,6 +112,7 @@ module ActiveJob
               message[:message_body],
               message[:message_attributes])
           end
+          job.provider_job_id = resp.message_id
         rescue Aws::SQS::Errors::NonExistentQueue => e
           unless @queue_urls[job.queue_name.to_s].nil?
             @queue_urls[job.queue_name.to_s] = nil
@@ -172,7 +173,13 @@ module ActiveJob
         end
 
         def aws_sqs_client
-          @aws_sqs_client ||= Aws::SQS::Client.new(credentials: aws_sqs_client_credentials )
+          options = {
+            credentials: aws_sqs_client_credentials,
+            region: aws_region
+          }
+          endpoint = Rails.application.config.active_elastic_job.endpoint
+          options[:endpoint] = endpoint if endpoint.present?
+          @aws_sqs_client ||= Aws::SQS::Client.new(options)
         end
 
         def aws_sqs_client_credentials
