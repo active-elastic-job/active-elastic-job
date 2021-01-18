@@ -1,0 +1,63 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+# This workflow will download a prebuilt Ruby version, install dependencies and run tests with Rake
+# For more information see: https://github.com/marketplace/actions/setup-ruby-jruby-and-truffleruby
+
+name: Tests
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      localstack:
+        image: localstack/localstack
+        ports:
+          - 4566:4566
+    strategy:
+      matrix:
+        gemfile: 
+          - rails50
+          - rails51
+          - rails52
+          - rails60
+          - rails61
+        ruby: 
+          - "2.5"
+          - "2.6"
+          - "2.7"
+          - "3.0"
+        except_deploy:
+          - "true"
+        exclude:
+          - gemfile: rails50
+            ruby: "3.0"
+          - gemfile: rails51
+            ruby: "3.0"
+          - gemfile: rails52
+            ruby: "3.0"
+
+    env:
+      BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile
+      EXCEPT_DEPLOYED: ${{ matrix.except_deploy }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1.62.0
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - name: Configure EB CLI
+        if: env.EXCEPT_DEPLOYED == 'false'
+        run: |
+          sudo pip install --upgrade pip
+          sudo pip install awsebcli --ignore-installed
+      - name: Run tests
+        run: bundle exec rspec spec
