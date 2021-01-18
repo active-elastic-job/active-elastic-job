@@ -19,13 +19,19 @@ jobs:
           - 4566:4566
     strategy:
       matrix:
-        gemfile: [rails50, rails51, rails52, rails60, rails61]
-        ruby: ["2.5", "2.6", "2.7", "3.0"]
-        except_deploy: [true]
-        include:
-          - gemfile: rails52
-            ruby: "2.6"
-            except_deploy: "false"
+        gemfile: 
+          - rails50
+          - rails51
+          - rails52
+          - rails60
+          - rails61
+        ruby: 
+          - "2.5"
+          - "2.6"
+          - "2.7"
+          - "3.0"
+        except_deploy:
+          - "true"
         exclude:
           - gemfile: rails50
             ruby: "3.0"
@@ -44,7 +50,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@v1.62.0
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
