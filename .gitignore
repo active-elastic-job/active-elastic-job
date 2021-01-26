@@ -10,8 +10,10 @@
 *.o
 *.a
 .env
+.secret
 .vagrant
 .byebug_history
 Gemfile.lock
 .ruby-version
 vendor
+aws_policy.json

@@ -4,6 +4,7 @@ require 'open-uri'
 require 'active_job'
 require 'active_job/queue_adapters'
 require 'climate_control'
+require 'amazing_print'
 
 module Helpers
   WEB_ENV_HOST = ENV['WEB_ENV_HOST']
@@ -31,7 +32,7 @@ module Helpers
     Aws::SQS::Client.new(
       access_key_id: "SQS",
       secret_access_key: "SQS_QUEUE",
-      region: "ap-southeast-2",
+      region: ENV['AWS_REGION'],
       endpoint: "http://localhost:4566"
     )
   end
@@ -46,25 +47,53 @@ module Helpers
       @base_url = "https://#{WEB_ENV_HOST}/"
     end
 
-    def launch_eb_environemnts
+    def initialize_eb_application
       run_in_rails_app_root_dir do
-        unless system("./launch_eb.sh")
-          raise "Could not create eb environments"
+        unless system("eb init active_elastic_job -p ruby --region #{ENV['AWS_REGION']}")
+          raise "Could not initialize eb application"
         end
       end
+    end
 
+    def launch_eb_web_environment
+      run_in_rails_app_root_dir do
+        unless system(
+            <<~SH
+              eb create web-env -c active-elastic-job \
+              --elb-type application \
+              --vpc.elbpublic \
+              --envvars SECRET_KEY_BASE=secret,AWS_REGION=#{ENV['AWS_REGION']}
+            SH
+          )
+          raise "Could not launch eb web environment"
+        end
+      end
+    end
+
+    def launch_eb_worker_environment
+      run_in_rails_app_root_dir do
+        unless system(
+            <<~SH
+              eb create worker-env -t worker \
+              --single \
+              --envvars SECRET_KEY_BASE=secret,AWS_REGION=#{ENV['AWS_REGION']},WEB_ENV_HOST=active-elastic-job.#{ENV['AWS_REGION']}.elasticbeanstalk.com,WEB_ENV_PORT=443,PROCESS_ACTIVE_ELASTIC_JOBS=true
+            SH
+          )
+          raise "Could not launch eb worker environment"
+        end
+      end
     end
 
     def terminate_eb_environments
       env = WEB_ENV_NAME
       run_in_rails_app_root_dir do
-        unless system("eb terminate --force  #{env}")
+        unless system("eb terminate --force #{env}")
           raise "Could not terminate environment #{env}"
         end
       end
       env = WORKER_ENV_NAME
       run_in_rails_app_root_dir do
-        unless system("eb terminate --force  #{env}")
+        unless system("eb terminate --force #{env}")
           raise "Could not terminate environment #{env}"
         end
       end
@@ -72,7 +101,9 @@ module Helpers
 
     def deploy
       use_gem do
-        launch_eb_environemnts
+        initialize_eb_application
+        launch_eb_web_environment
+        launch_eb_worker_environment
         deploy_to_environment(WEB_ENV_NAME)
         deploy_to_environment(WORKER_ENV_NAME)
       end
@@ -102,8 +133,8 @@ module Helpers
 
     def create_random_string(random_string)
       Net::HTTP.start(WEB_ENV_HOST, WEB_ENV_PORT, use_ssl: true, verify_mode: OpenSSL::SSL::VERIFY_NONE) do |https|
-        req = Net::HTTP::Post.new("/random_strings.json")
-        req.set_form_data("random_string" => random_string)
+        req = Net::HTTP::Post.new("/random_strings.json", 'Content-Type' => 'application/json')
+        req.body = {"random_string" => {"random_string" => random_string}}.to_json
         resp = https.request req
         raise "Could not create random string. HTTP Request got #{resp.code} response" if resp.code != "200"
       end

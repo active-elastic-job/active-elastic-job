@@ -20,6 +20,8 @@ module RailsApp
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
 
+    Rails.application.config.active_record.sqlite3.represent_boolean_as_integer = true
+
     config.active_job.queue_adapter = :active_elastic_job
 
     config.force_ssl = true

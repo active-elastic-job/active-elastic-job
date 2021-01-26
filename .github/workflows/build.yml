@@ -5,11 +5,11 @@
 # This workflow will download a prebuilt Ruby version, install dependencies and run tests with Rake
 # For more information see: https://github.com/marketplace/actions/setup-ruby-jruby-and-truffleruby
 
-name: Tests
+name: Build
 on: [push, pull_request]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
 
     services:
@@ -45,7 +45,7 @@ jobs:
       EXCEPT_DEPLOYED: ${{ matrix.except_deploy }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_REGION: us-east-1
 
     steps:
       - uses: actions/checkout@v2
@@ -61,3 +61,45 @@ jobs:
           sudo pip install awsebcli --ignore-installed
       - name: Run tests
         run: bundle exec rspec spec
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/master'
+    services:
+      localstack:
+        image: localstack/localstack
+        ports:
+          - 4566:4566
+    strategy:
+      matrix:
+        gemfile: 
+          - rails52
+        ruby: 
+          - "2.7"
+        except_deploy:
+          - "false"
+
+    env:
+      BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile
+      EXCEPT_DEPLOYED: ${{ matrix.except_deploy }}
+      AWS_CONFIG_FILE: /github/workspace/aws_config
+      AWS_VPC_ID: ${{ secrets.AWS_VPC_ID }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: us-east-1
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1.62.0
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - name: Configure EB CLI
+        if: env.EXCEPT_DEPLOYED == 'false'
+        run: |
+          sudo pip install --upgrade pip
+          sudo pip install awsebcli --ignore-installed
+      - name: Run tests
+        run: bundle exec rspec spec
+
