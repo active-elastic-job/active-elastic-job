@@ -85,18 +85,18 @@ module Helpers
     end
 
     def terminate_eb_environments
-      env = WEB_ENV_NAME
-      run_in_rails_app_root_dir do
-        unless system("eb terminate --force #{env}")
-          raise "Could not terminate environment #{env}"
-        end
-      end
-      env = WORKER_ENV_NAME
-      run_in_rails_app_root_dir do
-        unless system("eb terminate --force #{env}")
-          raise "Could not terminate environment #{env}"
-        end
-      end
+      # env = WEB_ENV_NAME
+      # run_in_rails_app_root_dir do
+      #   unless system("eb terminate --force #{env}")
+      #     raise "Could not terminate environment #{env}"
+      #   end
+      # end
+      # env = WORKER_ENV_NAME
+      # run_in_rails_app_root_dir do
+      #   unless system("eb terminate --force #{env}")
+      #     raise "Could not terminate environment #{env}"
+      #   end
+      # end
     end
 
     def deploy
