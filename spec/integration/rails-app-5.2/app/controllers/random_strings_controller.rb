@@ -42,7 +42,7 @@ class RandomStringsController < ApplicationController
 
   def destroy
     @random_string = RandomString.find_by_random_string(params[:id])
-    @random_string.destroy!
+    @random_string.destroy! if @random_string.present?
         
     respond_to do |format|
       format.json { render :json => @random_string }
