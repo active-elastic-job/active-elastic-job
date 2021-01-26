@@ -6,7 +6,7 @@
 # For more information see: https://github.com/marketplace/actions/setup-ruby-jruby-and-truffleruby
 
 name: Build
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   build:
@@ -90,6 +90,10 @@ jobs:
       AWS_REGION: us-east-1
 
     steps:
+      - name: Disallow Concurrent Runs
+        uses: byu-oit/github-action-disallow-concurrent-runs@v2
+        with:
+          token: ${{ github.token }}
       - uses: actions/checkout@v2
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1.62.0
