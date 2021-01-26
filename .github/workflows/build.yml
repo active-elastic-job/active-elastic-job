@@ -84,10 +84,13 @@ jobs:
       BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile
       EXCEPT_DEPLOYED: ${{ matrix.except_deploy }}
       AWS_CONFIG_FILE: ${{ github.workspace }}/aws_config
-      AWS_SDK_LOAD_CONFIG: 1
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: us-east-1
+      WEB_ENV_HOST: active-elastic-job.us-east-1.elasticbeanstalk.com
+      WEB_ENV_PORT: 443
+      WEB_ENV_NAME: web-env
+      WORKER_ENV_NAME: worker-env
 
     steps:
       - name: Disallow Concurrent Runs

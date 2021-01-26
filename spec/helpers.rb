@@ -104,8 +104,8 @@ module Helpers
         initialize_eb_application
         # launch_eb_web_environment
         # launch_eb_worker_environment
-        # deploy_to_environment(WEB_ENV_NAME)
-        # deploy_to_environment(WORKER_ENV_NAME)
+        deploy_to_environment(WEB_ENV_NAME)
+        deploy_to_environment(WORKER_ENV_NAME)
       end
     end
 
