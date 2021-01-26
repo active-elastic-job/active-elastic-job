@@ -62,10 +62,10 @@ jobs:
       - name: Run tests
         run: bundle exec rspec spec
   deploy:
+    if: github.head_ref == 'refs/heads/develop' && github.base_ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     environment: deployment
-    # needs: build
-    # if: github.ref == 'refs/heads/master'
+    needs: build
     services:
       localstack:
         image: localstack/localstack
