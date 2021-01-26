@@ -65,7 +65,7 @@ jobs:
     # if: github.head_ref == 'refs/heads/develop' && github.base_ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     environment: deployment
-    # needs: build
+    needs: build
     services:
       localstack:
         image: localstack/localstack
@@ -78,7 +78,7 @@ jobs:
         ruby: 
           - "2.7"
         except_deploy:
-          - "true"
+          - "false"
 
     env:
       BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile
