@@ -62,10 +62,10 @@ jobs:
       - name: Run tests
         run: bundle exec rspec spec
   deploy:
-    if: github.head_ref == 'refs/heads/develop' && github.base_ref == 'refs/heads/master'
+    # if: github.head_ref == 'refs/heads/develop' && github.base_ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     environment: deployment
-    needs: build
+    # needs: build
     services:
       localstack:
         image: localstack/localstack
@@ -78,7 +78,7 @@ jobs:
         ruby: 
           - "2.7"
         except_deploy:
-          - "false"
+          - "true"
 
     env:
       BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile
@@ -93,6 +93,8 @@ jobs:
       WORKER_ENV_NAME: worker-env
 
     steps:
+      - name: Pull request branches
+        run: echo "Head Ref = ${{ github.head_ref }}, Base Ref = ${{ github.base_ref }}, Ref = ${{ github.ref }}"
       - name: Disallow Concurrent Runs
         uses: byu-oit/github-action-disallow-concurrent-runs@v2
         with:
