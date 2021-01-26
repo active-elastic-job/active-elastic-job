@@ -136,7 +136,6 @@ module Helpers
         req = Net::HTTP::Post.new("/random_strings.json", 'Content-Type' => 'application/json')
         req.body = {"random_string" => {"random_string" => random_string}}.to_json
         resp = https.request req
-
         raise "Could not create random string. HTTP Request got #{resp.code} response" if resp.code != "200"
       end
     end
