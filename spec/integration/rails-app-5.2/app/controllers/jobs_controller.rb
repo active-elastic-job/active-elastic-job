@@ -10,6 +10,6 @@ class JobsController < ApplicationController
       TestJob.perform_later(params[:random_string])
     end
 
-    render nothing: true, status: :ok
+    head :ok
   end
 end

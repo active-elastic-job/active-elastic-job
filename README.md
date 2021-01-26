@@ -1,6 +1,6 @@
 # Active Elastic Job
 
-[![Build Status](https://github.com/active-elastic-job/active-elastic-job/workflows/Tests/badge.svg)](https://github.com/active-elastic-job/active-elastic-job/actions)
+[![Build Status](https://github.com/active-elastic-job/active-elastic-job/workflows/Build/badge.svg)](https://github.com/active-elastic-job/active-elastic-job/actions)
 [![Gem Version](https://badge.fury.io/rb/active_elastic_job.svg)](https://badge.fury.io/rb/active_elastic_job)
 
 You have your Rails application deployed on the [Amazon Elastic Beanstalk](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/Welcome.html) platform and now your application needs to offload work—like sending emails—into asynchronous background jobs. Or you want to perform jobs periodically similar to cron jobs. Then Active Elastic Job is the right gem. It provides an adapter for Rails' [Active Job](http://guides.rubyonrails.org/active_job_basics.html) framework that allows your application to queue jobs as messages in an [Amazon SQS](https://aws.amazon.com/sqs/) queue. Elastic Beanstalk provides [worker environments](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html) that automatically pull messages from the queue and transforms them into HTTP requests. This gem knows how to handle these requests. It comes with a [Rack](http://rack.github.io/) middleware that intercepts these requests and transforms them back into jobs which are subsequently executed.
@@ -84,7 +84,7 @@ Elastic beanstalk worker environments support the execution of
 [periodic tasks](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html#worker-periodictasks)
 similar to cron jobs. We recommend you to make yourself familiar with Elastic Beanstalks' [official doumentation](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html#worker-periodictasks) first.
 
-You don't need this gem to make us of Elastic Beanstalk's periodic tasks feature, however, this gem takes care of intercepting the POST requests from
+You don't need this gem to make use of Elastic Beanstalk's periodic tasks feature, however, this gem takes care of intercepting the POST requests from
 the SQS daemon (explained in the [official documentation](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features-managing-env-tiers.html#worker-periodictasks)).
 If the gem detects a POST request from the daemon caused by a periodic task definition, then the gem will create a corresponding Active Job instance and trigger the execution.
 To make use of the gem, just follow these conventions when writing your definition of the perdiodic tasks in `cron.yaml`:
