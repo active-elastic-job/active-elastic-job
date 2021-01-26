@@ -63,6 +63,7 @@ jobs:
         run: bundle exec rspec spec
   deploy:
     runs-on: ubuntu-latest
+    environment: deployment
     # needs: build
     # if: github.ref == 'refs/heads/master'
     services:
