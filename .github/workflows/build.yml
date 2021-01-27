@@ -6,7 +6,7 @@
 # For more information see: https://github.com/marketplace/actions/setup-ruby-jruby-and-truffleruby
 
 name: Build
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   build:
@@ -62,9 +62,10 @@ jobs:
       - name: Run tests
         run: bundle exec rspec spec
   deploy:
+    if: github.head_ref == 'develop' && github.base_ref == 'master'
     runs-on: ubuntu-latest
+    environment: deployment
     needs: build
-    if: github.ref == 'refs/heads/master'
     services:
       localstack:
         image: localstack/localstack
@@ -86,8 +87,18 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: us-east-1
+      WEB_ENV_HOST: active-elastic-job.us-east-1.elasticbeanstalk.com
+      WEB_ENV_PORT: 443
+      WEB_ENV_NAME: web-env
+      WORKER_ENV_NAME: worker-env
 
     steps:
+      - name: Pull request branches
+        run: echo "Head Ref = ${{ github.head_ref }}, Base Ref = ${{ github.base_ref }}, Ref = ${{ github.ref }}"
+      - name: Disallow Concurrent Runs
+        uses: byu-oit/github-action-disallow-concurrent-runs@v2
+        with:
+          token: ${{ github.token }}
       - uses: actions/checkout@v2
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1.62.0

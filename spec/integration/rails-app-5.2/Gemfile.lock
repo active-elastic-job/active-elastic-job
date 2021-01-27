@@ -3,7 +3,7 @@ PATH
   specs:
     active_elastic_job (3.0.0.alpha)
       aws-sdk-sqs (~> 1)
-      rails (~> 5.0)
+      rails (>= 5.0, < 7)
 
 GEM
   remote: https://rubygems.org/

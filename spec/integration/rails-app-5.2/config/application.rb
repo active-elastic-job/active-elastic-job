@@ -25,5 +25,6 @@ module RailsApp
     config.active_job.queue_adapter = :active_elastic_job
 
     config.force_ssl = true
+    config.ssl_options = { redirect: { exclude: -> request { request.path =~ /health/ } } }
   end
 end
