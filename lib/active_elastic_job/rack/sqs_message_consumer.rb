@@ -122,7 +122,7 @@ module ActiveElasticJob
       end
 
       def app_runs_in_docker_container?
-        `[ -f /proc/1/cgroup ] && cat /proc/1/cgroup` =~ /(ecs|docker)/
+        (`[ -f /proc/1/cgroup ] && cat /proc/1/cgroup` =~ /(ecs|docker)/).present?
       end
     end
   end
