@@ -47,7 +47,7 @@ module ActiveElasticJob
             rescue ActiveElasticJob::MessageVerifier::InvalidDigest => e
               return FORBIDDEN_RESPONSE
             end
-            return OK_RESPONSE 
+            return OK_RESPONSE
           end
         end
         @app.call(env)
@@ -122,7 +122,7 @@ module ActiveElasticJob
       end
 
       def app_runs_in_docker_container?
-        @app_in_docker_container ||= `[ -f /proc/1/cgroup ] && cat /proc/1/cgroup` =~ /(ecs|docker)/
+        `[ -f /proc/1/cgroup ] && cat /proc/1/cgroup` =~ /(ecs|docker)/
       end
     end
   end
