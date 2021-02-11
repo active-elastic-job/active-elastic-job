@@ -118,7 +118,11 @@ module ActiveElasticJob
       end
 
       def sent_from_docker_host?(request)
-        app_runs_in_docker_container? && request.remote_ip =~ DOCKER_HOST_IP
+        app_runs_in_docker_container? && ip_originates_from_docker?(request)
+      end
+
+      def ip_originates_from_docker?(request)
+        (request.remote_ip =~ DOCKER_HOST_IP).present? or (request.remote_addr =~ DOCKER_HOST_IP).present?
       end
 
       def app_runs_in_docker_container?
