@@ -47,7 +47,7 @@ module ActiveElasticJob
             rescue ActiveElasticJob::MessageVerifier::InvalidDigest => e
               return FORBIDDEN_RESPONSE
             end
-            return OK_RESPONSE 
+            return OK_RESPONSE
           end
         end
         @app.call(env)
@@ -118,11 +118,15 @@ module ActiveElasticJob
       end
 
       def sent_from_docker_host?(request)
-        app_runs_in_docker_container? && request.remote_ip =~ DOCKER_HOST_IP
+        app_runs_in_docker_container? && ip_originates_from_docker?(request)
+      end
+
+      def ip_originates_from_docker?(request)
+        (request.remote_ip =~ DOCKER_HOST_IP).present? or (request.remote_addr =~ DOCKER_HOST_IP).present?
       end
 
       def app_runs_in_docker_container?
-        @app_in_docker_container ||= `[ -f /proc/1/cgroup ] && cat /proc/1/cgroup` =~ /(ecs|docker)/
+        (`[ -f /proc/1/cgroup ] && cat /proc/1/cgroup` =~ /(ecs|docker)/).present?
       end
     end
   end

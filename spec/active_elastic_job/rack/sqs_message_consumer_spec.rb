@@ -142,6 +142,19 @@ describe ActiveElasticJob::Rack::SqsMessageConsumer do
         end
       end
 
+      context 'in a rails environment where x-forwarded-for counts' do
+        before do
+          env['REMOTE_ADDR'] = '172.17.0.1'
+          env['HTTP_X_FORWARDED_FOR'] = ' 127.0.0.1'
+        end
+
+        it "intercepts request and performs the job" do
+          expect(app).not_to receive(:call).with(env)
+
+          expect(sqs_message_consumer.call(env)[0]).to eq('200')
+        end
+      end
+
       context 'in a multi-container environment' do
         before do
           env['REMOTE_ADDR'] = '172.17.0.2'
