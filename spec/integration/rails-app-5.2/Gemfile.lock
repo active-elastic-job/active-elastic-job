@@ -1,7 +1,7 @@
 PATH
   remote: vendor/gems/active_elastic_job-current
   specs:
-    active_elastic_job (3.0.0.alpha)
+    active_elastic_job (3.0.0)
       aws-sdk-sqs (~> 1)
       rails (>= 5.0, < 7)
 
@@ -51,14 +51,14 @@ GEM
       tzinfo (~> 1.1)
     arel (9.0.0)
     aws-eventstream (1.1.0)
-    aws-partitions (1.416.0)
-    aws-sdk-core (3.111.1)
+    aws-partitions (1.428.0)
+    aws-sdk-core (3.112.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
       aws-sigv4 (~> 1.1)
       jmespath (~> 1.0)
-    aws-sdk-sqs (1.35.0)
-      aws-sdk-core (~> 3, >= 3.109.0)
+    aws-sdk-sqs (1.36.0)
+      aws-sdk-core (~> 3, >= 3.112.0)
       aws-sigv4 (~> 1.1)
     aws-sigv4 (1.2.2)
       aws-eventstream (~> 1, >= 1.0.2)
