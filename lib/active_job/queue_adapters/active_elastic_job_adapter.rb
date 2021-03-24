@@ -158,8 +158,9 @@ module ActiveJob
         end
 
         def fifo_required_params(serialized_job)
+          parsed_job = JSON.parse(serialized_job)
+
           fifo_required_keys.each_with_object({}) do |key, hsh|
-            parsed_job = JSON.parse(serialized_job)
             value = parsed_job['arguments'].select { |arg| arg.is_a?(Hash) && arg.has_key?(key) }.first
             hsh[key] = value.present? ? value : default_value(key, parsed_job)
           end
