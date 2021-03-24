@@ -112,8 +112,7 @@ FIFO (First-In-First-Out) queues are designed to enhance messaging between appli
 events is critical, or where duplicates can't be tolerated. FIFO queues also provide exactly-once processing but have a
 limited number of transactions per second (TPS).
 
-In order to make it work, you'll need to specify both `message_deduplication_id` and `message_group_id` in your job's
-arguments when calling `perform_later` or `perform_now`. Both mentioned arguments are required and both are `String` objects.
+The message group id will be set to the job type, and the message deduplication id will be set to the job id.
 
 ## Optional configuration
 This gem is configurable in case your setup requires different settings than the defaults.
