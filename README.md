@@ -113,6 +113,8 @@ limited number of transactions per second (TPS).
 
 The message group id will be set to the job type, and the message deduplication id will be set to the job id.
 
+Note: Periodic tasks don't work for worker environments that are configured with Amazon SQS FIFO queues.
+
 ## Optional configuration
 This gem is configurable in case your setup requires different settings than the defaults.
 The snippet below shows the various configurable settings and their defaults.
