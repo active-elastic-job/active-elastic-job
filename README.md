@@ -23,7 +23,6 @@ You have your Rails application deployed on the [Amazon Elastic Beanstalk](http:
 2. Create an SQS queue:
   * Log into your Amazon Web Service Console and select _SQS_ from the services menu.
   * Create a new queue. Select a name of choice but do not forget to use the **same name** in your Active Job class definition.
-  * Make sure you select a Standard Queue. **FIFO Queue will not work out of the box**.
 
     ```Ruby
     class YourJob < ActiveJob::Base
@@ -105,6 +104,16 @@ Subsequently it triggers its execution by calling the `#perform_now` method.
      url: "/periodic_tasks"
      schedule: "0 23 * * *"
   ```
+
+## FIFO Queues
+
+FIFO (First-In-First-Out) queues are designed to enhance messaging between applications when the order of operations and
+events is critical, or where duplicates can't be tolerated. FIFO queues also provide exactly-once processing but have a
+limited number of transactions per second (TPS).
+
+The message group id will be set to the job type, and the message deduplication id will be set to the job id.
+
+Note: Periodic tasks don't work for worker environments that are configured with Amazon SQS FIFO queues.
 
 ## Optional configuration
 This gem is configurable in case your setup requires different settings than the defaults.
