@@ -33,7 +33,7 @@ module ActiveElasticJob
 
       def call(env) #:nodoc:
         request = ActionDispatch::Request.new env
-        if enabled? && aws_sqsd?(request)
+        if enabled? && (aws_sqsd?(request) || sqsd?(request))
           unless request.local? || sent_from_docker_host?(request)
             return FORBIDDEN_RESPONSE
           end
@@ -85,6 +85,18 @@ module ActiveElasticJob
         return (current_user_agent.present? &&
           current_user_agent.size >= 'aws-sqsd'.freeze.size &&
           current_user_agent[0..('aws-sqsd'.freeze.size - 1)] == 'aws-sqsd'.freeze)
+      end
+
+      def sqsd?(request)
+        # Does not match against a Regexp
+        # in order to avoid performance penalties.
+        # Instead performs a simple string comparison.
+        # Benchmark runs showed an performance increase of
+        # up to 40%
+        current_user_agent = request.headers['User-Agent'.freeze]
+        return (current_user_agent.present? &&
+          current_user_agent.size >= 'sqsd'.freeze.size &&
+          current_user_agent[0..('sqsd'.freeze.size - 1)] == 'sqsd'.freeze)
       end
 
       def periodic_tasks_route
