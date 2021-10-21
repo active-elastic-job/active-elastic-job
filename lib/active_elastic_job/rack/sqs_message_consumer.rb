@@ -25,7 +25,10 @@ module ActiveElasticJob
         { 'Content-Type'.freeze => 'text/plain'.freeze },
         [ 'Request forbidden!'.freeze ]
       ]
-      DOCKER_HOST_IP = /172.17.0.\d+/.freeze
+
+      # 172.17.0.x is the default for Docker
+      # 172.18.0.x is the default for the bridge network of Docker Compose
+      DOCKER_HOST_IP = /172.1(7|8).0.\d+/.freeze
 
       def initialize(app) #:nodoc:
         @app = app
