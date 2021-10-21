@@ -143,6 +143,7 @@ module Helpers
     def run_in_rails_app_root_dir(&block)
       use_gem do
         Dir.chdir("#{root_dir}/spec/integration/rails-app-#{@version}") do
+          sh("bundle install", 'Bundle install failed')
           yield
         end
       end
@@ -182,15 +183,19 @@ module Helpers
       sh(
         "gem unpack #{gem_package_name}.gem --target #{target_dir}",
         "Could not unpack gem")
+      sh("rm -rf #{target_dir}/active_elastic_job-current", "Could not remove previous gem")
       sh(
         "mv #{target_dir}/#{gem_package_name} #{target_dir}/active_elastic_job-current",
-        "Could not move gem")
+        "Could not move gem",
+        "Gem moved successfully")
       begin
         yield
       ensure
-        sh(
-          "rm -rf #{target_dir}/active_elastic_job-current",
-          "Could not remove gem")
+        # We used to remove the gem here, but that added extra steps when
+        # doing the integration testing
+        # sh( "rm -rf
+        # #{target_dir}/active_elastic_job-current", "Could not remove gem",
+        # "Gem removed successfully")
       end
     end
 
@@ -198,9 +203,11 @@ module Helpers
       "active_elastic_job-#{ActiveElasticJob::VERSION}"
     end
 
-    def sh(command, error_msg)
+    def sh(command, error_msg, success_msg='')
       Dir.chdir(root_dir) do
-        unless system(command)
+        if system(command)
+          puts success_msg
+        else
           raise error_msg
         end
       end

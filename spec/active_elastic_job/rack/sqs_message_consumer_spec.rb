@@ -121,6 +121,21 @@ describe ActiveElasticJob::Rack::SqsMessageConsumer do
           end
         end
       end
+
+      context 'when request was from from a generic sqsd daemon' do
+        before do
+          env['HTTP_USER_AGENT'] = 'sqsd'
+        end
+
+        it "intercepts request" do
+          expect(app).not_to receive(:call).with(env)
+          sqs_message_consumer.call(env)
+        end
+
+        it "performs the job" do
+          expect(sqs_message_consumer.call(env)[0]).to eq('200')
+        end
+      end
     end
 
     context "when request was from sqsd to a Docker container" do
