@@ -23,4 +23,4 @@ gem 'jbuilder', '~> 2.0'
 # bundle exec rake doc:rails generates the API under doc/api.
 gem 'active_elastic_job', :path => 'vendor/gems/active_elastic_job-current'
 
-gem 'puma', '= 5.5.0'
+gem 'puma', '= 5.5.1'

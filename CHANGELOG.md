@@ -1,4 +1,10 @@
-## [v.3.0.0] - Alpha
+## [v.3.1.0] - 2021-10-21
+ - Add support for generes SQSD daemons
+ - Update various dependencies for security
+ - Expand Docker detection to include Docker Compose bridge networking
+ - Add support for FIFO queues
+
+## [v.3.0.0] - 2021-02-22
  - Update to AWS SDK V3
  - Closes [issue #104](https://github.com/active-elastic-job/active-elastic-job/issues/104)
  - Drop support for Ruby <2.5
