@@ -86,6 +86,26 @@ describe ActiveJob::QueueAdapters::ActiveElasticJobAdapter do
           ActiveJob::QueueAdapters::ActiveElasticJobAdapter::NonExistentQueue)
       end
     end
+
+    context "when the underlying queue is a FIFO queue" do
+      let(:job_id) { "be8767f8-2b34-4179-9843-47024ac12703" }
+
+      before do
+        allow(job).to receive(:queue_name) { "high_priority.fifo" }
+        allow(job).to receive(:job_id) { job_id }
+      end
+
+      it "sets the required attributes" do
+        client = adapter.send(:aws_sqs_client)
+
+        expect(client).to receive(:send_message).with(hash_including(
+          message_group_id: "Helpers::TestJob",
+          message_deduplication_id: job_id
+        ))
+
+        adapter.enqueue(job)
+      end
+    end
   end
 
   describe ".enqueue_at" do
