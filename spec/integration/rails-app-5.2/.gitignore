@@ -21,6 +21,6 @@
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
 
-/vendor/gems/*
+# /vendor/gems/*
 
 !Gemfile.lock
