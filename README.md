@@ -186,7 +186,7 @@ set -xe
 if [ "$PROCESS_ACTIVE_ELASTIC_JOBS" ]
 then
   npm install -g sqsd
-  nohup "$(npm bin -g)/sqsd" --queue-url "***REMOVED***" --web-hook '/' --worker-health-url '/health' --ssl-enabled false --daemonized false >> /var/log/sqsd.log 2>&1 &
+  nohup "$(npm bin -g)/sqsd" --queue-url $SQS_URL --web-hook '/' --worker-health-url '/health' --ssl-enabled false --daemonized false >> /var/log/sqsd.log 2>&1 &
 fi
 ```
 * *worker-health-url* is optional, but better to have than to not
