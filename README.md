@@ -178,19 +178,20 @@ The default `aws-sqsd` daemon only support one queue at a time and is determined
 
 #### Potential Setup
 
-In `.platform/hooks/predeploy` put a shell script like this:
+In `.platform/hooks/postdeploy` put a shell script like this:
 ```bash
 #!/usr/bin/env bash
 set -xe
 
-if [ $PROCESS_ACTIVE_ELASTIC_JOBS ] then
+if [ "$PROCESS_ACTIVE_ELASTIC_JOBS" ]
+then
   npm install -g sqsd
-  nohup $(npm bin -g)/sqsd --queue-url $SQS_URL --web-hook '/' --worker-health-url '/health' --ssl-enabled false --daemonized true --user-agent sqsd >> /var/log/sqsd.log 2>&1 &
+  nohup "$(npm bin -g)/sqsd" --queue-url "***REMOVED***" --web-hook '/' --worker-health-url '/health' --ssl-enabled false --daemonized false >> /var/log/sqsd.log 2>&1 &
 fi
 ```
 * *worker-health-url* is optional, but better to have than to not
 * *ssl-enabled* is set to false as the default Elastic Beanstalk setup has the SSL ending at the load balancer and not the application.
-* *daemonized* is set to true otherwise `sqsd` would stop once the queue was empty
+* *daemonized* is set to false otherwise `sqsd` would stop once the queue was empty (this seems backwards from the sqsd README, but it works this way)
 * *user-agent* is technically optional as the default value is `sqsd`, but there's potential to expand features based on this field
 * Everything starting with the `>>` is optional unless you want output from the darmon logged
 
