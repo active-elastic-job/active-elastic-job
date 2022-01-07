@@ -25,6 +25,7 @@ jobs:
           - rails52
           - rails60
           - rails61
+          - rails70
         ruby: 
           - "2.5"
           - "2.6"
