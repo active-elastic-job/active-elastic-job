@@ -20,10 +20,10 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ['lib']
 
-  spec.required_ruby_version = '>= 2.5'
+  spec.required_ruby_version = '>= 2.7'
 
   spec.add_dependency 'aws-sdk-sqs', '~> 1'
-  spec.add_dependency 'rails', '>= 5.0', '~>7.0.1'
+  spec.add_dependency 'rails', '>= 5.2.6', '~>7.0.1'
 
   spec.add_development_dependency 'amazing_print', '~> 1.2'
   spec.add_development_dependency 'benchmark-ips', '~> 2.8'
