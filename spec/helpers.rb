@@ -42,7 +42,7 @@ module Helpers
   end
 
   class RailsApp
-    def initialize(version = "5.2")
+    def initialize(version = "7.0")
       @version = version
       @base_url = "https://#{WEB_ENV_HOST}/"
     end
