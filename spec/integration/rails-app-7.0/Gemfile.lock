@@ -152,6 +152,8 @@ GEM
     nio4r (2.5.8)
     nokogiri (1.13.0-arm64-darwin)
       racc (~> 1.4)
+    nokogiri (1.13.0-x86_64-linux)
+      racc (~> 1.4)
     public_suffix (4.0.6)
     puma (5.5.2)
       nio4r (~> 2.0)
@@ -232,6 +234,7 @@ GEM
 
 PLATFORMS
   arm64-darwin-21
+  x86_64-linux
 
 DEPENDENCIES
   active_elastic_job!
@@ -256,4 +259,4 @@ RUBY VERSION
    ruby 3.0.3p157
 
 BUNDLED WITH
-   2.2.33
+   2.2.32
