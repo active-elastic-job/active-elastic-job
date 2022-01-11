@@ -67,9 +67,9 @@ jobs:
     strategy:
       matrix:
         gemfile: 
-          - rails52
+          - rails70
         ruby: 
-          - "2.7"
+          - "3.0"
         except_deploy:
           - "false"
 
