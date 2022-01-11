@@ -1,0 +1,21 @@
+<%= form_for(@random_string) do |f| %>
+  <% if @random_string.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@random_string.errors.count, "error") %> prohibited this random_string from being saved:</h2>
+
+      <ul>
+      <% @random_string.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :random_string %><br>
+    <%= f.text_field :random_string %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
