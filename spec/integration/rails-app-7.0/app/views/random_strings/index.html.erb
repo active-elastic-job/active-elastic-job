@@ -1,0 +1,27 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Random Strings</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Random string</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @random_strings.each do |random_string| %>
+      <tr>
+        <td><%= random_string.random_string %></td>
+        <td><%= link_to 'Show', random_string %></td>
+        <td><%= link_to 'Edit', edit_random_string_path(random_string) %></td>
+        <td><%= link_to 'Destroy', random_string, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Random string', new_random_string_path %>
