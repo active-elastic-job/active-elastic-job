@@ -193,7 +193,7 @@ fi
 * *ssl-enabled* is set to false as the default Elastic Beanstalk setup has the SSL ending at the load balancer and not the application.
 * *daemonized* is set to false otherwise `sqsd` would stop once the queue was empty (this seems backwards from the sqsd README, but it works this way)
 * *user-agent* is technically optional as the default value is `sqsd`, but there's potential to expand features based on this field
-* Everything starting with the `>>` is optional unless you want output from the daemon logged
+* Everything starting with the `>>` is optional unless you want output from the darmon logged
 
 #### Potential Problems
 
