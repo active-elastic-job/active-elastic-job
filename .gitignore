@@ -17,8 +17,3 @@ Gemfile.lock
 .ruby-version
 vendor
 aws_policy.json
-
-# Elastic Beanstalk Files
-.elasticbeanstalk/*
-!.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml

@@ -1,2 +1,0 @@
-class RandomString < ApplicationRecord
-end
