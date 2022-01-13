@@ -79,6 +79,7 @@ jobs:
       AWS_CONFIG_FILE: ${{ github.workspace }}/aws_config
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_VPC_ID: ${{ secrets.AWS_VPC_ID }}
       AWS_REGION: us-east-1
       WEB_ENV_HOST: active-elastic-job.us-east-1.elasticbeanstalk.com
       WEB_ENV_PORT: 443
