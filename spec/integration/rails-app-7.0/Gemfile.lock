@@ -1,7 +1,7 @@
 PATH
   remote: vendor/gems/active_elastic_job-current
   specs:
-    active_elastic_job (3.1.0)
+    active_elastic_job (3.2.0.pre)
       aws-sdk-sqs (~> 1)
       rails (>= 5.2.6, < 7.1)
 
@@ -76,8 +76,8 @@ GEM
     addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
     aws-eventstream (1.2.0)
-    aws-partitions (1.546.0)
-    aws-sdk-core (3.125.1)
+    aws-partitions (1.547.0)
+    aws-sdk-core (3.125.3)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.525.0)
       aws-sigv4 (~> 1.1)
@@ -122,7 +122,7 @@ GEM
     jbuilder (2.11.5)
       actionview (>= 5.0.0)
       activesupport (>= 5.0.0)
-    jmespath (1.4.0)
+    jmespath (1.5.0)
     loofah (2.13.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
