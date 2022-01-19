@@ -19,7 +19,8 @@ module RailsApp
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
 
-    # Rails.application.config.active_record.sqlite3.represent_boolean_as_integer = true
+    # Not worth the headache for testing
+    config.action_controller.default_protect_from_forgery = false
 
     config.active_job.queue_adapter = :active_elastic_job
 

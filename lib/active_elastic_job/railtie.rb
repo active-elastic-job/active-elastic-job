@@ -9,7 +9,7 @@ module ActiveElasticJob
 
     initializer "active_elastic_job.insert_middleware" do |app|
       if app.config.active_elastic_job.secret_key_base.blank?
-        app.config.active_elastic_job.secret_key_base = app.secrets[:secret_key_base]
+        app.config.active_elastic_job.secret_key_base = ENV["SECRET_KEY_BASE"] || app.credentials.secret_key_base || app.secrets.secret_key_base
       end
 
       if app.config.active_elastic_job.process_jobs == true
