@@ -20,23 +20,16 @@ jobs:
     strategy:
       matrix:
         gemfile: 
-          - rails50
-          - rails51
           - rails52
           - rails60
           - rails61
+          - rails70
         ruby: 
-          - "2.5"
-          - "2.6"
           - "2.7"
           - "3.0"
         except_deploy:
           - "true"
         exclude:
-          - gemfile: rails50
-            ruby: "3.0"
-          - gemfile: rails51
-            ruby: "3.0"
           - gemfile: rails52
             ruby: "3.0"
 
@@ -50,7 +43,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set up Ruby
-        uses: ruby/setup-ruby@v1.62.0
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
@@ -74,9 +67,9 @@ jobs:
     strategy:
       matrix:
         gemfile: 
-          - rails52
+          - rails70
         ruby: 
-          - "2.7"
+          - "3.0"
         except_deploy:
           - "false"
 
@@ -86,6 +79,7 @@ jobs:
       AWS_CONFIG_FILE: ${{ github.workspace }}/aws_config
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_VPC_ID: ${{ secrets.AWS_VPC_ID }}
       AWS_REGION: us-east-1
       WEB_ENV_HOST: active-elastic-job.us-east-1.elasticbeanstalk.com
       WEB_ENV_PORT: 443
