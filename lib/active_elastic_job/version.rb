@@ -3,7 +3,7 @@ module ActiveElasticJob
     MAJOR = 3
     MINOR = 2
     TINY  = 0
-    PRE   = 'pre'
+    PRE   = nil
 
     STRING = [MAJOR, MINOR, TINY, PRE].compact.join('.')
 
