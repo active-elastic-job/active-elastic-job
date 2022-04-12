@@ -152,7 +152,10 @@ However, one of the best parts about `active-elastic-job` is that you can use th
 
 #### Amazon Linux 2
 
+Create two files (for application / configuration deployment) with same content.
+
 `.platform/hooks/predeploy/nginx_read_timeout.sh`
+`.platform/confighooks/predeploy/nginx_read_timeout.sh`
 ```
 #!/usr/bin/env bash
 set -xe
