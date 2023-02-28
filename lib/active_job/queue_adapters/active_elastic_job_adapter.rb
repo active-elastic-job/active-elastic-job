@@ -157,7 +157,7 @@ module ActiveJob
 
         def fifo_required_params(serialized_job)
           parsed_job = JSON.parse(serialized_job)
-          deduplication_id = OpenSSL::Digest::MD5.hexdigest(parsed_job['job_class'] + parsed_job['arguments'].to_s)
+          deduplication_id = OpenSSL::Digest::SHA256.hexdigest(parsed_job['job_class'] + parsed_job['arguments'].to_s)
 
           {
             message_group_id: parsed_job['job_class'],
