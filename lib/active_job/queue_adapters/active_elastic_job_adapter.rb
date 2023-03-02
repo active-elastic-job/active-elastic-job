@@ -159,9 +159,14 @@ module ActiveJob
 
         def fifo_required_params(serialized_job)
           parsed_job = JSON.parse(serialized_job)
+          message_group_id = if ActiveElasticJob::MessageGroupScope.message_group_suffix.nil?
+            parsed_job['job_class']
+          else
+            "#{parsed_job['job_class']}-#{ActiveElasticJob::MessageGroupScope.message_group_suffix}"
+          end
 
           {
-            message_group_id: parsed_job['job_class'],
+            message_group_id: message_group_id,
             message_deduplication_id: parsed_job['job_id']
           }
         end
