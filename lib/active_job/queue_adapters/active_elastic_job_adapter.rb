@@ -137,7 +137,7 @@ module ActiveJob
             message_attributes: build_message_attributes(serialized_job)
           }
 
-          args.merge!(fifo_required_params(serialized_job)) if queue_name.split('.').last == 'fifo'
+          args.merge!(fifo_required_params(queue_name, serialized_job)) if queue_name.split('.').last == 'fifo'
 
           args
         end
@@ -155,9 +155,13 @@ module ActiveJob
           }
         end
 
-        def fifo_required_params(serialized_job)
+        def fifo_required_params(queue_name, serialized_job)
           parsed_job = JSON.parse(serialized_job)
-          deduplication_id = OpenSSL::Digest::SHA256.hexdigest(parsed_job['job_class'] + parsed_job['arguments'].to_s)
+          deduplication_id = if ActiveElasticJob.use_content_deduplication_id?(queue_name)
+                               OpenSSL::Digest::SHA256.hexdigest(parsed_job['job_class'] + parsed_job['arguments'].to_s)
+                             else
+                               parsed_job['job_id']
+                             end
 
           {
             message_group_id: parsed_job['job_class'],
