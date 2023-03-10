@@ -6,10 +6,10 @@ module ActiveElasticJob
       @@message_group_suffix.value
     end
 
-    def scope(message_group_suffix, &block)
-      @subscribers.value = message_group_suffix
+    def self.scope(message_group_suffix, &block)
+      @@message_group_suffix.value = message_group_suffix
       block.call
-      @subscribers.value = nil
+      @@message_group_suffix.value = nil
     end
   end
 end
