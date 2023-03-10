@@ -8,8 +8,10 @@ module ActiveElasticJob
 
     def self.scope(message_group_suffix, &block)
       @@message_group_suffix.value = message_group_suffix
-      block.call
+      output = block.call
       @@message_group_suffix.value = nil
+      
+      output
     end
   end
 end
