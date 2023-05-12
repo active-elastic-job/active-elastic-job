@@ -166,7 +166,7 @@ module ActiveJob
           end
 
           {
-            message_group_id: message_group_id,
+            message_group_id: message_group_id.size > 128 ? OpenSSL::Digest::MD5.hexdigest(message_group_id) : message_group_id,
             message_deduplication_id: parsed_job['job_id']
           }
         end
