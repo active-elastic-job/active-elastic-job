@@ -24,6 +24,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'aws-sdk-sqs', '~> 1'
   spec.add_dependency 'rails', '>= 5.2.6', '< 7.1'
+  spec.add_dependency 'concurrent-ruby', '~> 1.2'
 
   spec.add_development_dependency 'amazing_print', '~> 1.2'
   spec.add_development_dependency 'benchmark-ips', '~> 2.8'
