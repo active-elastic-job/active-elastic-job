@@ -1,3 +1,4 @@
+require 'openssl'
 module ActiveJob
   module QueueAdapters
     # == Active Elastic Job adapter for Active Job
@@ -21,7 +22,7 @@ module ActiveJob
 
       extend ActiveElasticJob::MD5MessageDigestCalculation
 
-      class Error < RuntimeError; end;
+      class Error < RuntimeError; end
 
       # Raised when job exceeds 256 KB in its serialized form. The limit is
       # imposed by Amazon SQS.
@@ -50,7 +51,6 @@ module ActiveJob
       #  end
       class NonExistentQueue < Error
         def initialize(queue_name, aws_region)
-
           super(<<-MSG)
             The job is bound to queue at #{queue_name}.
             Unfortunately a queue with this name does not exist in this
@@ -66,7 +66,6 @@ module ActiveJob
       # of the response from Amazon SQS.
       class MD5MismatchError < Error
         def initialize(message_id, calculated, returned)
-
           super(<<-MSG)
             MD5 '#{returned}' returned by Amazon SQS does not match the
             calculation on the original request which was '#{calculated}'.
@@ -78,7 +77,7 @@ module ActiveJob
 
       # Raised when the delay is longer than the MAX_DELAY_IN_MINUTES
       class DelayTooLong < RangeError
-        def initialize()
+        def initialize
           super(<<-MSG)
             Jobs cannot be scheduled more than #{MAX_DELAY_IN_MINUTES} minutes
             into the future.
@@ -88,20 +87,20 @@ module ActiveJob
         end
       end
 
-      def enqueue(job) #:nodoc:
+      def enqueue(job) # :nodoc:
         self.class.enqueue job
       end
 
-      def enqueue_at(job, timestamp) #:nodoc:
+      def enqueue_at(job, timestamp) # :nodoc:
         self.class.enqueue_at(job, timestamp)
       end
 
       class << self
-        def enqueue(job) #:nodoc:
+        def enqueue(job) # :nodoc:
           enqueue_at(job, Time.now)
         end
 
-        def enqueue_at(job, timestamp) #:nodoc:
+        def enqueue_at(job, timestamp) # :nodoc:
           serialized_job = JSON.dump(job.serialize)
           check_job_size!(serialized_job)
           message = build_message(job.queue_name, serialized_job, timestamp)
@@ -110,7 +109,8 @@ module ActiveJob
             verify_md5_digests!(
               resp,
               message[:message_body],
-              message[:message_attributes])
+              message[:message_attributes]
+            )
           end
           job.provider_job_id = resp.message_id
         rescue Aws::SQS::Errors::NonExistentQueue => e
@@ -137,58 +137,59 @@ module ActiveJob
             message_attributes: build_message_attributes(serialized_job)
           }
 
-          if queue_name.split('.').last == 'fifo'
-            args.merge!(fifo_required_params(serialized_job))
-          end
+          args.merge!(fifo_required_params(queue_name, serialized_job)) if queue_name.split('.').last == 'fifo'
 
-          return args
+          args
         end
 
         def build_message_attributes(serialized_job)
           {
-            "message-digest".freeze => {
+            'message-digest'.freeze => {
               string_value: message_digest(serialized_job),
-              data_type: "String".freeze
+              data_type: 'String'.freeze
             },
             origin: {
               string_value: ActiveElasticJob::ACRONYM,
-              data_type: "String".freeze
+              data_type: 'String'.freeze
             }
           }
         end
 
-        def fifo_required_params(serialized_job)
+        def fifo_required_params(queue_name, serialized_job)
           parsed_job = JSON.parse(serialized_job)
+          deduplication_id = if ActiveElasticJob.use_content_deduplication_id?(queue_name)
+                               OpenSSL::Digest::SHA256.hexdigest(parsed_job['job_class'] + parsed_job['arguments'].to_s)
+                             else
+                               parsed_job['job_id']
+                             end
 
           {
             message_group_id: parsed_job['job_class'],
-            message_deduplication_id: parsed_job['job_id']
+            message_deduplication_id: deduplication_id
           }
         end
 
         def queue_url(queue_name)
           cache_key = queue_name.to_s
-          @queue_urls ||= { }
+          @queue_urls ||= {}
           return @queue_urls[cache_key] if @queue_urls[cache_key]
+
           resp = aws_sqs_client.get_queue_url(queue_name: queue_name.to_s)
           @queue_urls[cache_key] = resp.queue_url
-        rescue Aws::SQS::Errors::NonExistentQueue => e
+        rescue Aws::SQS::Errors::NonExistentQueue
           raise NonExistentQueue.new(queue_name, aws_region)
         end
 
         def calculate_delay(timestamp)
           delay = (timestamp - Time.current.to_f).to_i + 1
-          if delay > MAX_DELAY_IN_MINUTES.minutes
-            raise DelayTooLong.new
-          end
+          raise DelayTooLong if delay > MAX_DELAY_IN_MINUTES.minutes
+
           delay = 0 if delay < 0
           delay
         end
 
         def check_job_size!(serialized_job)
-          if serialized_job.bytesize > MAX_MESSAGE_SIZE
-            raise SerializedJobTooBig, serialized_job
-          end
+          raise SerializedJobTooBig, serialized_job if serialized_job.bytesize > MAX_MESSAGE_SIZE
         end
 
         def aws_sqs_client
@@ -202,7 +203,7 @@ module ActiveJob
         end
 
         def aws_sqs_client_credentials
-          @aws_credentials ||= if config.aws_credentials.kind_of?(Proc)
+          @aws_credentials ||= if config.aws_credentials.is_a?(Proc)
                                  config.aws_credentials.call
                                else
                                  config.aws_credentials
@@ -225,17 +226,13 @@ module ActiveJob
         def verify_md5_digests!(response, message_body, message_attributes)
           calculated = md5_of_message_body(message_body)
           returned = response.md5_of_message_body
-          if calculated != returned
-            raise MD5MismatchError.new response.message_id, calculated, returned
-          end
+          raise MD5MismatchError.new response.message_id, calculated, returned if calculated != returned
 
-          if message_attributes
-            calculated = md5_of_message_attributes(message_attributes)
-            returned = response.md5_of_message_attributes
-            if calculated != returned
-              raise MD5MismatchError.new response.message_id, calculated, returned
-            end
-          end
+          return unless message_attributes
+
+          calculated = md5_of_message_attributes(message_attributes)
+          returned = response.md5_of_message_attributes
+          raise MD5MismatchError.new response.message_id, calculated, returned if calculated != returned
         end
 
         def secret_key_base
