@@ -1,3 +1,7 @@
+## [v.3.3.0] - 2024-01-15
+ - Add Rails 7.x support (@zaru)
+ - Add alternative docker check, adds support for AL2023 (@estromlund)
+
 ## [v.3.1.0] - 2021-10-21
  - Add support for generes SQSD daemons
  - Update various dependencies for security
