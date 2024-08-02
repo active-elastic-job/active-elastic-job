@@ -19,13 +19,6 @@ module ActiveElasticJob
     # environment, which verifies the digest, have to use the *same*
     # +secrets.secret_key_base+ setting.
     class SqsMessageConsumer
-      OK_RESPONSE = [ '200'.freeze, { 'Content-Type'.freeze => 'text/plain'.freeze }, [ 'OK'.freeze ] ]
-      FORBIDDEN_RESPONSE = [
-        '403'.freeze,
-        { 'Content-Type'.freeze => 'text/plain'.freeze },
-        [ 'Request forbidden!'.freeze ]
-      ]
-
       # 172.17.0.x is the default for Docker
       # 172.18.0.x is the default for the bridge network of Docker Compose
       DOCKER_HOST_IP = /172.1(7|8).0.\d+/.freeze
@@ -38,19 +31,19 @@ module ActiveElasticJob
         request = ActionDispatch::Request.new env
         if enabled? && (aws_sqsd?(request) || sqsd?(request))
           unless request.local? || sent_from_docker_host?(request)
-            return FORBIDDEN_RESPONSE
+            return forbidden_response
           end
 
           if periodic_task?(request)
             execute_periodic_task(request)
-            return OK_RESPONSE
+            return ok_response
           elsif originates_from_gem?(request)
             begin
               execute_job(request)
             rescue ActiveElasticJob::MessageVerifier::InvalidDigest => e
-              return FORBIDDEN_RESPONSE
+              return forbidden_response
             end
-            return OK_RESPONSE
+            return ok_response
           end
         end
         @app.call(env)
@@ -60,6 +53,14 @@ module ActiveElasticJob
 
       def enabled?
         Rails.application.config.active_elastic_job.process_jobs == true
+      end
+
+      def ok_response
+        [ '200', { 'Content-Type' => 'text/plain' }, [ 'OK' ] ]
+      end
+
+      def forbidden_response
+        [ '403', { 'Content-Type' => 'text/plain' }, [ 'Request forbidden!' ] ]
       end
 
       def verify!(request)
