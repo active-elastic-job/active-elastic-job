@@ -142,7 +142,7 @@ describe ActiveElasticJob::Rack::SqsMessageConsumer do
       let(:origin_attribute) { "AEJ" }
 
       before do
-        expect(sqs_message_consumer).to receive(:app_runs_in_docker_container?) { true }
+        expect(sqs_message_consumer).to receive(:in_docker_container?) { true }
       end
 
       context 'in a single container environment' do

@@ -32,6 +32,11 @@ module ActiveElasticJob
 
       def initialize(app) #:nodoc:
         @app = app
+        @config = Rails.application.config.active_elastic_job
+        @in_docker_container = File.exist?('/.dockerenv') || `[ -f /proc/1/cgroup ] && cat /proc/1/cgroup` =~ /(ecs|docker)/
+        @periodic_tasks_route = config.periodic_tasks_route
+        @secret_key_base = config.secret_key_base
+        @verifier = ActiveElasticJob::MessageVerifier.new(secret_key_base)
       end
 
       def call(env) #:nodoc:
@@ -58,24 +63,22 @@ module ActiveElasticJob
 
       private
 
+      attr_reader :config
+      attr_reader :in_docker_container
+      alias_method :in_docker_container?, :in_docker_container
+      attr_reader :periodic_tasks_route
+      attr_reader :secret_key_base
+      attr_reader :verifier
+
       def enabled?
-        Rails.application.config.active_elastic_job.process_jobs == true
+        Rails.application.config.active_elastic_job.process_jobs
       end
 
       def verify!(request)
-        @verifier ||= ActiveElasticJob::MessageVerifier.new(secret_key_base)
         digest = request.headers['HTTP_X_AWS_SQSD_ATTR_MESSAGE_DIGEST'.freeze]
         message = request.body_stream.read
         request.body_stream.rewind
-        @verifier.verify!(message, digest)
-      end
-
-      def secret_key_base
-        config.secret_key_base
-      end
-
-      def config
-        Rails.application.config.active_elastic_job
+        verifier.verify!(message, digest)
       end
 
       def aws_sqsd?(request)
@@ -100,10 +103,6 @@ module ActiveElasticJob
         return (current_user_agent.present? &&
           current_user_agent.size >= 'sqsd'.freeze.size &&
           current_user_agent[0..('sqsd'.freeze.size - 1)] == 'sqsd'.freeze)
-      end
-
-      def periodic_tasks_route
-        @periodic_tasks_route ||= config.periodic_tasks_route
       end
 
       def periodic_task?(request)
@@ -133,15 +132,11 @@ module ActiveElasticJob
       end
 
       def sent_from_docker_host?(request)
-        app_runs_in_docker_container? && ip_originates_from_docker?(request)
+        in_docker_container? && ip_originates_from_docker?(request)
       end
 
       def ip_originates_from_docker?(request)
         (request.remote_ip =~ DOCKER_HOST_IP).present? or (request.remote_addr =~ DOCKER_HOST_IP).present?
-      end
-
-      def app_runs_in_docker_container?
-        File.exist?('/.dockerenv') || (`[ -f /proc/1/cgroup ] && cat /proc/1/cgroup` =~ /(ecs|docker)/).present?
       end
     end
   end
