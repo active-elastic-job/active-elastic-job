@@ -168,9 +168,12 @@ module ActiveJob
 
         def queue_url(queue_name)
           cache_key = queue_name.to_s
-          @queue_urls ||= { }
+          @queue_urls ||= {}
           return @queue_urls[cache_key] if @queue_urls[cache_key]
-          resp = aws_sqs_client.get_queue_url(queue_name: queue_name.to_s)
+
+          options = { queue_name: cache_key }
+          options[:queue_owner_aws_account_id] = config.aws_account_id if config.aws_account_id.present?
+          resp = aws_sqs_client.get_queue_url(options)
           @queue_urls[cache_key] = resp.queue_url
         rescue Aws::SQS::Errors::NonExistentQueue => e
           raise NonExistentQueue.new(queue_name, aws_region)
