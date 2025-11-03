@@ -113,6 +113,7 @@ module ActiveElasticJob
       def execute_job(request)
         verify!(request)
         job = JSON.load(request.body)
+        job['provider_job_id'] = request.headers['HTTP_X_AWS_SQSD_MSGID'].presence
         ActiveJob::Base.execute(job)
       end
 
